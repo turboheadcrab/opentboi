@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- OpenTBOI's own icon: a single tear, no background tile. Original artwork, GPL-3.0-or-later like
+     the rest of the project; it is deliberately not taken from the game. The dark outline keeps the
+     light fill readable on a light panel, the light fill keeps it readable on a dark one. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="tear" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f8ff"/>
+      <stop offset="1" stop-color="#8fb4e8"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(-32 -28) scale(1.25)">
+    <path d="M128 44 C128 44 70 112 70 158 A58 58 0 0 0 186 158 C186 112 128 44 128 44 Z"
+          fill="url(#tear)" stroke="#1a1212" stroke-width="7" stroke-linejoin="round"/>
+    <ellipse cx="106" cy="150" rx="9" ry="20" fill="#ffffff" opacity="0.7" transform="rotate(18 106 150)"/>
+  </g>
+</svg>

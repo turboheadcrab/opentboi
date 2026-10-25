@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=OpenTBOI
+GenericName=Open-source engine for The Binding of Isaac
+Comment=Play the original The Binding of Isaac (Flash) from your own Steam copy
+Exec=@BINARY@
+Icon=opentboi
+Terminal=false
+Categories=Game;ArcadeGame;
+Keywords=isaac;tboi;roguelike;
+# Must equal the window's app_id / WM_CLASS (SDL3_APPLICATION_ID in src/frontend/mod.rs).
+StartupWMClass=opentboi

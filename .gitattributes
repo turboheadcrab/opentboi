@@ -1,0 +1,11 @@
+# Text files are stored with LF endings whatever the platform that commits them.
+* text=auto eol=lf
+*.sh text eol=lf
+
+# Drawn by build.rs from the sources: out of GitHub's language statistics, and not worth reading in a diff.
+docs/original-coverage-map.svg linguist-generated=true -diff
+Cargo.lock linguist-generated=true
+
+# Notes and design documents, not code.
+docs/** linguist-documentation
+*.md linguist-documentation

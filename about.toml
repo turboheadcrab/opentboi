@@ -1,0 +1,34 @@
+# Settings for `cargo about` (see build.rs, which regenerates THIRD-PARTY-LICENSES on builds).
+# Every licence a dependency may be used under must be listed here; a new one fails generation
+# until someone has checked that it is compatible with GPL-3.0-or-later and added it.
+accepted = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "CC0-1.0",
+    "ISC",
+    "MIT",
+    "MIT-0",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unlicense",
+    "Zlib",
+]
+
+# Only the platforms we ship for; dependencies used on no other platform do not belong in the notice.
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+]
+
+# Crates marked `publish = false`, i.e. this project itself, are not third-party.
+private = { ignore = true }
+
+# Test-only and build-only crates are not shipped in the binary.
+ignore-dev-dependencies = true
+ignore-build-dependencies = true

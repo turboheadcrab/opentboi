@@ -1,0 +1,9 @@
+# Every shuck rule is on, except the house-style policies below. They are not defects: they want a
+# header comment in every script, a comment on every function, a `main` call at the end, at most 100
+# lines per script, and a fixed shebang form. Each one that fired on this repository's scripts is
+# listed; drop a line to see its findings.
+[lint]
+select = ["ALL"]
+ignore = [
+    "S078", "S079", "S080", "S081", "S083", "S084", "S085",
+]

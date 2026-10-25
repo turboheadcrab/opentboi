@@ -1,0 +1,65 @@
+# Source-only builds: everything here uses nothing but the repository, a Rust toolchain from rustup
+# and the distribution's own packages. If a contributor can't build it this way, this job fails.
+# Deliberately NOT installed here: cargo-about (the build must work without it).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  source:
+    name: Source build, ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Fedora 44, system SDL3
+            image: fedora:44
+            install: dnf install -y gcc gcc-c++ git curl SDL3-devel alsa-lib-devel systemd-devel
+            features: ""
+          - name: Ubuntu 24.04, SDL3 built from source
+            image: ubuntu:24.04
+            install: >-
+              apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
+              build-essential cmake pkg-config git curl ca-certificates libasound2-dev libudev-dev
+              libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxfixes-dev libxss-dev libxtst-dev
+              libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev libdrm-dev libgbm-dev
+              libgl-dev libegl-dev libvulkan-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev
+            features: --features bundled-sdl3
+    steps:
+      - name: System packages
+        run: ${{ matrix.install }}
+      - uses: actions/checkout@v4
+      - name: Rust (rustup, stable)
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal -c rustfmt,clippy
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - run: cargo fmt --check
+      # The feature flags are meant to split into separate arguments (or to be empty).
+      - run: |
+          # shellcheck disable=SC2086
+          cargo clippy --locked --all-targets ${{ matrix.features }} -- -D warnings
+      - run: |
+          # shellcheck disable=SC2086
+          cargo test --locked ${{ matrix.features }}
+
+  licences:
+    name: Licence list stays generatable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-about
+      # Fails when a new dependency brings a licence that about.toml has not accepted.
+      - run: |
+          cargo fetch --locked
+          cargo about generate --config about.toml --all-features --offline --output-file THIRD-PARTY-LICENSES about.hbs
