@@ -6,6 +6,10 @@ use crate::game_assets::{EXTRACTED_SWF_FILE_NAME, cache_directory};
 const PICKUP_VALUES: std::ops::Range<f32> = -1.0..0.0;
 
 #[test]
+#[allow(
+    clippy::float_cmp,
+    reason = "unchanged values pass through and a rock becomes the block's exact value"
+)]
 fn alpha_rules_match_spawnb() {
     assert_eq!(value_after_alpha(1.0, 0.5), BLOCK_VALUE);
     assert!((value_after_alpha(1.5, 0.2) - 1.3).abs() < 1e-6);
@@ -23,7 +27,7 @@ fn alpha_rules_match_spawnb() {
 fn alpha_rules_agree_with_the_originals_order_for_every_opacity() {
     const OPACITY_STEPS: u16 = 256;
     const PERCENT: f64 = 100.0;
-    let outside_unchanged = |value: f64| value < -0.5 || value > 0.0;
+    let outside_unchanged = |value: f64| !(-0.5..=0.0).contains(&value);
     let in_original_order = |value: f64, percent: f64| {
         if percent < 30.0 {
             if outside_unchanged(value) { value - 0.2 } else { value }

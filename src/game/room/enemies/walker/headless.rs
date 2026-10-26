@@ -11,6 +11,7 @@ use super::{Walker, WalkerClip, WalkerKind, WalkerShot, WalkerState, WalkerTurn}
 use crate::game::original_units::{Frames, PixelsPerFrame};
 use crate::game::parameters::HeadlessParameters;
 use crate::game::random::Random;
+use crate::game::room::blood::Splatter;
 use crate::game::room::enemies::EnemyParameters;
 use crate::game::room::enemies::surroundings::Grid;
 
@@ -31,9 +32,11 @@ impl Walker {
         self.flash_left = Frames::ZERO;
     }
 
-    /// One frame of the headless body's case of `smarts()`.
+    /// One frame of the headless body's case of `smarts()`; one frame in ten it bleeds on the floor
+    /// (`splater()`).
     pub(super) fn wander(&mut self, grid: &Grid, parameters: &EnemyParameters, random: &mut Random) -> WalkerTurn {
         let headless = parameters.headless;
+        let splats = &parameters.splats;
         let shot = if self.spurts {
             self.spurt(parameters, random)
         } else {
@@ -41,10 +44,14 @@ impl Walker {
         };
         self.velocity *= headless.velocity_retention;
         let _ = self.wander_step(grid, &headless, random);
+        let spilled = random
+            .happens(splats.headless_odds)
+            .then(|| Splatter::any_look_or_last(self.position, splats.headless, splats, random));
         self.choose_wander_clip(&headless);
         self.face(self.velocity.x);
         WalkerTurn {
             shot,
+            spilled,
             ..WalkerTurn::default()
         }
     }

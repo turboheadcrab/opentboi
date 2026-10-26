@@ -32,6 +32,10 @@ fn a_cells_place_is_a_place_in_the_cell() {
 }
 
 #[test]
+#[allow(
+    clippy::float_cmp,
+    reason = "the value seen is the grid's own or the doorway's exact 2"
+)]
 fn enemies_see_doorways_as_solid_and_the_rest_see_the_grid() {
     let doorway = GridCell { column: 8, row: 3 };
     let doorways = [doorway];

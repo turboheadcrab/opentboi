@@ -12,6 +12,9 @@ pub struct Rgba {
 }
 
 impl Rgba {
+    /// As a tint, it leaves what it tints as it is.
+    pub const WHITE: Self = Self::opaque(1.0, 1.0, 1.0);
+
     pub const fn opaque(red: f32, green: f32, blue: f32) -> Self {
         Self {
             red,
@@ -22,6 +25,14 @@ impl Rgba {
     }
 }
 
+/// Items drawn together into one picture first, which is then shown at `opacity` (a Flash bitmap
+/// with an `_alpha`, such as the floor's splat bitmap): where they overlap, they cover each other
+/// instead of adding up.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DrawLayer {
+    pub opacity: f32,
+}
+
 /// One axis-aligned rectangle to draw this frame, in world units (origin at the room center, y up).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DrawItem {
@@ -30,6 +41,11 @@ pub struct DrawItem {
     /// Fill color; for textured items it is only used when the texture is unavailable.
     pub color: Rgba,
     pub texture: Option<TextureId>,
+    /// Multiplies the texture's colors and opacity (a Flash color transform's multipliers); white
+    /// draws it as it is.
+    pub tint: Rgba,
+    /// The layer it is drawn into; consecutive items (by depth) of the same layer go together.
+    pub layer: Option<DrawLayer>,
     /// Counter-clockwise rotation around `center`.
     pub rotation_radians: f32,
     /// Mirror the texture left-to-right around `center`.
@@ -47,6 +63,8 @@ impl DrawItem {
             size,
             color,
             texture: None,
+            tint: Rgba::WHITE,
+            layer: None,
             rotation_radians: 0.0,
             flip_horizontally: false,
             depth,
@@ -61,6 +79,8 @@ impl DrawItem {
             size: texture.world_size() * scale,
             color: fallback_color,
             texture: Some(texture),
+            tint: Rgba::WHITE,
+            layer: None,
             rotation_radians: 0.0,
             flip_horizontally: false,
             depth,

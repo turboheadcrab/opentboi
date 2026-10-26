@@ -3,6 +3,7 @@
 use glam::Vec2;
 
 use crate::game::original_units::{Frames, PixelsPerFrame};
+use crate::game::room::blood::Splatter;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum WalkerState {
@@ -80,6 +81,8 @@ pub struct WalkerTurn {
     pub whimpered: bool,
     /// A Hopper landing (`Meat_impacts_`).
     pub landed: bool,
+    /// Blood it leaves on the floor (`splater()`).
+    pub spilled: Option<Splatter>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

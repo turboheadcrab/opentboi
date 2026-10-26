@@ -70,14 +70,19 @@ fn sync_sprites(
     textures.prefetch(&upcoming, &mut images);
 }
 
-/// Textures are drawn untinted; items whose texture was never loaded become a rectangle of their
-/// fallback color.
+/// Textures are drawn with their item's tint; items whose texture was never loaded become a
+/// rectangle of their fallback color. A layer's opacity is applied to each of its items, so here
+/// (unlike the SDL3 frontend) overlapping items of a layer add up.
 fn sprite_for(draw_item: &DrawItem, textures: &mut TextureLibrary, images: &mut Assets<Image>) -> Sprite {
     let loaded_image = draw_item
         .texture
         .and_then(|texture_id| textures.handle(texture_id, images));
     let color = if loaded_image.is_some() {
-        Color::WHITE
+        let layer_opacity = draw_item.layer.map_or(1.0, |layer| layer.opacity);
+        to_bevy_color(Rgba {
+            alpha: draw_item.tint.alpha * layer_opacity,
+            ..draw_item.tint
+        })
     } else {
         to_bevy_color(draw_item.color)
     };

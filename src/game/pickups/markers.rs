@@ -13,7 +13,7 @@ const MARKER_FRACTION_SCALE: f32 = 100.0;
 const MARKER_FRAME_ROUNDING: f32 = 0.499;
 
 /// The pickup markers in a layout: the `b5` frame each creates, and where.
-pub fn markers(layout: &RoomLayout, parameters: PickupParameters) -> impl Iterator<Item = (u8, Vec2)> + '_ {
+pub fn markers(layout: &RoomLayout, parameters: PickupParameters) -> impl Iterator<Item = (u8, Vec2)> {
     layout
         .cells
         .iter()

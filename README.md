@@ -74,6 +74,18 @@ Without the window-system packages SDL's configure step stops with an error inst
 binary that cannot open a window.
 The Windows and macOS builds have not been tried yet.
 
+On an immutable system (Bazzite, SteamOS, Fedora Silverblue) the packages go into a container
+instead of the host: with [distrobox](https://distrobox.it) and [mise](https://mise.jdx.dev),
+
+```sh
+mise trust            # once, for this checkout's mise.toml
+mise run dev-box      # creates the Fedora container from distrobox.ini
+mise run run          # builds and starts the game; `mise tasks` lists the others
+```
+
+The tasks run in that container when it exists and on the host otherwise, so they work the same
+on a Fedora workstation with the packages above.
+
 A second frontend based on Bevy is available as a feature: `cargo run --release --no-default-features
 --features bevy-frontend`, or build both with `--all-features` and pick one with `--frontend`.
 

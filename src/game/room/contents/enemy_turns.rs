@@ -33,6 +33,7 @@ impl RoomContents {
                 self.enemies.peck_landed(fly_index, random);
             }
         }
+        self.spill_enemy_blood(random);
         self.enemies.remove_finished();
     }
 

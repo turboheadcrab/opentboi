@@ -31,17 +31,29 @@ impl Game {
     pub(crate) fn apply_blasts(&mut self) {
         let (blasts, blast) = self.floor.current_room_mut().take_blasts();
         for center in blasts {
-            self.floor.current_room_mut().pickups.push_from_blast(center, blast);
+            // `gosplash()` breaks machines in reach whether it sees them or not; what it pushes and
+            // hurts, it must see (`linecheckxx()`).
+            let sight = self.floor.blast_sight();
+            let sees = |target: Vec2| sight.blast_reaches(center, target);
+            self.floor
+                .current_room_mut()
+                .pickups
+                .push_from_blast(center, blast, sees);
             let room = self.floor.current_room_mut();
-            room.enemies
-                .blast(center, blast.radius, &mut self.random, &mut self.pending_sound_events);
+            room.enemies.blast(
+                center,
+                blast.radius,
+                sees,
+                &mut self.random,
+                &mut self.pending_sound_events,
+            );
             let broken = self.floor.current_room_mut().machines.blow_up_near(center);
             self.carry_out(broken);
-            if explosion::push_player(&mut self.player, center, blast) {
+            if sees(self.player.position()) && explosion::push_player(&mut self.player, center, blast) {
                 self.hurt_player(self.parameters.inventory.blast_damage, Killer::Bomb);
             }
             self.floor.blow_doors(center, blast.radius);
-            if let Some(jingle) = self.floor.blast_walls(center, blast.radius) {
+            if let Some(jingle) = self.floor.blast_walls(center, blast.radius, &sight) {
                 self.pending_sound_events.push(jingle);
             }
         }
@@ -86,6 +98,8 @@ impl Game {
         self.end_room_boosts();
         self.pending_sound_events.extend(entry.jingle);
         self.player.place_at(entry.position);
+        // The floor's splat bitmap is made anew for each room: old blood is gone.
+        self.floor.current_room_mut().blood.clear();
         let pickups = &mut self.floor.current_room_mut().pickups;
         pickups.remember_positions();
         pickups.red_chests.first_visit = entry.first_visit;

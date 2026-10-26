@@ -66,14 +66,14 @@ impl<'creator> TextureLibrary<'creator> {
     }
 
     /// The texture, rendering and uploading it now if this is its first use.
-    pub fn texture(&mut self, texture_id: TextureId) -> Option<&Texture<'creator>> {
+    pub fn texture(&mut self, texture_id: TextureId) -> Option<&mut Texture<'creator>> {
         if !self.textures_by_id.contains_key(&texture_id) {
             let started = Instant::now();
             let texture = self.render(texture_id);
             self.record_render_time(texture_id, started.elapsed());
             self.textures_by_id.insert(texture_id, texture);
         }
-        self.textures_by_id.get(&texture_id)?.as_ref()
+        self.textures_by_id.get_mut(&texture_id)?.as_mut()
     }
 
     /// Uploads what the background renderers finished, and asks them for `upcoming`.

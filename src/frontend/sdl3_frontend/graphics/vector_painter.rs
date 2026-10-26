@@ -4,7 +4,7 @@
 //! filtering, averaging each 2×2 block: Flash's medium-quality edges. Bitmap fills sample the
 //! SWF's bitmaps.
 
-mod bitmap_textures;
+pub(super) mod bitmap_textures;
 mod triangles;
 
 use std::collections::HashMap;
@@ -15,7 +15,7 @@ use sdl3::sys::blendmode::SDL_BLENDMODE_BLEND_PREMULTIPLIED;
 use sdl3::video::WindowContext;
 
 use crate::frontend::sdl3_frontend::graphics::vector_families::draws_as_vectors;
-use crate::game::{DrawItem, TextureId};
+use crate::game::{DrawItem, Rgba, TextureId};
 use crate::game_assets::{TextureRenderer, VectorPicture};
 use bitmap_textures::{BitmapTextures, set_texture_blend_mode};
 use triangles::{Placement, Triangles};
@@ -87,6 +87,7 @@ impl<'creator> VectorPainter<'creator> {
                 rectangle.h / world_size.y * SUPERSAMPLING,
             ),
             rotation: (cosine, sine),
+            tint: premultiplied(draw_item.tint),
         };
         let bounds = rotated_bounds(rectangle, cosine, sine);
         self.covered = Some(self.covered.map_or(bounds, |covered| union(covered, bounds)));
@@ -172,6 +173,16 @@ impl<'creator> VectorPainter<'creator> {
 fn set_premultiplied_blending(canvas: &mut WindowCanvas) {
     // SAFETY: the renderer is alive and the mode is a valid SDL blend mode.
     unsafe { sdl3::sys::render::SDL_SetRenderDrawBlendMode(canvas.raw(), SDL_BLENDMODE_BLEND_PREMULTIPLIED) };
+}
+
+/// A tint as factors for premultiplied colors: the color channels carry its opacity too.
+fn premultiplied(tint: Rgba) -> [f32; 4] {
+    [
+        tint.red * tint.alpha,
+        tint.green * tint.alpha,
+        tint.blue * tint.alpha,
+        tint.alpha,
+    ]
 }
 
 /// The axis-aligned box around `rectangle` turned by the given angle around its center, grown to

@@ -140,11 +140,11 @@ fn isaac_bumps_into_troll_bombs() {
 fn blasts_push_settled_pickups_away() {
     let mut pickups = pickups_with(PickupKind::Coin(CoinKind::Penny));
     let explosion = GameParameters::ORIGINAL.explosion;
-    pickups.push_from_blast(Vec2::new(-30.0, 0.0), explosion);
+    pickups.push_from_blast(Vec2::new(-30.0, 0.0), explosion, |_| true);
     advance_frames(&mut pickups, 1);
     assert_eq!(pickups.lying[0].center, Vec2::ZERO, "not while it is landing");
     advance_frames(&mut pickups, 30);
-    pickups.push_from_blast(Vec2::new(-30.0, 0.0), explosion);
+    pickups.push_from_blast(Vec2::new(-30.0, 0.0), explosion, |_| true);
     advance_frames(&mut pickups, 10);
     assert!(pickups.lying[0].center.x > 20.0);
 }

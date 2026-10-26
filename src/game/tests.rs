@@ -197,6 +197,7 @@ fn a_fly_keeps_the_doors_shut_until_it_dies() {
     game.floor.current_room_mut().enemies.blast(
         Vec2::ZERO,
         crate::game::original_units::Pixels(1000.0),
+        |_| true,
         &mut crate::game::random::Random::with_seed(1),
         &mut Vec::new(),
     );

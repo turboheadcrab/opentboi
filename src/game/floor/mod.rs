@@ -4,6 +4,7 @@
 pub mod cell;
 pub mod plan;
 
+mod blast_sight;
 mod devil_room;
 mod door_motion;
 mod map_knowledge;

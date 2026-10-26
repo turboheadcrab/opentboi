@@ -71,6 +71,8 @@ const MULLIGAN_BURSTING_SIZE: Vec2 = Vec2::new(160.0, 208.0);
 /// A familiar's clip is drawn around its floor point, the fly itself well above it.
 const BLUE_FLY_SIZE: Vec2 = Vec2::new(64.0, 128.0);
 const BLOOD_CREEP_SIZE: Vec2 = Vec2::new(120.0, 80.0);
+/// The widest of the red looks needs 47×25.
+const BLOOD_SPLAT_SIZE: Vec2 = Vec2::new(48.0, 28.0);
 /// A plain door slamming shuts with dust and a shake past its frame.
 const DOOR_MOTION_SIZE: Vec2 = Vec2::new(152.0, 128.0);
 /// The boss door swinging shut flaps out sideways for a few frames.
@@ -208,6 +210,7 @@ impl TextureId {
             Self::Fly { .. } | Self::BlueFly(_) | Self::BloodCreep(_) | Self::EnemyShot(_) | Self::BloodSplash(_) => {
                 self.enemy_size()
             }
+            Self::BloodSplat(_) => BLOOD_SPLAT_SIZE,
             Self::Decoration { decoration, .. } => decoration_size(decoration),
             Self::IsaacAnimation { animation, .. } => isaac_animation_size(animation),
         }

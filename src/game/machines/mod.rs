@@ -107,7 +107,7 @@ impl Machines {
     }
 
     /// Machines that can still give something (not `empty`).
-    pub fn with_something_to_give(&self) -> impl Iterator<Item = MachineKind> + '_ {
+    pub fn with_something_to_give(&self) -> impl Iterator<Item = MachineKind> {
         self.standing
             .iter()
             .filter(|machine| !machine.empty)
@@ -115,7 +115,7 @@ impl Machines {
     }
 
     /// Where the machines stand.
-    pub fn positions(&self) -> impl Iterator<Item = Vec2> + '_ {
+    pub fn positions(&self) -> impl Iterator<Item = Vec2> {
         self.standing.iter().map(|machine| machine.center)
     }
 

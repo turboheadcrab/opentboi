@@ -396,3 +396,11 @@ native Steam in `~/.local/share/Steam`.
 
 ## Fade-in on a new run (user to check)
 - [ ] Restarting (holding the restart key, or answering "Replay?") brings the new run up out of black over about half a second.
+
+## Line checks and blood (2026-10-26)
+- [x] `linecheck()`: rocks, walls and doorways end a walker's sight, spikes and webs cost nothing, marked cells cost 0.1 of 2.5; Gapers mark their cell and the marks fade every third frame, as does what a broken poop leaves — unit tests
+- [x] `linecheckxx()`: blocks, closed key blocks and doors stop a blast, rocks and pits do not, a hidden wall can be reached, the last step can land past the end; a block between a bomb and a poop shields it — unit tests
+- [x] Blasts push and hurt Isaac, enemies and pickups and open hidden walls only where they see them; machines break regardless — wired in `apply_blasts`, floor tests pass with the real grid
+- [x] `splater()`: splats land `crand(5)` off and 5 up, upside down one time in two, tinted every seventh frame, drawn solid into one layer with the craters, shown at 70 % (SDL3: overlaps do not darken, probe screenshot 2026-10-26; Bevy applies the 70 % per item); a look of 0 keeps the last; dying flies bleed on three frames, Pooters smaller, the Clotty every fifth frame, a beheaded Gaper once — unit tests
+- [x] The blood clip's ten red looks render inside a 48×28 canvas without unsupported features (`texture_extents`, `every_texture_renders_without_unsupported_features`); a temporary probe showed tinted, see-through splats under the actors in the SDL3 frontend — automated, screenshot
+- [ ] Blood in play (dying enemies, the Clotty's trail, shots, tears now and then), gone when a room is entered again; bombs no longer reaching through metal blocks — user

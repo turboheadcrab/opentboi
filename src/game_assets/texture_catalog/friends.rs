@@ -1,5 +1,5 @@
-//! Isaac's familiars and the creep on the floor: the friends' clip `b3` (1788), whose frame 128 holds the blue fly's wings (`d`,
-//! 1699, four frames).
+//! Isaac's familiars and the blood on the floor: the friends' clip `b3` (1788), whose frame 128 holds the blue fly's wings (`d`,
+//! 1699, four frames), blood creep and blood splats.
 
 use swf::CharacterId;
 
@@ -24,4 +24,12 @@ const BLOOD_CREEP_CLIP: CharacterId = 1494;
 
 pub(super) fn blood_creep_source(look: u8) -> TextureSource {
     framed(BLOOD_CREEP_CLIP, u16::from(look) + 1)
+}
+
+/// The blood splat clip `blood`, placed in the game's sprite to be drawn into the floor's splat
+/// bitmap (`splater()`): one look per frame.
+const BLOOD_SPLAT_CLIP: CharacterId = 6243;
+
+pub(super) fn blood_splat_source(look: u8) -> TextureSource {
+    framed(BLOOD_SPLAT_CLIP, u16::from(look) + 1)
 }

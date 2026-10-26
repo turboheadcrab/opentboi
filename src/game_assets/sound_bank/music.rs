@@ -56,7 +56,7 @@ pub(super) fn music_from_movie(
 
 impl SoundBank {
     /// How long, in seconds, each jingle that takes the music down plays.
-    pub fn jingle_lengths(&self) -> impl Iterator<Item = (SoundEvent, f32)> + '_ {
+    pub fn jingle_lengths(&self) -> impl Iterator<Item = (SoundEvent, f32)> {
         self.variants_by_event.iter().filter_map(|(&event, clips)| {
             let clip = clips.first().filter(|_| event.ducks_music())?;
             Some((event, clip.sample_count as f32 / clip.sample_rate.max(1) as f32))

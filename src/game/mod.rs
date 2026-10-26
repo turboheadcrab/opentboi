@@ -47,7 +47,7 @@ mod wall_contact;
 
 use glam::Vec2;
 
-pub use draw::{DrawItem, Rgba};
+pub use draw::{DrawItem, DrawLayer, Rgba};
 pub use hud::message::{PickupMessage, texture_center_in_clip};
 pub use hud::name_banner::{BannerName, FORTUNE_COUNT};
 pub use hud::pill_text::{HUD_NAME_COUNT, MESSAGES_BEFORE_PILLS, PillText};
@@ -238,7 +238,7 @@ impl Game {
     }
 
     /// Sounds triggered since the last call, oldest first.
-    pub fn drain_sound_events(&mut self) -> impl Iterator<Item = SoundEvent> + '_ {
+    pub fn drain_sound_events(&mut self) -> impl Iterator<Item = SoundEvent> {
         self.music.hear(&self.pending_sound_events);
         self.pending_sound_events.drain(..)
     }

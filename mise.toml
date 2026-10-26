@@ -1,0 +1,54 @@
+# The development tasks, the same commands on every machine (`mise run TASK`, `mise tasks` lists
+# them). They run in the development container from `distrobox.ini` when it exists, and directly
+# otherwise (a workstation with README.md's packages): see `scripts/dev-run.sh`. Rust is rustup's
+# latest stable, not pinned. A new checkout asks once: `mise trust`.
+
+[tools]
+# The shell script linter (`.shuck.toml`), from its GitHub release binaries.
+"github:ewhauser/shuck" = "latest"
+
+[tasks.dev-box]
+description = "Create or recreate the development container (distrobox.ini)"
+run = "distrobox assemble create --file distrobox.ini"
+
+[tasks.build]
+description = "Release build of the default (SDL3) frontend"
+run = "scripts/dev-run.sh cargo build --release"
+
+[tasks.run]
+description = "Build and start the game (pass its options after --)"
+run = "scripts/dev-run.sh cargo run --release --"
+
+[tasks.fmt]
+description = "Format the sources"
+run = "scripts/dev-run.sh cargo fmt"
+
+[tasks.clippy]
+description = "Clippy as CI runs it, once per frontend and with both"
+run = [
+    "scripts/dev-run.sh cargo clippy --all-targets -- -D warnings",
+    "scripts/dev-run.sh cargo clippy --all-targets --no-default-features --features bevy-frontend -- -D warnings",
+    "scripts/dev-run.sh cargo clippy --all-targets --all-features -- -D warnings",
+]
+
+[tasks.lint-shell]
+description = "Lint the shell scripts with shuck (`.shuck.toml`)"
+run = "shuck check scripts packaging .github"
+
+[tasks.test]
+description = "The tests (pass `-- --ignored` for those that need the game's files)"
+run = "scripts/dev-run.sh cargo test"
+
+[tasks.launchers]
+description = "Release build of both frontends, installed as desktop launchers"
+run = "scripts/dev-run.sh scripts/install-desktop-entries.sh"
+
+[tasks.check]
+description = "Everything AGENTS.md asks for before finishing"
+run = [
+    "mise run fmt",
+    "mise run clippy",
+    "mise run lint-shell",
+    "mise run test",
+    "mise run launchers",
+]

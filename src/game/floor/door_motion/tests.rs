@@ -74,6 +74,7 @@ fn boss_doors_swing_shut_then_open_ten_frames_after_the_last_enemy() {
     floor.current_room_mut().enemies.blast(
         Vec2::ZERO,
         crate::game::original_units::Pixels(1000.0),
+        |_| true,
         &mut crate::game::random::Random::with_seed(1),
         &mut Vec::new(),
     );

@@ -80,3 +80,22 @@ fn opened_key_block_stops_blocking() {
     key_block.open_with_key();
     assert!(!key_block.blocks_walking() && !key_block.is_closed_key_block());
 }
+
+#[test]
+fn what_a_broken_poop_leaves_fades_to_nothing_in_nine_steps() {
+    let mut object = GridObject::on_tile(GridObjectKind::Breakable(BreakableKind::Poop), 0, 0, ORIGINAL);
+    let holds = |object: &GridObject, value: f32| (object.level_value() - value).abs() < f32::EPSILON;
+    let intact = object.level_value();
+    object.fade_level_value();
+    assert!(holds(&object, intact), "an intact poop does not fade");
+    while object.take_hit(HitStrength::Explosion, &mut Random::default())
+        != Some(HitOutcome::Destroyed(BreakableKind::Poop))
+    {}
+    assert!(holds(&object, ORIGINAL.destroyed_durability));
+    for _ in 0..8 {
+        object.fade_level_value();
+    }
+    assert!(object.level_value() > 0.0);
+    object.fade_level_value();
+    assert!(holds(&object, 0.0));
+}

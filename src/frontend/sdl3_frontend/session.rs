@@ -11,6 +11,7 @@ use sdl3::{EventPump, Sdl};
 
 use crate::frontend::sdl3_frontend::audio::sound_player::SoundPlayer;
 use crate::frontend::sdl3_frontend::device_input::{DeviceInput, WindowRequests};
+use crate::frontend::sdl3_frontend::graphics::layer_target::LayerTarget;
 use crate::frontend::sdl3_frontend::graphics::rerender_indicator;
 use crate::frontend::sdl3_frontend::graphics::screenshot::ScreenshotRequest;
 use crate::frontend::sdl3_frontend::graphics::sprite_renderer::{self, ViewMapping};
@@ -43,6 +44,7 @@ pub struct Session<'creator> {
     creator: &'creator TextureCreator<WindowContext>,
     textures: TextureLibrary<'creator>,
     vectors: VectorPainter<'creator>,
+    layers: LayerTarget<'creator>,
     density: TextureDensity,
     sounds: Option<SoundPlayer>,
     devices: DeviceInput,
@@ -81,6 +83,7 @@ impl<'creator> Session<'creator> {
             creator,
             textures: TextureLibrary::new(creator, pixels_per_world_unit),
             vectors: VectorPainter::new(creator),
+            layers: LayerTarget::new(creator),
             density: TextureDensity::new(pixels_per_world_unit),
             sounds,
             devices: DeviceInput::default(),
@@ -217,8 +220,7 @@ impl<'creator> Session<'creator> {
         game.fill_draw_items(&mut self.draw_items);
         sprite_renderer::draw(
             canvas,
-            &mut self.textures,
-            &mut self.vectors,
+            (&mut self.textures, &mut self.vectors, &mut self.layers),
             &mut self.draw_items,
             &view,
         )?;

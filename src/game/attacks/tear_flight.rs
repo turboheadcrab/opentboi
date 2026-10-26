@@ -1,10 +1,13 @@
-//! Tears in flight: they slow over spider webs and splash against walls, obstacles or the floor.
+//! Tears in flight: they slow over spider webs and splash against walls, obstacles or the floor,
+//! now and then leaving blood there.
 
 use crate::game::Game;
 use crate::game::attacks::splash::{Splash, SplashKind};
-use crate::game::attacks::tear::TearStatus;
+use crate::game::attacks::tear::{Tear, TearStatus};
 use crate::game::original_units::Frames;
+use crate::game::room::blood::Splatter;
 use crate::game::room::grid_object::{GridObject, HitStrength};
+use crate::game::room::world_to_stage;
 use crate::game::sound_event::SoundEvent;
 
 impl Game {
@@ -53,7 +56,21 @@ impl Game {
             let splash = Splash::new(splash_kind, tear.drawn_center(), tear.scale(), &mut self.random);
             self.splashes.push(splash);
             self.pending_sound_events.push(SoundEvent::TearImpact);
+            self.bleed_under(&tear);
         }
         self.tears = still_flying;
+    }
+
+    /// `physix()` for an ended tear: one time in thirty it leaves blood on the floor below it.
+    fn bleed_under(&mut self, tear: &Tear) {
+        let splats = self.parameters.splats;
+        if self.random.happens(splats.landing_odds) {
+            let floor_point = world_to_stage(tear.floor_point());
+            let splatter = Splatter::any_look(floor_point, splats.landing, &splats, &mut self.random);
+            self.floor
+                .current_room_mut()
+                .blood
+                .splatter(splatter, &splats, &mut self.random);
+        }
     }
 }

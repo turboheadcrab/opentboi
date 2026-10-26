@@ -157,13 +157,13 @@ impl Pickups {
     }
 
     /// Blasts push what is lying in reach (`trg2.bh`: not before it has settled, and not once
-    /// taken).
-    pub fn push_from_blast(&mut self, center: Vec2, explosion: ExplosionParameters) {
+    /// taken) where `sees` says the blast sees it (`linecheckxx()`).
+    pub fn push_from_blast(&mut self, center: Vec2, explosion: ExplosionParameters, sees: impl Fn(Vec2) -> bool) {
         let solid_after = self.parameters.frames_until_collectable;
         for pickup in self
             .lying
             .iter_mut()
-            .filter(|pickup| pickup.is_lying() && pickup.age_frames > solid_after)
+            .filter(|pickup| pickup.is_lying() && pickup.age_frames > solid_after && sees(pickup.center))
         {
             if let Some(push) = blast_push(pickup.center - center, explosion.pickup_push_reach, explosion) {
                 pickup.knock_back(explosion.velocity_retention, push);
@@ -209,7 +209,7 @@ impl Pickups {
     }
 
     /// Kinds of what still lies here (not taken, chests not opened).
-    pub fn lying_untaken(&self) -> impl Iterator<Item = PickupKind> + '_ {
+    pub fn lying_untaken(&self) -> impl Iterator<Item = PickupKind> {
         self.lying
             .iter()
             .filter(|pickup| pickup.is_lying())
@@ -217,7 +217,7 @@ impl Pickups {
     }
 
     /// Where the pickups lie.
-    pub fn positions(&self) -> impl Iterator<Item = Vec2> + '_ {
+    pub fn positions(&self) -> impl Iterator<Item = Vec2> {
         self.lying.iter().map(|pickup| pickup.center)
     }
 
