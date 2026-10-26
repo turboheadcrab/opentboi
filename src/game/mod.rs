@@ -47,7 +47,7 @@ mod wall_contact;
 
 use glam::Vec2;
 
-pub use draw::{DrawItem, DrawLayer, Rgba};
+pub use draw::{DrawItem, Rgba};
 pub use hud::message::{PickupMessage, texture_center_in_clip};
 pub use hud::name_banner::{BannerName, FORTUNE_COUNT};
 pub use hud::pill_text::{HUD_NAME_COUNT, MESSAGES_BEFORE_PILLS, PillText};

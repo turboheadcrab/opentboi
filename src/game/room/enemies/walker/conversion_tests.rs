@@ -3,6 +3,7 @@ use super::test_support::{
 };
 use crate::game::original_units::{Damage, Pixels};
 use crate::game::random::Random;
+use crate::game::room::blood::Splatter;
 use crate::game::room::enemies::{Enemies, WalkerKind};
 use crate::game::sound_event::SoundEvent;
 use glam::Vec2;
@@ -55,7 +56,7 @@ fn a_gaper_killed_by_a_close_hit_sometimes_goes_on_as_a_headless_body() {
     let splats = enemies.take_splatters();
     assert_eq!(splats.len(), 1, "it bleeds where it lost its head");
     assert_eq!(splats[0].stage_point, enemies.walkers[0].position);
-    assert!(enemies.take_splatters().is_empty());
+    assert_eq!(enemies.take_splatters(), Vec::<Splatter>::new(), "only once");
 }
 
 #[test]

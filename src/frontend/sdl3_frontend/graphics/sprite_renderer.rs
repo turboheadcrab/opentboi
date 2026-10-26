@@ -78,7 +78,7 @@ pub fn draw(
         match first.layer {
             Some(layer) => {
                 vectors.flush(canvas)?;
-                layers.draw(canvas, layer, |layer_canvas| {
+                layers.draw(canvas, layer.opacity, |layer_canvas| {
                     draw_run(layer_canvas, textures, vectors, items, view)?;
                     vectors.flush(layer_canvas)
                 })?;

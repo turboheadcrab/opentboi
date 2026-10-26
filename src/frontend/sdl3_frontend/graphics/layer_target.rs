@@ -8,14 +8,13 @@ use sdl3::sys::blendmode::SDL_BLENDMODE_BLEND_PREMULTIPLIED;
 use sdl3::video::WindowContext;
 
 use crate::frontend::sdl3_frontend::graphics::vector_painter::bitmap_textures::set_texture_blend_mode;
-use crate::game::DrawLayer;
 
 const TRANSPARENT: Color = Color::RGBA(0, 0, 0, 0);
 const CHANNEL_MAXIMUM: f32 = 255.0;
 
 pub struct LayerTarget<'creator> {
     creator: &'creator TextureCreator<WindowContext>,
-    /// Kept between frames; made again when the output grows.
+    /// Kept between frames; made again when the output changes size.
     picture: Option<Texture<'creator>>,
 }
 
@@ -25,11 +24,11 @@ impl<'creator> LayerTarget<'creator> {
     }
 
     /// Clears the layer's picture, lets `draw` paint into it (the canvas it gets draws there), then
-    /// puts it on the canvas at `layer`'s opacity.
+    /// puts it on the canvas at `opacity`.
     pub fn draw(
         &mut self,
         canvas: &mut WindowCanvas,
-        layer: DrawLayer,
+        opacity: f32,
         draw: impl FnOnce(&mut WindowCanvas) -> Result<(), String>,
     ) -> Result<(), String> {
         let (width, height) = canvas.output_size().map_err(|error| error.to_string())?;
@@ -47,9 +46,9 @@ impl<'creator> LayerTarget<'creator> {
             .map_err(|error| error.to_string())?;
         drawn?;
         // Premultiplied: the opacity scales the colors as well as the coverage.
-        let opacity = crate::whole_numbers::clamped_u8((layer.opacity * CHANNEL_MAXIMUM).round());
-        picture.set_color_mod(opacity, opacity, opacity);
-        picture.set_alpha_mod(opacity);
+        let opacity_byte = crate::whole_numbers::clamped_u8((opacity * CHANNEL_MAXIMUM).round());
+        picture.set_color_mod(opacity_byte, opacity_byte, opacity_byte);
+        picture.set_alpha_mod(opacity_byte);
         canvas.set_blend_mode(BlendMode::Blend);
         let copied = canvas.copy(&picture, None, None).map_err(|error| error.to_string());
         self.picture = Some(picture);
