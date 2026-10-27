@@ -13,11 +13,17 @@ const PILLS_HERE: ItemNumber = ItemNumber(43);
 const TAROT_CARD: ItemNumber = ItemNumber(61);
 
 impl Game {
+    /// A card or pill taken, by whatever means.
+    pub(crate) fn remember_consumable_taken(&mut self, taken: Consumable) {
+        self.progress.record_item(match taken {
+            Consumable::Pill(_) => PILLS_HERE,
+            Consumable::Card(_) => TAROT_CARD,
+        });
+    }
+
     pub(super) fn remember_finds(&mut self, collection: &Collection) {
-        match collection.card_taken {
-            Some(Consumable::Pill(_)) => self.progress.record_item(PILLS_HERE),
-            Some(Consumable::Card(_)) => self.progress.record_item(TAROT_CARD),
-            None => {}
+        if let Some(taken) = collection.card_taken {
+            self.remember_consumable_taken(taken);
         }
         if let Some(item) = collection.item_taken {
             self.progress.record_item(item.into());

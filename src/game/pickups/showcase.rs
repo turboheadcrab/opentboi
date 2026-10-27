@@ -4,6 +4,7 @@ use glam::Vec2;
 
 use crate::game::pickups::Pickups;
 use crate::game::pickups::card::Card;
+use crate::game::pickups::item::Item;
 use crate::game::pickups::kind::{HeartKind, PickupKind};
 use crate::game::pickups::pill::Pill;
 use crate::game::pickups::trinket::Trinket;
@@ -15,6 +16,15 @@ const SHOWCASE_EXTRA_COLUMNS: [u32; 2] = [4, 8];
 const SHOWCASE_EXTRA_ROW: u32 = 6;
 
 impl Pickups {
+    /// Until the item pools exist: every empty pedestal in the room holds `item`.
+    pub fn stock_pedestals(&mut self, item: Item) {
+        for kind in self.lying_kinds_mut() {
+            if *kind == PickupKind::ItemPedestal {
+                *kind = PickupKind::Item(item);
+            }
+        }
+    }
+
     /// For checking that two eternal hearts make a heart container.
     pub fn add_eternal_hearts(&mut self) {
         for column in SHOWCASE_EXTRA_COLUMNS {

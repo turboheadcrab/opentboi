@@ -85,6 +85,16 @@ impl Pickups {
     }
 }
 
+impl Pickups {
+    /// `pillc()` called by an item rather than a pickup (DoAction 7141, DoAction 7143–7148): the card or
+    /// pill that was held lies where Isaac stands, out of reach until he steps off it.
+    pub fn drop_held(&mut self, held: PickupKind, center: Vec2) {
+        let mut pickup = Pickup::new(held, center, Vec2::ZERO);
+        pickup.swap_blocked_frames = SWAP_BLOCK;
+        self.lying.push(pickup);
+    }
+}
+
 impl Pickup {
     /// `pillc()`'s trinket branch for this pickup, which the player (standing at `player_position`)
     /// touches. Returns the sound for the pickup to be taken; `None` when it stays: the trinket is

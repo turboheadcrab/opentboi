@@ -88,7 +88,7 @@ macro_rules! holding_up_wares {
 /// By index into `Held::WARES`, `player.it`.
 static HOLDING_UP_WARES: [RenderOverrides; 4] = holding_up_wares!(200 201 202 203);
 /// By index into `Item::ALL`, each item's number.
-static HOLDING_UP_ITEMS: [RenderOverrides; 3] = holding_up_wares!(46 77 139);
+static HOLDING_UP_ITEMS: [RenderOverrides; 4] = holding_up_wares!(46 77 139 85);
 
 macro_rules! holding_up_cards {
     ($($color:literal)*) => {

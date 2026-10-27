@@ -67,6 +67,21 @@ fn curse_layout_index(random: &mut Random) -> usize {
     }
 }
 
+/// What a room of `role` holds beyond its layout: the devil's deals, the treasure room's item (the
+/// Deck of Cards, until the item pools exist) and the super secret room's hearts.
+pub(super) fn stock_room(room: &mut RoomContents, role: RoomRole, super_secret_style: u8, random: &mut Random) {
+    match role {
+        RoomRole::Devil => room.wares.make_devil_deals(random),
+        RoomRole::Treasure => room.pickups.stock_pedestals(Item::DeckOfCards),
+        RoomRole::SuperSecret => {
+            if let Some(heart) = super_secret_hearts(super_secret_style) {
+                room.pickups.set_heart_kind(heart);
+            }
+        }
+        _ => {}
+    }
+}
+
 /// `create()` in the super secret room: hearts are full red ones in style 0 (`col = 1`) and
 /// eternal in style 1 (`col = 4`).
 pub(super) fn super_secret_hearts(style: u8) -> Option<HeartKind> {

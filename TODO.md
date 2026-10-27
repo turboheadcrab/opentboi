@@ -538,9 +538,12 @@ frame-locked logic (replaced by time-based updates).
 - Blood creep is ported (`room/creep.rs`) but nothing leaves it yet: bosses, the spider boss, the dark rooms' slowing and the creep's long stay and colours (`longstay`, `colorit`) come with them. `playerhurt()` also raises every hit to a full heart past chapter 6.
 - `physix()`: enemy and enemy-shot parts with enemies; `slow`/`sloww` with items; `turdb`
   (standing over a broken poop's tile) and ladders.
-- Cards: The Magician (homing, range), The High Priestess (Mom's foot) wait for items; The Empress's demonic look is done (head mode 30, body outfit 8 or 9) except holding up item 122 and its look while riding the unicorn (the plain body shows); The Joker should go to the devil room;
-  The Devil's look (red tears `fmode 8`, face `hmode 8`); card names in
-  the demo (follow jumps).
+- Cards: The Magician (homing, range), The High Priestess (Mom's foot) wait for items; The Empress's demonic look is done (head mode 30, body outfit 8 or 9) except holding up item 122 and its look while riding the unicorn (the plain body shows) and its tear look (tear frame 30);
+  The Devil's look (red tears `fmode 8`, face `hmode 8`); the 15 % more damage per tear that The Devil
+  and Strength give (DoAction 3732–3735); Death's use counter, which unlocks something after five uses
+  (DoAction 27967–27971); card names in the demo (follow jumps). `docs`-less status of every card:
+  22 complete, 3 partial (The Devil, Strength, The Empress), 2 not done (The Magician, The High
+  Priestess).
 - Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); still missing: the random look swaps (`picc`), Isaac's colour flash, blue flies (`Friends`), the poison cloud (`Bad Gas`), the bombs of `Explosive Diarrhea`, puberty's hat and face, the fart sound (not an MP3 in the bank), Strength counting in the tear's first rise like range pills do.
 - `--showcase` puts every card in the treasure room (and every pickup kind in the boss room,
   every machine in the shop); off in normal play.

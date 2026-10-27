@@ -79,10 +79,11 @@ macro_rules! bobbing_item {
 }
 
 /// By index into `Item::ALL`, then the bob's frame.
-static ITEM_PEDESTALS: [[RenderOverrides; ITEM_BOB_FRAMES]; 3] = [
+static ITEM_PEDESTALS: [[RenderOverrides; ITEM_BOB_FRAMES]; 4] = [
     bobbing_item!(46; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
     bobbing_item!(77; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
     bobbing_item!(139; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
+    bobbing_item!(85; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
 ];
 const ITEM_BOB_FRAMES: usize = 20;
 

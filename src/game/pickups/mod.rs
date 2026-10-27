@@ -208,6 +208,10 @@ impl Pickups {
         self.lying.iter().map(|pickup| pickup.kind).collect()
     }
 
+    pub(crate) fn lying_kinds_mut(&mut self) -> impl Iterator<Item = &mut PickupKind> {
+        self.lying.iter_mut().map(|pickup| &mut pickup.kind)
+    }
+
     /// Kinds of what still lies here (not taken, chests not opened).
     pub fn lying_untaken(&self) -> impl Iterator<Item = PickupKind> {
         self.lying

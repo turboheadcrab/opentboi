@@ -35,7 +35,7 @@ use crate::game::room::layout::{RoomLayout, RoomLayouts};
 use crate::game::settings::Style;
 use crate::game::sound_event::SoundEvent;
 use crate::game::texture_id::RoomArt;
-use room_setup::{choose_layout, super_secret_hearts, tinted_rock_cell};
+use room_setup::{choose_layout, tinted_rock_cell};
 
 /// One random grid index per room, from 65 to 179 (16 per row; the interior starts at column 2,
 /// row 4), whose rock, if any, is the tinted rock.
@@ -111,14 +111,7 @@ impl Floor {
                     first_visit: true,
                 };
                 room.pickups.set_red_chest_chance(red_chests, random);
-                if role == RoomRole::Devil {
-                    room.wares.make_devil_deals(random);
-                }
-                if role == RoomRole::SuperSecret
-                    && let Some(heart) = super_secret_hearts(super_secret_style)
-                {
-                    room.pickups.set_heart_kind(heart);
-                }
+                room_setup::stock_room(&mut room, role, super_secret_style, random);
                 (cell, room)
             })
             .collect();

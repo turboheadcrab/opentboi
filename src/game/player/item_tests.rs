@@ -84,6 +84,30 @@ fn the_unicorn_is_used_once_charged_and_rides_without_tears() {
 }
 
 #[test]
+/// `pillc(3)` from the Deck of Cards: a random card is taken as if picked up, and the one held
+/// lies where Isaac stands.
+fn the_deck_of_cards_gives_a_card_and_puts_down_the_one_held() {
+    use crate::game::pickups::card::Card;
+    use crate::game::pickups::consumable::Consumable;
+    use crate::game::pickups::item::ItemNumber;
+    let mut game = game();
+    game.inventory.take_item(Item::DeckOfCards);
+    game.inventory.take(PickupKind::Card(Card::TheFool));
+    game.drain_sound_events().for_each(drop);
+    let use_item = InputState {
+        use_item: true,
+        ..InputState::default()
+    };
+    game.advance(&use_item, ONE_FRAME);
+    assert!(matches!(game.inventory.held, Some(Consumable::Card(_))));
+    assert_eq!(game.inventory.active.charge(), Some((0, 6)));
+    let lying = game.floor.current_room().pickups.lying_kinds();
+    assert!(lying.contains(&PickupKind::Card(Card::TheFool)), "{lying:?}");
+    assert!(game.progress.has_collected(ItemNumber(61)));
+    assert!(game.drain_sound_events().any(|sound| sound == SoundEvent::CardPickedUp));
+}
+
+#[test]
 fn the_chariot_holds_up_the_unicorn() {
     use crate::game::pickups::card::Card;
     use crate::game::player::animation::Held;

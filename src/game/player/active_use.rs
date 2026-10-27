@@ -6,7 +6,10 @@ use glam::Vec2;
 use crate::game::Game;
 use crate::game::InputState;
 use crate::game::original_units::Frames;
+use crate::game::pickups::card::Card;
+use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
+use crate::game::pickups::kind::PickupKind;
 use crate::game::player::animation::{Held, PlayerAnimation};
 use crate::game::sound_event::SoundEvent;
 
@@ -22,11 +25,34 @@ impl Game {
         let Some(item) = self.inventory.active.use_held() else {
             return;
         };
-        self.player.play_animation(PlayerAnimation::HoldingUp(Held::Item(item)));
+        // The deck shows the card it gives instead (`showit = false`, DoAction 27214).
+        if item != Item::DeckOfCards {
+            self.player.play_animation(PlayerAnimation::HoldingUp(Held::Item(item)));
+        }
         match item {
             Item::MyLittleUnicorn => self.ride_unicorn(),
+            Item::DeckOfCards => self.use_deck_of_cards(),
             Item::LuckyFoot | Item::MomsPurse => {}
         }
+    }
+
+    /// Deck of Cards (DoAction 27213–27216, `pillc(3)`): takes a random card as if it were picked up.
+    /// A card or pill held is put down where Isaac stands, out of reach until he steps off it.
+    fn use_deck_of_cards(&mut self) {
+        let card = Card::roll(&mut self.random);
+        let taken = Consumable::Card(card);
+        let sound = self.inventory.take(PickupKind::Card(card));
+        self.pending_sound_events.extend(sound);
+        if let Some(held) = self.inventory.dropped.take() {
+            let center = self.player.position();
+            self.floor
+                .current_room_mut()
+                .pickups
+                .drop_held(held.pickup_kind(), center);
+        }
+        self.remember_consumable_taken(taken);
+        self.player
+            .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));
     }
 
     /// The Chariot's and My Little Unicorn's ride, with its tune.
