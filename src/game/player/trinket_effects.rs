@@ -24,6 +24,10 @@ impl Game {
             luck: self.player_stats().luck,
             lucky_toe: self.inventory.has_trinket(Trinket::LuckyToe),
             moms_pearl: self.inventory.has_trinket(Trinket::MomsPearl),
+            trinkets: [
+                self.inventory.trinkets().first().copied(),
+                self.inventory.trinkets().get(1).copied(),
+            ],
         }
     }
 

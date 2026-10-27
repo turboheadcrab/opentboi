@@ -9,6 +9,7 @@ use crate::game::pickups::kind::{
     KEY_FRAME, PILL_FRAME, TRINKET_MARKER_FRAME,
 };
 use crate::game::pickups::luck::PickupLuck;
+use crate::game::pickups::trinket_swaps;
 use crate::game::random::Random;
 
 const TRINKET_ODDS: Odds = Odds::one_in(2);
@@ -104,11 +105,14 @@ pub fn room_clear_reward(
     const KEYS_COUNTED: u8 = 10;
     const BOMB_BELOW: f32 = 0.95;
     let roll = luck.squeeze_clear_roll(random.next_unit());
+    // Rolled before the reward is, and changes it if there is one (DoAction 30849, DoAction 30934).
+    let swapped = trinket_swaps::swapped_frame(luck, false, random);
     if roll <= NOTHING_BELOW {
         return None;
     }
     if roll < TRINKET_BELOW {
-        return Some(room_clear_consumable(random));
+        let consumable = room_clear_consumable(random);
+        return Some(swapped.unwrap_or(consumable));
     }
     let reward = if roll < COIN_BELOW {
         COIN_FRAME
@@ -121,7 +125,7 @@ pub fn room_clear_reward(
     } else {
         BROWN_CHEST_FRAME
     };
-    Some(reward)
+    Some(swapped.unwrap_or(reward))
 }
 
 /// A card, a trinket or a pill.
@@ -133,6 +137,16 @@ fn room_clear_consumable(random: &mut Random) -> u8 {
     } else {
         PILL_FRAME
     }
+}
+
+/// Two chests in three check the trinkets (`trixies()`, DoAction 31345–31349): the Lucky Toe, or one that
+/// would make a reward something else, adds a roll.
+fn trinket_roll(luck: PickupLuck, random: &mut Random) -> i32 {
+    if random.happens(TRINKET_CHECK_ODDS) {
+        return 0;
+    }
+    let swapped = trinket_swaps::swapped_frame(luck, true, random);
+    i32::from(luck.lucky_toe || swapped.is_some())
 }
 
 /// A chest's or the tinted rock's contents.
@@ -149,11 +163,7 @@ pub fn contents(source: RewardSource, luck: PickupLuck, random: &mut Random) -> 
     } else {
         (random.below(roll_range) - 1).max(MINIMUM_CHEST_ROLLS)
     };
-    // Two chests in three check the trinkets (`trixies()`, DoAction 31345–31349): the Lucky Toe adds
-    // a roll.
-    if !random.happens(TRINKET_CHECK_ODDS) && luck.lucky_toe {
-        rolls += 1;
-    }
+    rolls += trinket_roll(luck, random);
     let mut drops = Vec::new();
     let mut roll_index = 0;
     while roll_index < rolls {
