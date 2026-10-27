@@ -49,6 +49,14 @@ pub enum RoomRole {
     Library,
     /// `minb`: a mini-boss (none exist yet, so the room stands empty).
     MiniBoss,
+    /// `boner2`: a second treasure room on double floors (placeholder, empty).
+    SecondTreasure,
+    /// `chamb`: the challenge room (placeholder, empty).
+    Challenge,
+    /// `chamb` with `altch == 2`: a boss rush, where teleporting is refused (placeholder, empty).
+    BossRush,
+    /// `gamb`: the arcade (placeholder, empty).
+    Arcade,
     /// Room 166, `satan`: reached from the boss room, off the map.
     Devil,
 }
@@ -184,6 +192,7 @@ impl Growth {
     }
 }
 
+mod later_rooms;
 mod special_rooms;
 
 #[cfg(test)]

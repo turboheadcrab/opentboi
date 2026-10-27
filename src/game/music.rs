@@ -191,7 +191,11 @@ fn track_for(role: RoomRole) -> MusicTrack {
         | RoomRole::Treasure
         | RoomRole::Curse
         | RoomRole::Sacrifice
-        | RoomRole::MiniBoss => MusicTrack::Basement,
+        | RoomRole::MiniBoss
+        | RoomRole::SecondTreasure
+        | RoomRole::Challenge
+        | RoomRole::BossRush
+        | RoomRole::Arcade => MusicTrack::Basement,
     }
 }
 

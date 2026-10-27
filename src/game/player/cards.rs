@@ -7,6 +7,7 @@ use glam::Vec2;
 use crate::game::Game;
 use crate::game::InputState;
 use crate::game::floor::FloorCell;
+use crate::game::floor::plan::RoomRole;
 use crate::game::hud::name_banner::BannerName;
 use crate::game::hud::pill_text::PillText;
 use crate::game::original_units::{Frames, Pixels};
@@ -76,8 +77,12 @@ impl Game {
         self.advance_teleport(elapsed);
     }
 
-    /// `teller()`: Isaac's teleport animation, then `cell`.
+    /// `teller()`: Isaac's teleport animation, then `cell`; in a boss rush nothing happens
+    /// (DoAction 4690).
     pub(crate) fn teleport(&mut self, cell: FloorCell) {
+        if self.floor.current_role() == RoomRole::BossRush {
+            return;
+        }
         self.pending_sound_events.push(SoundEvent::TeleportStarted);
         self.player.play_animation(PlayerAnimation::Teleport);
         self.cards.teleport = Some((cell, TELEPORT_FRAMES));

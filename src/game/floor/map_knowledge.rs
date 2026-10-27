@@ -107,7 +107,13 @@ impl Floor {
                 RoomRole::Sacrifice => MapPiece::SacrificeIcon,
                 RoomRole::Library => MapPiece::LibraryIcon,
                 RoomRole::MiniBoss => MapPiece::MiniBossIcon,
-                RoomRole::Start | RoomRole::Normal | RoomRole::Devil => return None,
+                RoomRole::Start
+                | RoomRole::Normal
+                | RoomRole::Devil
+                | RoomRole::SecondTreasure
+                | RoomRole::Challenge
+                | RoomRole::BossRush
+                | RoomRole::Arcade => return None,
             };
             self.revealed_roles.contains(&role).then_some((cell, icon))
         });

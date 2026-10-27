@@ -414,6 +414,16 @@ frame-locked logic (replaced by time-based updates).
   do not exist yet; shop layouts mark them with `shop` markers); the treasure room has its layout and
   gold doors but no item pedestal (items do not exist yet); secret rooms (`hide`), sacrifice, library, arcade and
   challenge rooms are not generated yet.
+- Placeholder room roles exist for the second treasure room (`boner2`), the challenge room
+  (`chamb`), the boss rush (`chamb` with `altch == 2`; `teller()` refuses there) and the arcade
+  (`gamb`) in `floor/plan/later_rooms.rs`. They stand empty, and their conditions (`double`
+  floors, full health, coins, hard mode, chapter) are constants of the first floor, so nothing
+  is generated yet. Replace each with the real room, and the constants with run state.
+- Cohesion placeholders still to add, each used by several ported functions: `Character`
+  (`skiner`; Isaac only; `firr`, `playcol`, `newstats`), a run `hard_mode` flag (item rolls, Sun
+  and FullHealth healing, room-clear adjustments; a `--hard-mode` option), familiars (limit 3),
+  the darkness curse flag (cleared by the Sun and the World), the `hat()` mapping (hat id to
+  slot, generalizing the Tick's), and the `double` floor condition.
 - Door variants: the shop and library doors in rooms with enemies (frame 9 stays as it is),
   challenge and arcade doors (clip 6550).
 - Enemies from layouts: only the fly markers (6601, 6589) are read; the others (6597, …) are
@@ -628,6 +638,17 @@ one player only, so none of this is in the script to port; it is our own design)
   and the `app_id` line in `VERIFIED.md`. The project folder's own name is local and doesn't matter.
 - Test the GitHub plumbing in the private staging repository first (done once: CI, a dry-run
   release, branch protection), then publish the work in a separate, fresh repository.
+
+## Module layout: fewer files per directory
+- The 250-line rule (`tests/source_file_length.rs`) is our own convention; no Rust guideline
+  sets a file length or a files-per-module count. It leaves flat directories: `game/player/`
+  (about 31 files), `game_assets/texture_catalog/` (31), `game/room/enemies/` (about 25) and
+  `game/parameters/` (24).
+- Group `player/` into `pills/`, `trinkets/` and `cards/` (with their tests beside them), by
+  family for `texture_catalog/`, aiming at 10–12 files a directory; consider a soft cap per
+  directory in the same test.
+- Remove the two `#[path = "…"]` attributes in `game/player/trinket_effects.rs` (for
+  `trinket_tests.rs` and `trinket_effect_tests.rs`) when the trinket files move.
 
 ## Steam Controller: how other games do it
 - Games rarely do anything special: they accept an XInput/SDL gamepad and count on Steam Input to turn
