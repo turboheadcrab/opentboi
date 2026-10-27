@@ -10,6 +10,10 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    # Pull request titles carry a semver tag (see .github/workflows/pr-title.yml): updating a
+    # dependency is upkeep.
+    commit-message:
+      prefix: chore
     # Minor and patch updates together; a breaking one (the first run proposed several, and one broke
     # the build) comes as its own pull request.
     groups:
@@ -22,6 +26,8 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: chore
     groups:
       actions:
         patterns: ["*"]

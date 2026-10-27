@@ -22,6 +22,9 @@ for topic in "${TOPICS[@]}"; do
   gh repo edit "${repository}" --add-topic "${topic}"
 done
 
+# A squash merge takes the pull request's title (which carries the semver tag) and description.
+gh api -X PATCH "repos/${repository}" -f squash_merge_commit_title=PR_TITLE -f squash_merge_commit_message=PR_BODY > /dev/null
+
 # Workflows get a read-only token unless a job asks for more (the release job asks for contents: write).
 gh api -X PUT "repos/${repository}/actions/permissions/workflow" \
   -f default_workflow_permissions=read -F can_approve_pull_request_reviews=false >/dev/null
@@ -46,7 +49,8 @@ if ! gh api -X PUT "repos/${repository}/branches/main/protection" --input - >/de
       "Source build, Fedora 44, system SDL3",
       "Source build, Ubuntu 24.04, SDL3 built from source",
       "Licence list stays generatable",
-      "Shell scripts are lint-clean"
+      "Shell scripts are lint-clean",
+      "Pull request title has a semver tag"
     ]
   },
   "enforce_admins": true,

@@ -15,7 +15,9 @@ read from **your own copy** of the game when you first start it.
 
 ## What you need
 
-1. **The Binding of Isaac on Steam** (not *Rebirth*, not *Repentance*), installed. This is the only
+1. **The Binding of Isaac** (not *Rebirth*, not *Repentance*), installed from
+   [Steam](https://store.steampowered.com/app/113200/The_Binding_of_Isaac/) (the
+   [Humble Store](https://www.humblebundle.com/store/the-binding-of-isaac-wrath-of-the-lamb-dlc) sells it too). This is the only
    source of the art and sound; without it the game says it cannot find its files.
    - On Linux and SteamOS the Steam build is a Windows program. Steam installs it through
      Proton ("Steam Play"), which Steam turns on by default for games without a native Linux build
@@ -144,6 +146,12 @@ if you want the file, and set `OPENTBOI_REQUIRE_LICENSES=1` to make a missing to
 release job does).
 
 Never commit the original's files (any `.swf` is git-ignored) or text taken from them.
+
+Changes come as pull requests. Title one with its kind and a colon: `breaking:`, `feature:`, `fix:`
+or `chore:` (for example `fix: boss door stays shut`); a check enforces it, since the squashed commit
+takes the title and the release version is worked out from those titles (`breaking` is the next major
+version, or minor while it is 0, `feature` the next minor, `fix` the next patch, `chore` alone makes no
+release). CI also needs `cargo fmt`, Clippy without warnings and the tests to pass.
 
 ## Licence
 

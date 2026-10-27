@@ -20,6 +20,16 @@ architecture=$(uname -m)
 package_name="${NAME}-${version}-linux-${architecture}"
 staging="${DISTRIBUTION_DIRECTORY}/${package_name}"
 
+# Whether the working tree differs from the commit. A release stamps its version into Cargo.toml and
+# Cargo.lock (scripts/stamp-version.sh, OPENTBOI_STAMPED_VERSION set), which is not a difference.
+is_dirty() {
+    if [[ -n "${OPENTBOI_STAMPED_VERSION:-}" ]]; then
+        ! git diff --quiet HEAD -- . ':!Cargo.toml' ':!Cargo.lock' 2> /dev/null
+    else
+        ! git diff --quiet HEAD 2> /dev/null
+    fi
+}
+
 # Release builds must carry up-to-date third-party licence texts, so fail rather than warn.
 export OPENTBOI_REQUIRE_LICENSES=1
 # shellcheck disable=SC2086
@@ -38,7 +48,7 @@ install -m 644 LICENSE THIRD-PARTY-LICENSES README.md "${staging}/"
 # GPLv3 section 6: whoever gets the binary must be able to get the matching source.
 {
     echo "OpenTBOI ${version} is free software (GPL-3.0-or-later); this binary was built from:"
-    echo "  commit:  $(git rev-parse HEAD 2> /dev/null || echo unknown)$(git diff --quiet HEAD 2> /dev/null || echo ' (plus uncommitted changes)')"
+    echo "  commit:  $(git rev-parse HEAD 2> /dev/null || echo unknown)$(is_dirty && echo ' (plus uncommitted changes)')"
     echo "  source:  $(git remote get-url origin 2> /dev/null || echo 'the project repository')"
     echo "Build it yourself with: cargo build --release --locked (see README.md)."
 } > "${staging}/SOURCE.txt"
