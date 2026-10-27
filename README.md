@@ -133,6 +133,55 @@ The map holds function names and counts only, none of the original's code, and `
 when the original's scripts are in your cache. [`docs/original-coverage.md`](docs/original-coverage.md)
 explains what the numbers do and do not prove. The figure is evidence of a port, not proof of one.
 
+### Functions ported completely
+
+These original functions have every gameplay line cited or reproduced in our sources (a green square
+for each line on the map). What each one does, in short:
+
+**The room's grid and what stands in it**
+- `ingrid()` / `outgrid()`: turn a point in the room into the number of its grid cell, and a cell back
+  into the point at its centre.
+- `levzz()`: reads what the room's grid holds at a cell; for enemies, a doorway reads as a shut door.
+- `mhit()` / `mhity()`: whether a point is blocked for something walking, or for a tear (tears fly over
+  pits).
+- `enfget()`: the length of a vector, never quite zero.
+- `crand()`: a random point on a circle of a given radius, one coordinate per call.
+- `rand()`: a random number between -0.5 and 0.5.
+- `posw()` / `spaw()`: find a free tile near a point (growing the search circle, avoiding rocks, marks
+  and pickups, and, in the challenge room, other things and Isaac), mark it as given away, and put
+  what is being created there.
+- `firecheck()`: Isaac's four corners against a burning fireplace: it pushes him away, and it hurts him.
+- `pffx()`: the floor generator's test for whether a cell may join the floor.
+
+**Pickups, pills and cards**
+- `pillc()`: taking a card, pill or trinket: names it, swaps it for the one held (which is put down),
+  and keeps the Tick in the first slot.
+- `piller()`: gives a pill look its effect the first time, rolling a chain of odds that Isaac's health,
+  bombs, keys, the Lucky Foot and PHD change.
+- `tater()`: a random card (a playing card one time in five).
+- `coincol()`: what a coin is worth (1, 5 or 10) and its sound and message.
+- `emo()` / `goodpill()`: Isaac's thumbs-up or thumbs-down and the sound of a good pill.
+- `st22()`: shows a short message at the top right.
+- `eta()`: toggles an eternal heart, and two of them make a heart container.
+- `itzz()`: tells minor items from major ones.
+- `slotf()`: rolls the slot machine's result (the Lucky Foot trims the top of it).
+- `ader()`: paying blood to a machine: half a heart of damage, taken from the red hearts before the
+  soul hearts.
+
+**Creatures and drawing**
+- `efly()`: the fly that circles a corny poop.
+- `walkframe()`: a walking creature's clip switches between standing and walking by its speed.
+- `sideflip()`: turns a clip around when it moves against its facing.
+
+**Map and secret rooms**
+- `itmc()`: the minimap's mark for what is left in a room.
+- `hider()` / `hider2()`: the jingle of finding a secret room, once.
+
+A further set of functions is ported, but not every line is individually cited yet (`teller()`,
+`playcol()`, `linecheck()`, `linecheckxx()`, `firr()`, `toot()`, `splater()`, `curs()`, `spawnb()`,
+`pff3()`, `itn()`, `firewalk()`, `angstfind()`, `breakall()`, `bord()`, `goblack()`, `sloter()`). The
+map shows them amber.
+
 ## Development
 
 [`AGENTS.md`](AGENTS.md) describes the layout and conventions (it doubles as the notes for AI
