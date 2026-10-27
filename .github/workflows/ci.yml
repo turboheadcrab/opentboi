@@ -75,6 +75,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # The version and checksum are pinned in the script.
-      - run: scripts/install-shuck.sh
-      - run: ~/.local/bin/shuck check scripts packaging .github
+      # The linter's version is pinned here; locally: `cargo install --locked shuck-cli --version 0.2.7`.
+      - uses: ewhauser/shuck-action@9cadfc28756c064e2069d58dda7ce83ad7cb8152 # v1.0.0
+        with:
+          shuck-version: 0.2.7
+          paths: |
+            scripts
+            packaging
+            .github
