@@ -1,6 +1,7 @@
 //! Drawing what a room holds.
 
 use crate::game::attacks::explosion::{Explosion, scorch_draw_item};
+use crate::game::attacks::gas_cloud::GasCloud;
 use crate::game::draw::{DrawItem, FLOOR_DECAL_DEPTH, Rgba, actor_depth};
 use crate::game::room::blood::splat_layer;
 use crate::game::room::contents::RoomContents;
@@ -59,6 +60,7 @@ impl RoomContents {
                 .map(|fly| fly.draw_item(self.grid_objects[fly.anchor_index].center())),
         );
         draw_items.extend(self.explosions.iter().map(Explosion::draw_item));
+        draw_items.extend(self.gas_clouds.iter().map(GasCloud::draw_item));
         self.creep.append_draw_items(&self.parameters.creep, draw_items);
         self.enemies.append_draw_items(draw_items);
         self.pickups.append_draw_items(draw_items);

@@ -32,11 +32,18 @@ impl Enemies {
             DrawItem {
                 motion: center - stage_to_world(fly.previous_position),
                 flip_horizontally: fly.kind.is_pooter() && fly.shooter.faces_right,
+                tint: self.poison_tint(fly.shooter.phase).unwrap_or(Rgba::WHITE),
                 ..DrawItem::textured(texture(fly, self), center, 1.0, FALLBACK_COLOR, actor_depth(center.y))
             }
         }));
         for walker in &self.walkers {
+            let first_item = draw_items.len();
             walker_draw_items(walker, &self.parameters, draw_items);
+            if let Some(tint) = self.poison_tint(walker.phase()) {
+                for item in &mut draw_items[first_item..] {
+                    item.tint = tint;
+                }
+            }
         }
         let brightness = self.frames.looped_frame(ENEMY_SHOT_BRIGHTNESS_STEPS);
         for shot in &self.shots {

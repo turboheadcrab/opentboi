@@ -1,5 +1,5 @@
 //! What the trinkets add or change: `playsp` (DoAction 28938), the tear damage (DoAction 241,
-//! DoAction 245) and the fire delay (`firr()`, DoAction 11062), and their effects when Isaac is hurt
+//! DoAction 245) and the fire delay (`firr()`, DoAction 11062, DoAction 11064), and their effects when Isaac is hurt
 //! (`playerhurt()`, DoAction 4781–4885), kills an enemy (`hurt()`, DoAction 4411–4419), clears a room
 //! (DoAction 30835–30880), opens a chest (DoAction 31347) or enters a room (DoAction 32842).
 

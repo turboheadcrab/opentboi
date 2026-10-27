@@ -86,6 +86,8 @@ pub enum TextureId {
     OrbitingFly(u8),
     /// Frame `0..EXPLOSION_FRAME_COUNT`.
     Explosion(u8),
+    /// Frame `0..GAS_CLOUD_FRAME_COUNT` of the cloud Bad Gas lets out.
+    GasCloud(u8),
     /// A door (clip 6550), drawn on the right wall and turned for the others.
     Door(DoorTexture),
     /// Frame `0..BOMB_FUSE_FRAME_COUNT`.
@@ -228,6 +230,7 @@ pub enum TextureId {
 
 mod all;
 mod all_enemies;
+mod all_objects;
 mod clotty;
 mod enemy;
 mod frame_counts;

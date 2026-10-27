@@ -23,6 +23,8 @@ const BREAKABLE_REGROW_SIZE: Vec2 = Vec2::new(144.0, 128.0);
 /// The fly clip hangs its body above and its shadow below the orbit point.
 const ORBITING_FLY_SIZE: Vec2 = Vec2::new(24.0, 76.0);
 const EXPLOSION_SIZE: Vec2 = Vec2::new(320.0, 224.0);
+/// The gas cloud spreads wide around the bomb clip's origin (its frames need up to 303×235).
+const GAS_CLOUD_SIZE: Vec2 = Vec2::new(312.0, 240.0);
 const EXPLOSION_SCORCH_SIZE: Vec2 = Vec2::new(128.0, 72.0);
 /// The shop door's key swings out past the frame while it unlocks.
 const DOOR_SIZE: Vec2 = Vec2::new(100.0, 96.0);
@@ -204,6 +206,7 @@ impl TextureId {
             Self::KeyBlockOpening(_) => KEY_BLOCK_OPENING_SIZE,
             Self::OrbitingFly(_) => ORBITING_FLY_SIZE,
             Self::Explosion(_) => EXPLOSION_SIZE,
+            Self::GasCloud(_) => GAS_CLOUD_SIZE,
             Self::ExplosionScorch => EXPLOSION_SCORCH_SIZE,
             Self::BombFuse(_) => BOMB_SIZE,
             Self::Door(_) => self.door_size(),

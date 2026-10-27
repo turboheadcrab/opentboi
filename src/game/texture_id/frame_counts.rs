@@ -16,6 +16,8 @@ pub const BLOOD_SPLAT_LOOK_COUNT: u8 = 10;
 /// Bomb clip `b4` frame 3 (2040): fireball turning into smoke. Nothing is placed after frame 26;
 /// the remaining frames are empty.
 pub const EXPLOSION_FRAME_COUNT: u8 = 46;
+/// Bomb clip `b4` frame 5 (3402): the cloud Bad Gas lets out.
+pub const GAS_CLOUD_FRAME_COUNT: u8 = 46;
 /// `locktile` frame 2 (4614); the block is gone afterwards. The last three frames are empty.
 pub const KEY_BLOCK_OPENING_FRAME_COUNT: u8 = 26;
 /// Bomb clip `b4` frame 1: the burning fuse (2039), with the bomb's shadow.

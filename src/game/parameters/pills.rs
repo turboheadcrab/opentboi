@@ -1,7 +1,7 @@
 //! What pills change (`pillc()`'s use branch, DoAction 27990–28240) and how the stats they move
 //! count in the formulas for tears (`firr()`), range, speed (`playsp`) and shot speed.
 
-use crate::game::original_units::{Frames, Hearts, Pixels, PixelsPerFrame};
+use crate::game::original_units::{Damage, Frames, Hearts, Pixels, PixelsPerFrame};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PillParameters {
@@ -37,6 +37,15 @@ pub struct PillParameters {
     pub shot_speed_per_point: f32,
     pub shot_speed_multiplier_minimum: f32,
     pub shot_speed_multiplier_maximum: f32,
+    /// Bad Gas (`fart()`, DoAction 26697–26719): the cloud is drawn this big, hurts every enemy within
+    /// this much of Isaac (plus the enemy's own size) once, and poisons it.
+    pub gas_cloud_scale: f32,
+    pub gas_reach: Pixels,
+    pub gas_damage: Damage,
+    /// What the poison does: this much every `poison_every` frames, for `poison_frames`.
+    pub poison_damage: Damage,
+    pub poison_frames: Frames,
+    pub poison_every: Frames,
 }
 
 pub const ORIGINAL_PILLS: PillParameters = PillParameters {
@@ -60,4 +69,10 @@ pub const ORIGINAL_PILLS: PillParameters = PillParameters {
     shot_speed_per_point: 0.23,
     shot_speed_multiplier_minimum: 0.6,
     shot_speed_multiplier_maximum: 1.42,
+    gas_cloud_scale: 0.7,
+    gas_reach: Pixels(85.0),
+    gas_damage: Damage(5.0),
+    poison_damage: Damage(3.5),
+    poison_frames: Frames(200.0),
+    poison_every: Frames(20.0),
 };

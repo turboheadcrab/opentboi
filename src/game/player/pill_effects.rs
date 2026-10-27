@@ -89,7 +89,7 @@ impl Game {
             PillKind::Tears | PillKind::Range | PillKind::Speed | PillKind::ShotSpeed => {
                 self.use_stat_pill(effect.kind, helps);
             }
-            PillKind::BadGas => self.say(PillText::BadGas),
+            PillKind::BadGas => self.let_out_gas(),
             PillKind::Friends => {
                 self.blue_flies.owe(u32::from(amounts.blue_flies));
                 self.say(PillText::Friends);
@@ -190,6 +190,16 @@ impl Game {
         } else {
             self.groan(bad);
         }
+    }
+
+    /// 12, Bad Gas (`fart()`, DoAction 26697–26719, DoAction 28215–28217): a cloud where Isaac stands;
+    /// the enemies near him are hurt and poisoned.
+    fn let_out_gas(&mut self) {
+        let amounts = self.parameters.pills;
+        let center = self.player.position();
+        let room = self.floor.current_room_mut();
+        room.release_gas(center, &amounts, &mut self.random, &mut self.pending_sound_events);
+        self.say(PillText::BadGas);
     }
 
     fn say(&mut self, text: PillText) {

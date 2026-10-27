@@ -4,6 +4,7 @@
 use glam::Vec2;
 
 use crate::game::attacks::explosion::Explosion;
+use crate::game::attacks::gas_cloud::GasCloud;
 use crate::game::bounds::Bounds;
 use crate::game::machines::Machines;
 use crate::game::original_units::Frames;
@@ -31,6 +32,8 @@ pub struct RoomContents {
     grid_objects: Vec<GridObject>,
     flies: Vec<OrbitingFly>,
     explosions: Vec<Explosion>,
+    /// What Bad Gas let out.
+    gas_clouds: Vec<GasCloud>,
     scorch_marks: Vec<Vec2>,
     /// Tiles broken between pits by a blast, where `breakall()` draws the floor's break.
     broken_floors: Vec<Vec2>,
@@ -74,6 +77,7 @@ impl RoomContents {
             grid_objects,
             flies,
             explosions: Vec::new(),
+            gas_clouds: Vec::new(),
             scorch_marks: Vec::new(),
             broken_floors: Vec::new(),
             blasts: Vec::new(),
@@ -219,6 +223,10 @@ impl RoomContents {
             explosion.advance(elapsed);
         }
         self.explosions.retain(|explosion| !explosion.is_finished());
+        for cloud in &mut self.gas_clouds {
+            cloud.advance(elapsed);
+        }
+        self.gas_clouds.retain(|cloud| !cloud.is_finished());
     }
 }
 

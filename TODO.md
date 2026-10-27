@@ -544,7 +544,7 @@ frame-locked logic (replaced by time-based updates).
   (DoAction 27967–27971); card names in the demo (follow jumps). `docs`-less status of every card:
   22 complete, 3 partial (The Devil, Strength, The Empress), 2 not done (The Magician, The High
   Priestess).
-- Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); the looks are shuffled each run (`picc`); still missing: Isaac's colour flash, blue flies (`Friends`), the poison cloud (`Bad Gas`), the bombs of `Explosive Diarrhea`, puberty's hat and face, the fart sound (not an MP3 in the bank), Strength counting in the tear's first rise like range pills do.
+- Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); the looks are shuffled each run (`picc`); Bad Gas lets out its cloud, with the poison (hurt now and every 20 frames, a green tint) and `Fart.mp3`; blue flies come with Friends; still missing: Isaac's colour flash, the bombs of `Explosive Diarrhea`, puberty's hat and face, Strength counting in the tear's first rise like range pills do. Poison could come from other sources too (DoAction 6987–7001, 7512, 10402), and `fart()` runs when Isaac is hurt with item 180 (`farter`, DoAction 4856).
 - `--showcase` puts every card in the treasure room (and every pickup kind in the boss room,
   every machine in the shop); off in normal play.
 - Devil room: open only after the boss and only sometimes (as the original); deals for heart

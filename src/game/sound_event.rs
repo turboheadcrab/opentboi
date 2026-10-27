@@ -123,6 +123,8 @@ pub enum SoundEvent {
     ChariotTune,
     /// Health gained by a trinket (`Vamp_Gulp.mp`).
     HealthGulped,
+    /// Bad Gas (`fart.mp`).
+    Fart,
     /// The Empress (`curs()`: `isaacsatanitemget.mp`).
     EmpressCard,
     /// Flies buzzing (`insect_swarm_loop.wav`): never an event, only a [`LoopingSound`].

@@ -36,8 +36,9 @@ const DEVIL_ROOM_FRAMES: [usize; 1] = [132];
 const SUPER_SECRET_ROOM_FRAMES: [usize; 5] = [183, 184, 185, 186, 187];
 /// `ingrid()`: 40-pixel cells; the 13×7 interior starts at cell (2, 4).
 const CELL_SIZE: f32 = 40.0;
-/// `spawnb`: faint markers (`_alpha` < 30) lose 0.2, half-transparent ones (< 75) lose 0.1, except
-/// that a half-transparent rock (1) becomes a block (1.9). Values in (-0.5, 0] are left alone.
+/// `spawnb`: faint markers (`_alpha` < 30) lose 0.2 (DoAction 5740), half-transparent ones (< 75)
+/// lose 0.1 (DoAction 5751), except that a half-transparent rock (1) becomes a block (1.9). Values in
+/// (-0.5, 0] are left alone (DoAction 5738, DoAction 5749).
 const FAINT_ALPHA: f32 = 0.30;
 const HALF_TRANSPARENT_ALPHA: f32 = 0.75;
 const FAINT_REDUCTION: f32 = 0.2;

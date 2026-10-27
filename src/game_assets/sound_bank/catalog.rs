@@ -3,7 +3,7 @@
 use crate::game::SoundEvent;
 
 /// SWF export names (all MP3) of each event's variants; the original picks one per playback.
-pub(super) const SOUND_CATALOG: [(SoundEvent, &[&str]); 73] = [
+pub(super) const SOUND_CATALOG: [(SoundEvent, &[&str]); 74] = [
     (
         SoundEvent::TearFired,
         &["Tears_Fire_0.mp3", "Tears_Fire_1.mp3", "Tears_Fire_2.mp3"],
@@ -134,6 +134,7 @@ pub(super) const SOUND_CATALOG: [(SoundEvent, &[&str]); 73] = [
     (SoundEvent::DeathCard, &["Death_Card.mp3"]),
     (SoundEvent::ChariotTune, &["isaacunicorn.mp3"]),
     (SoundEvent::HealthGulped, &["Vamp_Gulp.mp3"]),
+    (SoundEvent::Fart, &["Fart.mp3"]),
     (SoundEvent::EmpressCard, &["isaacsatanitemget.mp3"]),
     (SoundEvent::FlySwarm, &["insect_swarm_loop.wav"]),
     (

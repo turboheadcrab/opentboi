@@ -242,4 +242,5 @@ fn the_telepills_teleport_somewhere() {
     let _ = Vec2::ZERO;
 }
 
+mod gas;
 mod panel;

@@ -1,10 +1,10 @@
 //! The list of every texture, for rendering them all up front.
 
 use super::{
-    BLOOD_SPLASH_FRAME_COUNT, BLOWN_DOOR_FRAME_COUNT, BOMB_FUSE_FRAME_COUNT, BUBBLE_FRAME_COUNT, BreakableKind,
-    DoorStyle, DoorTexture, ENEMY_SHOT_BRIGHTNESS_STEPS, ETERNAL_HEART_UNION_FRAME_COUNT, EXPLOSION_FRAME_COUNT,
-    FlyAnimation, FlyKind, HudHeart, InputDevice, IsaacPart, KEY_BLOCK_OPENING_FRAME_COUNT, MOVING_DOOR_STYLES,
-    MapPiece, ORBITING_FLY_FRAME_COUNT, PickupKind, PickupPhase, RoomArt, SHOP_DOOR_UNLOCKING_FRAME_COUNT,
+    BLOOD_SPLASH_FRAME_COUNT, BLOWN_DOOR_FRAME_COUNT, BOMB_FUSE_FRAME_COUNT, BUBBLE_FRAME_COUNT, DoorStyle,
+    DoorTexture, ENEMY_SHOT_BRIGHTNESS_STEPS, ETERNAL_HEART_UNION_FRAME_COUNT, EXPLOSION_FRAME_COUNT, FlyAnimation,
+    FlyKind, GAS_CLOUD_FRAME_COUNT, HudHeart, InputDevice, IsaacPart, KEY_BLOCK_OPENING_FRAME_COUNT,
+    MOVING_DOOR_STYLES, MapPiece, ORBITING_FLY_FRAME_COUNT, RoomArt, SHOP_DOOR_UNLOCKING_FRAME_COUNT,
     TEAR_GROUND_SPLASH_FRAME_COUNT, TEAR_HIT_SPLASH_FRAME_COUNT, TextureId, TileKind, card_animation_frame_count,
     door_closing_frame_count, door_opening_frame_count,
 };
@@ -53,23 +53,15 @@ impl TextureId {
         all.push(Self::KeyBlock);
         all.extend(TileKind::CLEARABLE.map(Self::ClearedTile));
         all.push(Self::BrokenFloor);
-        for kind in BreakableKind::ALL {
-            for stage in 0..kind.stage_count() {
-                all.extend(
-                    (0..kind.idle_frame_count(stage)).map(|idle_frame| Self::BreakableStage {
-                        kind,
-                        stage,
-                        idle_frame,
-                    }),
-                );
-            }
-            all.extend((0..kind.destroyed_frame_count()).map(|frame| Self::BreakableDestroyed { kind, frame }));
-            all.extend((0..kind.regrow_frame_count()).map(|frame| Self::BreakableRegrow { kind, frame }));
-        }
+        all.extend(Self::breakables());
         all.extend((0..KEY_BLOCK_OPENING_FRAME_COUNT).map(Self::KeyBlockOpening));
         all.extend((0..ORBITING_FLY_FRAME_COUNT).map(Self::OrbitingFly));
-        all.extend((0..EXPLOSION_FRAME_COUNT).map(Self::Explosion));
-        all.push(Self::ExplosionScorch);
+        all.extend(
+            (0..EXPLOSION_FRAME_COUNT)
+                .map(Self::Explosion)
+                .chain([Self::ExplosionScorch]),
+        );
+        all.extend((0..GAS_CLOUD_FRAME_COUNT).map(Self::GasCloud));
         all.extend(DoorStyle::ALL.map(|style| Self::Door(DoorTexture::Open(style))));
         all.extend(Self::door_motions());
         all.extend((0..BOMB_FUSE_FRAME_COUNT).map(Self::BombFuse));
@@ -85,33 +77,6 @@ impl TextureId {
         all.extend((0..ENEMY_SHOT_BRIGHTNESS_STEPS).map(Self::EnemyShot));
         all.extend(Self::death());
         all
-    }
-
-    /// Every pickup's frames, with one card of each look and every item on its pedestal.
-    fn pickups() -> impl Iterator<Item = Self> {
-        let card_arts = [Card::WheelOfFortune, Card::TwoOfSpades].map(PickupKind::Card);
-        let item_pedestals = crate::game::pickups::item::Item::ALL.map(PickupKind::Item);
-        PickupKind::ALL
-            .into_iter()
-            .chain(card_arts)
-            .chain(crate::game::pickups::trinket::Trinket::ALL.map(PickupKind::Trinket))
-            .chain(item_pedestals)
-            .flat_map(|kind| {
-                PickupPhase::ALL.into_iter().flat_map(move |phase| {
-                    (0..phase.frame_count(kind)).map(move |frame| Self::Pickup { kind, phase, frame })
-                })
-            })
-            .chain(Self::pill_pickups())
-    }
-
-    /// Every frame of a pill lying about, in each of the looks a run may give it.
-    fn pill_pickups() -> impl Iterator<Item = Self> {
-        let kind = PickupKind::Pill(crate::game::pickups::pill::Pill::ALL[0]);
-        PillLook::ALL.into_iter().flat_map(move |look| {
-            PickupPhase::ALL.into_iter().flat_map(move |phase| {
-                (0..phase.frame_count(kind)).map(move |frame| Self::PillPickup(look, phase, frame))
-            })
-        })
     }
 
     /// Doors unlocking, shutting, shut and opening.

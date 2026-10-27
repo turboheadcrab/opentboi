@@ -114,6 +114,7 @@ fn source_for(texture_id: TextureId) -> TextureSource {
         TextureId::Door(_)
         | TextureId::OrbitingFly(_)
         | TextureId::Explosion(_)
+        | TextureId::GasCloud(_)
         | TextureId::ExplosionScorch
         | TextureId::BombFuse(_) => effects::source_for(texture_id),
         TextureId::Tear
