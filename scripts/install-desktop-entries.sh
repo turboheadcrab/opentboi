@@ -45,8 +45,7 @@ ENTRY
 write_entry opentboi.desktop "OpenTBOI" sdl3 opentboi
 write_entry opentboi-bevy.desktop "OpenTBOI (Bevy)" bevy opentboi-bevy
 update-desktop-database "${APPLICATIONS_DIRECTORY}"
-# Some desktops read the icon theme's cache; the tool is optional.
-if command -v gtk-update-icon-cache >/dev/null 2>&1; then
-    gtk-update-icon-cache --quiet --force --ignore-theme-index "${ICON_DIRECTORY}/../.." || true
-fi
+# A cache of this icon theme is not written: the user's copy of "hicolor" has no index.theme, so a
+# cache forced onto it hides icons that Steam and other programs add later. A stale one is removed.
+rm -f "${ICON_DIRECTORY}/../../icon-theme.cache"
 echo "Installed launchers for ${LAUNCHER_BINARY}"

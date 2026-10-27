@@ -1,6 +1,6 @@
 # Releases are made by hand (Actions > Release > Run workflow). The version comes from the titles of the
-# pull requests merged since the last release (`breaking`, `feature`, `fix`, `chore`: see
-# scripts/next-version.sh); "publish" off is a dry run that builds the tarball and publishes nothing.
+# pull requests merged since the last release (`breaking`, `feature`, `fix`, `chore`, read by the
+# semantic-version action below); "publish" off is a dry run that builds the tarball and publishes nothing.
 #
 # The tarball is built on the oldest distribution we still support (so its glibc is the lowest any
 # supported user has), with SDL3 linked statically. Move the container forward when its distribution
@@ -28,22 +28,34 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Only main is published
+        if: ${{ inputs.publish && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "::error::Only main can be published; run the workflow on main."
+          exit 1
+      # While the major version is 0, `breaking` and `feature` both give the next minor version, so
+      # nothing matches the major pattern (it is a regular expression that cannot match). From 1.0 on,
+      # give `major_pattern` the `breaking` expression and `minor_pattern` the `feature` one alone.
+      # Commits that match neither (`fix`) give the next patch version, and `chore` commits count for nothing.
+      - id: semver
+        uses: paulhatch/semantic-version@8da30f99b5b2e7a26ced60b1dad2e41756d6edf4 # v6.0.2
+        with:
+          tag_prefix: v
+          major_pattern: "/(?!)/"
+          minor_pattern: "/^(breaking|feature)(\\(.+\\))?:/"
+          ignore_commits_pattern: "/^chore(\\(.+\\))?:/"
       - id: next
         env:
           PUBLISH: ${{ inputs.publish }}
+          CHANGED: ${{ steps.semver.outputs.version_type }}
+          VERSION: ${{ steps.semver.outputs.version }}
         run: |
-          if [[ "${PUBLISH}" == "true" && "${GITHUB_REF}" != "refs/heads/main" ]]; then
-            echo "::error::Only main can be published; run the workflow on main."
-            exit 1
-          fi
-          # Prints nothing (and fails) when only chores were merged since the last release.
-          next="$(scripts/next-version.sh || true)"
-          if [[ -z "${next}" && "${PUBLISH}" == "true" ]]; then
+          if [[ "${CHANGED}" == "none" && "${PUBLISH}" == "true" ]]; then
             echo "::error::Nothing merged since the last release calls for one (only chores)."
             exit 1
           fi
-          echo "Next version: ${next:-none, a dry run is built as 0.0.0}"
-          echo "version=${next:-0.0.0}" >> "${GITHUB_OUTPUT}"
+          echo "Next version: ${VERSION} (${CHANGED}; a dry run builds it without publishing)"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
 
   linux-tarball:
     name: Linux x86_64 tarball

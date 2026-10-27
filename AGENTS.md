@@ -91,9 +91,9 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   builds with format, Clippy and tests, the licence list, the shell lint and the title check) pass.
   A pull request's title is the commit's, and starts with its kind and a colon: `breaking:`,
   `feature:`, `fix:` or `chore:` (`fix: boss door stays shut`). Releases are made by hand (Actions >
-  Release); the version follows from those titles since the last release tag (`scripts/next-version.sh`:
-  breaking is the next major, or minor while the major is 0, feature the next minor, fix the next
-  patch, chore alone no release) and is stamped into the build (`scripts/stamp-version.sh`).
+  Release); the version follows from those titles since the last release tag (the
+  `paulhatch/semantic-version` step of `release.yml`: while the major is 0, breaking and feature are
+  the next minor, fix the next patch, chore alone no release; from 1.0 breaking is the next major) and is stamped into the build (`scripts/stamp-version.sh`).
 - Versions are pinned and moved on purpose: `Cargo.lock`, the Rust toolchain (`rust-toolchain.toml`,
   an exact version; bump it with the fixes the newer Clippy asks for, in one commit), the shell
   linter (its version in `.github/workflows/ci.yml`) and the GitHub Actions (by commit).
