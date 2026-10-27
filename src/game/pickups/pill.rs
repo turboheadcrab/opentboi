@@ -32,9 +32,9 @@ impl Pill {
     }
 }
 
-/// How a pill is drawn: the frame of the pill pictures (`pic()`, DoAction 29236). A run draws its six
+/// How a pill is drawn: the frame of the pill pictures (`pic()`, DoAction 29238). A run draws its six
 /// pills with the six plain looks, but for each of three extra ones that may take the place of one
-/// (`picc()`, DoAction 29229–29234).
+/// (`picc()`, DoAction 790 and DoAction 792, again DoAction 29231 and DoAction 29233).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct PillLook(u8);
 

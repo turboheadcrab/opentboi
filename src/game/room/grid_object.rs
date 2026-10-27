@@ -116,8 +116,8 @@ impl GridObject {
         }
     }
 
-    /// `mhitx`: flying passes over everything below 1.8 and over pits; metal blocks (1.9) and
-    /// closed key blocks still stop it.
+    /// `mhitx` (DoAction 6015): flying passes over everything below 1.8 and over pits; metal blocks
+    /// (1.9) and closed key blocks still stop it. The room's edge (DoAction 6010) is the walls'.
     pub fn blocks_flying(&self) -> bool {
         match self.kind {
             GridObjectKind::Tile(TileKind::Block) => true,

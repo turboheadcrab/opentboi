@@ -1,6 +1,7 @@
 //! The floor a blast breaks between pits (`breakfloor()` and `breakall()`): a rock or web cleared
-//! within reach of the blast, with a pit on both sides of it along a row or a column, gets a
-//! broken-floor tile drawn over the rubble at the end of the frame.
+//! within reach of the blast (the tile holds less than 0.99, DoAction 10028), with a pit on both
+//! sides of it along a row or a column (DoAction 10041, DoAction 10042), gets a broken-floor tile
+//! drawn over the rubble at the end of the frame.
 
 use glam::Vec2;
 

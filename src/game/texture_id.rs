@@ -62,7 +62,7 @@ pub enum TextureId {
     KeyBlock,
     /// What a blast leaves of a rock (rubble) or a spider web (torn strands), or a bridged pit.
     ClearedTile(TileKind),
-    /// The floor a blast broke between two pits (`breakall()`, tile sheet frame 67).
+    /// The floor a blast broke between two pits (`breakall()`, tile sheet frame 67, DoAction 10060).
     BrokenFloor,
     /// A stage the kind has, and a frame of that stage's idle loop.
     BreakableStage {

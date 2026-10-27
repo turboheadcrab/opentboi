@@ -544,7 +544,7 @@ frame-locked logic (replaced by time-based updates).
   (DoAction 27967–27971); card names in the demo (follow jumps). `docs`-less status of every card:
   22 complete, 3 partial (The Devil, Strength, The Empress), 2 not done (The Magician, The High
   Priestess).
-- Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); still missing: the random look swaps (`picc`), Isaac's colour flash, blue flies (`Friends`), the poison cloud (`Bad Gas`), the bombs of `Explosive Diarrhea`, puberty's hat and face, the fart sound (not an MP3 in the bank), Strength counting in the tear's first rise like range pills do.
+- Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); the looks are shuffled each run (`picc`); still missing: Isaac's colour flash, blue flies (`Friends`), the poison cloud (`Bad Gas`), the bombs of `Explosive Diarrhea`, puberty's hat and face, the fart sound (not an MP3 in the bank), Strength counting in the tear's first rise like range pills do.
 - `--showcase` puts every card in the treasure room (and every pickup kind in the boss room,
   every machine in the shop); off in normal play.
 - Devil room: open only after the boss and only sometimes (as the original); deals for heart
@@ -588,15 +588,15 @@ one player only, so none of this is in the script to port; it is our own design)
   the taking animation); Mom's Purse (item 139, on a pedestal in the start room) and the second
   slot it opens; the Tick's hat; and the effects of the Goat Hoof, Curved Horn, Game Squid, Cancer,
   Fish Head, Red Patch, A Missing Page, the Polaroid (its bubble), the Cursed Skull, Samson's Lock,
-  the Tick (a heart in the boss room), Isaac's Fork, the Lucky Toe and Mom's Pearl.
+  the Tick (a heart in the boss room), Isaac's Fork, the Lucky Toe and Mom's Pearl; and the pickup
+  swaps of the Ace of Spades, Safety Cap, Match Stick, Rusted Key and Child's Heart (`trixies()`).
 - Left, blocked by what the game lacks: the Umbilical Cord (at half a heart it grants the familiar
   item 100) and Eve's Bird Foot (a kill sometimes calls the Dead Bird familiar): no familiars yet;
   the Tick's 15 % off the health of enemies above 60 hit points (none that strong yet); the Polaroid's
   part in the heaven door and in an unlock (no later chapters); Samson's Lock's red tint and its size
   change; the Fork's rising heart (`hearter`).
 - Left, not looked at yet: the tear effects (Pinky Eye, Push Pin, Game Squid's dark tear), the pennies
-  (extra pickups from coins), the pickup swaps (Ace of Spades, Safety Cap, Match Stick, Rusted Key,
-  Child's Heart), the Left Hand and Judas' Tongue, Blue Baby's Soul and Isaac's Head (ghost
+  (extra pickups from coins), the Left Hand and Judas' Tongue, Blue Baby's Soul and Isaac's Head (ghost
   familiars), Maggy's Faith and Cain's Eye, and Liberty Cap. Which trinkets join the pool later
   (`junx()`) and a gold pickup being always the Counterfeit Penny. Look each one up with the script's
   check for it (`trixx(ID)`) before porting.

@@ -3,8 +3,8 @@
 
 use glam::Vec2;
 
-/// Slot and fortune machines standing; the fortune machine's parts show their second frame
-/// (`sloter()`).
+/// Slot and fortune machines standing; the fortune machine's parts (`col` 41, DoAction 32) show
+/// their second frame (`sloter()`, DoAction 34), and only a pickup's own clip counts (DoAction 28).
 pub const SLOT_IDLE: u8 = 1;
 pub const SPINNING: u8 = 2;
 /// `slotf()` picks the result shown after a spin.
