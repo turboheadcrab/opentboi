@@ -62,8 +62,8 @@ impl Item {
         }
     }
 
-    /// An active item's place in the HUD's item pictures: the number less 32, or 40 from 55 on
-    /// (`itn()`).
+    /// An active item's place in the HUD's item pictures: the number less 32 (DoAction 6232), or 40
+    /// from 55 on (`itn()`, DoAction 6230, DoAction 6234).
     pub const fn active_picture(self) -> u16 {
         const LATER_ITEMS_FROM: u16 = 55;
         const EARLY_OFFSET: u16 = 32;

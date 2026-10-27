@@ -142,8 +142,12 @@ for each line on the map). What each one does, in short:
 - `ingrid()` / `outgrid()`: turn a point in the room into the number of its grid cell, and a cell back
   into the point at its centre.
 - `levzz()`: reads what the room's grid holds at a cell; for enemies, a doorway reads as a shut door.
-- `mhit()` / `mhity()`: whether a point is blocked for something walking, or for a tear (tears fly over
-  pits).
+- `mhit()` / `mhity()` / `mhitx()`: whether a point is blocked for something walking, for a tear (tears
+  fly over pits), or for something flying (only metal blocks and closed key blocks stop it).
+- `linecheck()` / `linecheckxx()` / `pff3()`: whether a walker sees along a line, and whether a blast
+  reaches along one, reading the room's grid a few pixels at a time.
+- `breakfloor()` / `breakall()`: the floor a blast breaks where a cleared rock or web lies between two
+  pits.
 - `enfget()`: the length of a vector, never quite zero.
 - `crand()`: a random point on a circle of a given radius, one coordinate per call.
 - `rand()`: a random number between -0.5 and 0.5.
@@ -158,7 +162,14 @@ for each line on the map). What each one does, in short:
   and keeps the Tick in the first slot.
 - `piller()`: gives a pill look its effect the first time, rolling a chain of odds that Isaac's health,
   bombs, keys, the Lucky Foot and PHD change.
+- `trixies()` / `xox()`: five trinkets (Ace of Spades, Safety Cap, Match Stick, Rusted Key, Child's
+  Heart) now and then make a room's or a chest's reward a card, a pill, a bomb, a key or golden chest,
+  or a heart.
+- `pic()` / `picc()`: the looks of the six pills this run: each of three extra looks may replace one.
 - `tater()`: a random card (a playing card one time in five).
+- `toot()`: the 2 of Spades, Clubs, Hearts and Diamonds double what you have (at least 2).
+- `itn()`: where an active item's picture is in the HUD's item pictures.
+- `curs()`: The Empress turns Isaac demonic, with her animation.
 - `coincol()`: what a coin is worth (1, 5 or 10) and its sound and message.
 - `emo()` / `goodpill()`: Isaac's thumbs-up or thumbs-down and the sound of a good pill.
 - `st22()`: shows a short message at the top right.
@@ -172,15 +183,16 @@ for each line on the map). What each one does, in short:
 - `efly()`: the fly that circles a corny poop.
 - `walkframe()`: a walking creature's clip switches between standing and walking by its speed.
 - `sideflip()`: turns a clip around when it moves against its facing.
+- `sloter()`: the fortune machine's parts show their second frame.
+- `splater()`: blood on the floor, turned upside down one time in two.
 
 **Map and secret rooms**
 - `itmc()`: the minimap's mark for what is left in a room.
 - `hider()` / `hider2()`: the jingle of finding a secret room, once.
 
 A further set of functions is ported, but not every line is individually cited yet (`teller()`,
-`playcol()`, `linecheck()`, `linecheckxx()`, `firr()`, `toot()`, `splater()`, `curs()`, `spawnb()`,
-`pff3()`, `itn()`, `firewalk()`, `angstfind()`, `breakall()`, `bord()`, `goblack()`, `sloter()`). The
-map shows them amber.
+`playcol()`, `firr()`, `spawnb()`, `firewalk()`, `angstfind()`, `bord()`, `goblack()`). The map shows
+them amber.
 
 ## Development
 

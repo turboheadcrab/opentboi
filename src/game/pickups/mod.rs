@@ -25,6 +25,7 @@ pub mod rewards;
 pub mod showcase;
 pub mod sounds;
 pub mod trinket;
+pub mod trinket_swaps;
 
 use glam::Vec2;
 

@@ -414,6 +414,16 @@ frame-locked logic (replaced by time-based updates).
   do not exist yet; shop layouts mark them with `shop` markers); the treasure room has its layout and
   gold doors but no item pedestal (items do not exist yet); secret rooms (`hide`), sacrifice, library, arcade and
   challenge rooms are not generated yet.
+- Placeholder room roles exist for the second treasure room (`boner2`), the challenge room
+  (`chamb`), the boss rush (`chamb` with `altch == 2`; `teller()` refuses there) and the arcade
+  (`gamb`) in `floor/plan/later_rooms.rs`. They stand empty, and their conditions (`double`
+  floors, full health, coins, hard mode, chapter) are constants of the first floor, so nothing
+  is generated yet. Replace each with the real room, and the constants with run state.
+- Cohesion placeholders still to add, each used by several ported functions: `Character`
+  (`skiner`; Isaac only; `firr`, `playcol`, `newstats`), a run `hard_mode` flag (item rolls, Sun
+  and FullHealth healing, room-clear adjustments; a `--hard-mode` option), familiars (limit 3),
+  the darkness curse flag (cleared by the Sun and the World), the `hat()` mapping (hat id to
+  slot, generalizing the Tick's), and the `double` floor condition.
 - Door variants: the shop and library doors in rooms with enemies (frame 9 stays as it is),
   challenge and arcade doors (clip 6550).
 - Enemies from layouts: only the fly markers (6601, 6589) are read; the others (6597, …) are
@@ -544,7 +554,7 @@ frame-locked logic (replaced by time-based updates).
   (DoAction 27967–27971); card names in the demo (follow jumps). `docs`-less status of every card:
   22 complete, 3 partial (The Devil, Strength, The Empress), 2 not done (The Magician, The High
   Priestess).
-- Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); still missing: the random look swaps (`picc`), Isaac's colour flash, blue flies (`Friends`), the poison cloud (`Bad Gas`), the bombs of `Explosive Diarrhea`, puberty's hat and face, the fart sound (not an MP3 in the bank), Strength counting in the tear's first rise like range pills do.
+- Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); the looks are shuffled each run (`picc`); Bad Gas lets out its cloud, with the poison (hurt now and every 20 frames, a green tint) and `Fart.mp3`; blue flies come with Friends; still missing: Isaac's colour flash, the bombs of `Explosive Diarrhea`, puberty's hat and face, Strength counting in the tear's first rise like range pills do. Poison could come from other sources too (DoAction 6987–7001, 7512, 10402), and `fart()` runs when Isaac is hurt with item 180 (`farter`, DoAction 4856).
 - `--showcase` puts every card in the treasure room (and every pickup kind in the boss room,
   every machine in the shop); off in normal play.
 - Devil room: open only after the boss and only sometimes (as the original); deals for heart
@@ -588,15 +598,15 @@ one player only, so none of this is in the script to port; it is our own design)
   the taking animation); Mom's Purse (item 139, on a pedestal in the start room) and the second
   slot it opens; the Tick's hat; and the effects of the Goat Hoof, Curved Horn, Game Squid, Cancer,
   Fish Head, Red Patch, A Missing Page, the Polaroid (its bubble), the Cursed Skull, Samson's Lock,
-  the Tick (a heart in the boss room), Isaac's Fork, the Lucky Toe and Mom's Pearl.
+  the Tick (a heart in the boss room), Isaac's Fork, the Lucky Toe and Mom's Pearl; and the pickup
+  swaps of the Ace of Spades, Safety Cap, Match Stick, Rusted Key and Child's Heart (`trixies()`).
 - Left, blocked by what the game lacks: the Umbilical Cord (at half a heart it grants the familiar
   item 100) and Eve's Bird Foot (a kill sometimes calls the Dead Bird familiar): no familiars yet;
   the Tick's 15 % off the health of enemies above 60 hit points (none that strong yet); the Polaroid's
   part in the heaven door and in an unlock (no later chapters); Samson's Lock's red tint and its size
   change; the Fork's rising heart (`hearter`).
 - Left, not looked at yet: the tear effects (Pinky Eye, Push Pin, Game Squid's dark tear), the pennies
-  (extra pickups from coins), the pickup swaps (Ace of Spades, Safety Cap, Match Stick, Rusted Key,
-  Child's Heart), the Left Hand and Judas' Tongue, Blue Baby's Soul and Isaac's Head (ghost
+  (extra pickups from coins), the Left Hand and Judas' Tongue, Blue Baby's Soul and Isaac's Head (ghost
   familiars), Maggy's Faith and Cain's Eye, and Liberty Cap. Which trinkets join the pool later
   (`junx()`) and a gold pickup being always the Counterfeit Penny. Look each one up with the script's
   check for it (`trixx(ID)`) before porting.
@@ -628,6 +638,17 @@ one player only, so none of this is in the script to port; it is our own design)
   and the `app_id` line in `VERIFIED.md`. The project folder's own name is local and doesn't matter.
 - Test the GitHub plumbing in the private staging repository first (done once: CI, a dry-run
   release, branch protection), then publish the work in a separate, fresh repository.
+
+## Module layout: fewer files per directory
+- The 250-line rule (`tests/source_file_length.rs`) is our own convention; no Rust guideline
+  sets a file length or a files-per-module count. It leaves flat directories: `game/player/`
+  (about 31 files), `game_assets/texture_catalog/` (31), `game/room/enemies/` (about 25) and
+  `game/parameters/` (24).
+- Group `player/` into `pills/`, `trinkets/` and `cards/` (with their tests beside them), by
+  family for `texture_catalog/`, aiming at 10–12 files a directory; consider a soft cap per
+  directory in the same test.
+- Remove the two `#[path = "…"]` attributes in `game/player/trinket_effects.rs` (for
+  `trinket_tests.rs` and `trinket_effect_tests.rs`) when the trinket files move.
 
 ## Steam Controller: how other games do it
 - Games rarely do anything special: they accept an XInput/SDL gamepad and count on Steam Input to turn

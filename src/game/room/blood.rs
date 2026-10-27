@@ -101,7 +101,7 @@ impl BloodSplats {
         }
     }
 
-    /// `splater()`.
+    /// `splater()`: turned upside down one time in two (DoAction 4898).
     pub fn splatter(&mut self, splatter: Splatter, parameters: &SplatParameters, random: &mut Random) {
         if let Some(look) = splatter.look {
             self.last_look = look;

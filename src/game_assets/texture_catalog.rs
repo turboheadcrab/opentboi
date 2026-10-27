@@ -67,6 +67,7 @@ fn source_for(texture_id: TextureId) -> TextureSource {
         TextureId::ActiveItemLabel(_) => hud::active_item_label_source(),
         TextureId::HeldCardLabel(_) => cards::label_source(),
         TextureId::Pickup { kind, phase, frame } => pickups::source(kind, phase, frame),
+        TextureId::PillPickup(look, phase, frame) => pickups::pill_source(look, phase, frame),
         TextureId::ShopWare(frame) => wares::ware_source(frame),
         TextureId::ShopConsumableWare { color, on_sale } => wares::consumable_ware_source(color, on_sale),
         TextureId::HudGlyph(glyph) => glyphs::source(glyph),
@@ -113,6 +114,7 @@ fn source_for(texture_id: TextureId) -> TextureSource {
         TextureId::Door(_)
         | TextureId::OrbitingFly(_)
         | TextureId::Explosion(_)
+        | TextureId::GasCloud(_)
         | TextureId::ExplosionScorch
         | TextureId::BombFuse(_) => effects::source_for(texture_id),
         TextureId::Tear

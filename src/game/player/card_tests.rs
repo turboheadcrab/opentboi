@@ -106,6 +106,21 @@ fn the_fool_teleports_to_the_start_room_after_the_animation() {
     assert_eq!(game.floor.current_cell(), FloorCell::START);
 }
 
+/// DoAction 4690: a boss rush refuses every teleport.
+#[test]
+fn a_boss_rush_refuses_to_teleport() {
+    let mut game = game();
+    game.floor.teleport_to(game.floor.cells()[1], Vec2::ZERO);
+    game.floor.make_current_room(RoomRole::BossRush);
+    use_card(&mut game, Card::TheFool);
+    assert!(game.cards.teleport.is_none());
+    assert!(
+        !game
+            .drain_sound_events()
+            .any(|sound| sound == SoundEvent::TeleportStarted)
+    );
+}
+
 #[test]
 fn the_empress_gives_isaac_the_demonic_look() {
     let mut game = game();

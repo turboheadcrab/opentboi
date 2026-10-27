@@ -48,12 +48,10 @@ mod wall_contact;
 use glam::Vec2;
 
 pub use draw::{DrawItem, Rgba};
-pub use hud::held_trinket::SlotView;
 pub use hud::message::{PickupMessage, texture_center_in_clip};
 pub use hud::name_banner::{BannerName, FORTUNE_COUNT};
 pub use hud::pill_text::{HUD_NAME_COUNT, MESSAGES_BEFORE_PILLS, PillText};
-pub use hud::stats::HUD_GLYPHS;
-pub use hud::{HudHeart, MAXIMUM_COUNTER_VALUE};
+pub use hud::{HudHeart, MAXIMUM_COUNTER_VALUE, held_trinket::SlotView, stats::HUD_GLYPHS};
 pub use input_state::{
     GamepadKind, InputDevice, InputState, LEFT_STICK_DEADZONE, RIGHT_STICK_DEADZONE, apply_radial_deadzone,
 };
@@ -61,7 +59,8 @@ pub use music::{MusicEvent, MusicStart, MusicTrack};
 pub use parameters::{GameParameters, ParameterProvider, TranscribedOriginal};
 pub use pickups::card::{Card as PickupCard, TAROT_COUNT};
 pub use pickups::kind::{ChestKind, PickupKind};
-pub use pickups::{item::Item, phase::PickupPhase, pill::Pill as PickupPill, trinket::Trinket};
+pub use pickups::pill::{Pill, PillLook};
+pub use pickups::{item::Item, phase::PickupPhase, trinket::Trinket};
 pub use player::animation::{Held, PlayerAnimation};
 pub use player::death::Killer;
 pub use room::grid_kind::{BreakableKind, TileKind};
@@ -154,6 +153,7 @@ impl Game {
     pub fn new(room_appearance: RoomAppearance, parameters: &GameParameters, layouts: &RoomLayouts, seed: u32) -> Self {
         let mut random = Random::with_seed(seed);
         let floor = Floor::generate(layouts, parameters, &mut random);
+        let inventory = Inventory::new_run(parameters.inventory, &mut random);
         Self {
             room_appearance,
             player: Player::new(PLAYER_START_POSITION, parameters),
@@ -165,7 +165,7 @@ impl Game {
             parameters: *parameters,
             layouts: layouts.clone(),
             settings: GameSettings::default(),
-            inventory: Inventory::new(parameters.inventory),
+            inventory,
             clock: TickClock::new(DEFAULT_TICKS_PER_SECOND, settings::InputSampling::Original),
             overlay: Overlay::default(),
             restart_hold: RestartHold::default(),

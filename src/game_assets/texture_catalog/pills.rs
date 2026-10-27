@@ -2,7 +2,7 @@
 
 use super::cards::{HELD_NAME_CLIP, HELD_PICTURE_CLIP, card_texts};
 use super::{TextureSource, framed};
-use crate::game::{PickupPill, PillText};
+use crate::game::{PillLook, PillText};
 use crate::game_assets::vector_art::{ChildState, NO_OVERRIDES, RenderOverrides};
 
 /// The pill's picture: the same clip and frame as a card's, on the pill's look.
@@ -18,11 +18,12 @@ macro_rules! held_pills {
     };
 }
 
-static HELD_PILLS: [RenderOverrides; 6] = held_pills!(1 2 3 4 5 6);
+/// By the pill's look (its place in `PillLook::ALL`).
+static HELD_PILLS: [RenderOverrides; 9] = held_pills!(1 2 3 4 5 6 101 102 103);
 
-pub(super) fn held_picture_source(pill: PickupPill) -> TextureSource {
+pub(super) fn held_picture_source(look: PillLook) -> TextureSource {
     TextureSource {
-        overrides: &HELD_PILLS[pill.index()],
+        overrides: &HELD_PILLS[look.index()],
         ..framed(HELD_PICTURE_CLIP, 1)
     }
 }

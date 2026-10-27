@@ -45,7 +45,9 @@ impl Growth {
         }
         let shop_cell = self.take_dead_end(random)?;
         let treasure_cell = self.take_dead_end(random)?;
+        let second_treasure_cell = self.second_treasure_room(random);
         let [sacrifice_cell, library_cell, curse_cell, miniboss_cell] = self.optional_rooms(chapter, random);
+        let [challenge, arcade] = self.challenge_and_arcade(chapter, random);
         let mut roles_by_cell: BTreeMap<FloorCell, RoomRole> = FloorCell::all()
             .filter(|cell| self.occupied[cell.index()])
             .map(|cell| (cell, RoomRole::Normal))
@@ -61,6 +63,9 @@ impl Growth {
             (curse_cell, RoomRole::Curse),
             (library_cell, RoomRole::Library),
             (miniboss_cell, RoomRole::MiniBoss),
+            (second_treasure_cell, RoomRole::SecondTreasure),
+            challenge,
+            arcade,
         ];
         for (cell, role) in specials {
             if let Some(cell) = cell {

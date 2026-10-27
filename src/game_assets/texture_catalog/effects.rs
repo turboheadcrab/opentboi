@@ -12,6 +12,8 @@ const FLY_FRAME: u16 = 1;
 /// The bomb clip (`b4`); `bombfail` jumps to frame 3, whose 46-frame explosion plays once.
 const BOMB_CLIP: CharacterId = 3407;
 const BOMB_EXPLOSION_FRAME: u16 = 3;
+/// Its frame 5: the gas cloud (3402).
+const BOMB_GAS_FRAME: u16 = 5;
 /// The bomb clip's frame 1: the burning fuse (2039) and the shadow.
 const BOMB_FUSE_FRAME: u16 = 1;
 /// The door clip (`d1`–`d4`): frame 4 is the plain open door, 32 the open treasure door.
@@ -93,6 +95,7 @@ pub(super) fn source_for(texture_id: TextureId) -> TextureSource {
         TextureId::Door(DoorTexture::Opening(style, frame)) => animated(DOOR_CLIP, opening_frame(style), frame),
         TextureId::BombFuse(frame) => animated(BOMB_CLIP, BOMB_FUSE_FRAME, frame),
         TextureId::Explosion(frame) => animated(BOMB_CLIP, BOMB_EXPLOSION_FRAME, frame),
+        TextureId::GasCloud(frame) => animated(BOMB_CLIP, BOMB_GAS_FRAME, frame),
         _ => framed(SCORCH_CLIP, SCORCH_FRAME),
     }
 }

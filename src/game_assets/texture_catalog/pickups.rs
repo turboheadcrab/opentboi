@@ -6,7 +6,7 @@ use super::shared_clips::{FUSE_SPARK_CLIP, PICKUP_CLIP};
 use swf::CharacterId;
 
 use super::{TextureSource, framed};
-use crate::game::{ChestKind, Item, PickupKind, PickupPhase, Trinket};
+use crate::game::{ChestKind, Item, PickupKind, PickupPhase, Pill, PillLook, Trinket};
 use crate::game_assets::vector_art::{ChildState, FrameSelection, RenderOverrides};
 use std::sync::OnceLock;
 
@@ -112,33 +112,25 @@ static CARDS: [[RenderOverrides; 2]; 3] = [
     [card_overrides!(2, 7), card_overrides!(2, 70)],
 ];
 
-/// By phase, then the pill's look.
-static PILLS: [[RenderOverrides; 6]; 3] = [
-    [
-        card_overrides!(3, 1),
-        card_overrides!(3, 2),
-        card_overrides!(3, 3),
-        card_overrides!(3, 4),
-        card_overrides!(3, 5),
-        card_overrides!(3, 6),
-    ],
-    [
-        card_overrides!(1, 1),
-        card_overrides!(1, 2),
-        card_overrides!(1, 3),
-        card_overrides!(1, 4),
-        card_overrides!(1, 5),
-        card_overrides!(1, 6),
-    ],
-    [
-        card_overrides!(2, 1),
-        card_overrides!(2, 2),
-        card_overrides!(2, 3),
-        card_overrides!(2, 4),
-        card_overrides!(2, 5),
-        card_overrides!(2, 6),
-    ],
-];
+/// The pill pictures of a phase, one for each of `PillLook::ALL`.
+macro_rules! pill_looks {
+    ($phase:literal) => {
+        [
+            card_overrides!($phase, 1),
+            card_overrides!($phase, 2),
+            card_overrides!($phase, 3),
+            card_overrides!($phase, 4),
+            card_overrides!($phase, 5),
+            card_overrides!($phase, 6),
+            card_overrides!($phase, 101),
+            card_overrides!($phase, 102),
+            card_overrides!($phase, 103),
+        ]
+    };
+}
+
+/// By phase, then the pill's look (its place in `PillLook::ALL`).
+static PILLS: [[RenderOverrides; 9]; 3] = [pill_looks!(3), pill_looks!(1), pill_looks!(2)];
 
 /// By phase, then the trinket's place in `Trinket::ALL`: the same clip frame as a card, its variant
 /// clip on the trinket's own frame. Built once (the frames are not literals).
@@ -162,10 +154,23 @@ fn trinket_overrides(phase: PickupPhase, trinket: Trinket) -> &'static RenderOve
     &overrides[phase as usize * Trinket::ALL.len() + trinket.index()]
 }
 
+/// A pill lying about in `look`: the card's picture, on the look's frame.
+pub(super) fn pill_source(look: PillLook, phase: PickupPhase, frame: u8) -> TextureSource {
+    let kind = PickupKind::Pill(Pill::ALL[0]);
+    TextureSource {
+        selection: FrameSelection {
+            frame_number: u16::from(kind.clip_frame()),
+            frames_since_frame_started: u16::from(frame),
+        },
+        overrides: &PILLS[phase as usize][look.index()],
+        origin_y: -phase.art_lift().get(),
+        ..framed(PICKUP_CLIP, u16::from(kind.clip_frame()))
+    }
+}
+
 pub(super) fn source(kind: PickupKind, phase: PickupPhase, frame: u8) -> TextureSource {
     let animated = match kind {
         PickupKind::Trinket(trinket) => Some(trinket_overrides(phase, trinket)),
-        PickupKind::Pill(pill) => Some(&PILLS[phase as usize][pill.index()]),
         PickupKind::Card(card) => Some(&CARDS[phase as usize][usize::from(!card.is_tarot())]),
         PickupKind::Chest(ChestKind::Red) => Some(&RED_CHEST[phase as usize]),
         _ => None,

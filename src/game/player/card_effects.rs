@@ -68,6 +68,8 @@ impl Game {
             // Homing tears and range, Mom's foot: not yet.
             Card::TheEmpress => {
                 self.cards.boosts.empress = true;
+                // `curs()`: her skin (DoAction 5036), the full-screen animation (DoAction 5038) and
+                // Isaac holding it up (DoAction 5039).
                 self.play_card_animation(EMPRESS_ANIMATION, SoundEvent::EmpressCard);
             }
             Card::TheMagician | Card::TheHighPriestess => {}
@@ -137,7 +139,7 @@ impl Game {
     }
 }
 
-/// `toot()`: doubled, at least 2, up to the counter's 99.
+/// `toot()` (DoAction 26853): doubled, at least 2, up to the counter's 99.
 fn doubled(count: u8) -> u8 {
     const MINIMUM: u8 = 2;
     const MAXIMUM: u8 = 99;

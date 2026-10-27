@@ -45,7 +45,10 @@ pub(super) fn choose_layout<'layouts>(
             .get(MINIBOSS_LAYOUTS[random.index(MINIBOSS_LAYOUTS.len())]),
         RoomRole::Devil => layouts.devil.first(),
         RoomRole::Curse => layouts.curse.get(curse_layout_index(random)),
-        RoomRole::Start => None,
+        // Placeholders: these rooms stand empty until they are made.
+        RoomRole::Start | RoomRole::SecondTreasure | RoomRole::Challenge | RoomRole::BossRush | RoomRole::Arcade => {
+            None
+        }
     }
 }
 

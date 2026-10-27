@@ -7,6 +7,8 @@ use crate::game::{
 
 /// Clip frames the original leaves empty (kept to play the clips at their full length).
 const EXPLOSION_FIRST_EMPTY_FRAME: u8 = 26;
+/// The gas cloud's clip (3402) has played out by the same frame.
+const GAS_CLOUD_FIRST_EMPTY_FRAME: u8 = 26;
 /// `bloodsplash` (1488) shows nothing on its last (17th) frame.
 const BLOOD_SPLASH_EMPTY_FRAME: u8 = 16;
 const KEY_BLOCK_OPENING_FIRST_EMPTY_FRAME: u8 = 23;
@@ -25,6 +27,7 @@ pub(super) fn is_empty_in_the_original(texture_id: TextureId) -> bool {
     match texture_id {
         TextureId::Explosion(frame) => frame >= EXPLOSION_FIRST_EMPTY_FRAME,
         TextureId::KeyBlockOpening(frame) => frame >= KEY_BLOCK_OPENING_FIRST_EMPTY_FRAME,
+        TextureId::GasCloud(frame) => frame >= GAS_CLOUD_FIRST_EMPTY_FRAME,
         TextureId::Pickup {
             kind,
             phase: PickupPhase::Landing,
@@ -35,6 +38,8 @@ pub(super) fn is_empty_in_the_original(texture_id: TextureId) -> bool {
             phase: PickupPhase::Collected,
             frame,
         } => !kind.is_chest() && frame == PICKUP_FLASH_EMPTY_FRAME,
+        TextureId::PillPickup(_, PickupPhase::Landing, frame) => frame < PICKUP_LANDING_FIRST_DRAWN_FRAME,
+        TextureId::PillPickup(_, PickupPhase::Collected, frame) => frame == PICKUP_FLASH_EMPTY_FRAME,
         // An enemy shot's splash (1488) ends on an empty frame.
         TextureId::BloodSplash(frame) => frame == BLOOD_SPLASH_EMPTY_FRAME,
         TextureId::CardSlotAnimation { used: true, frame } => frame >= CARD_SLOT_USED_FIRST_EMPTY_FRAME,

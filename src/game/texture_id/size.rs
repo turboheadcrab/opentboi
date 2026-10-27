@@ -7,7 +7,10 @@ use super::{
     ClottyAnimation, DoorStyle, DoorTexture, FlyAnimation, FlyKind, GaperAnimation, HeadlessAnimation, HorfAnimation,
     MulliganAnimation, TextureId,
 };
-use crate::game::room::layout::Decoration;
+use crate::game::pickups::{kind::PickupKind, pill::Pill};
+use figures::{decoration_size, isaac_animation_size};
+
+mod figures;
 
 const TEAR_SIZE: Vec2 = Vec2::new(18.0, 18.0);
 const TEAR_SHADOW_SIZE: Vec2 = Vec2::new(18.0, 8.0);
@@ -20,6 +23,8 @@ const BREAKABLE_REGROW_SIZE: Vec2 = Vec2::new(144.0, 128.0);
 /// The fly clip hangs its body above and its shadow below the orbit point.
 const ORBITING_FLY_SIZE: Vec2 = Vec2::new(24.0, 76.0);
 const EXPLOSION_SIZE: Vec2 = Vec2::new(320.0, 224.0);
+/// The gas cloud spreads wide around the bomb clip's origin (its frames need up to 303×235).
+const GAS_CLOUD_SIZE: Vec2 = Vec2::new(312.0, 240.0);
 const EXPLOSION_SCORCH_SIZE: Vec2 = Vec2::new(128.0, 72.0);
 /// The shop door's key swings out past the frame while it unlocks.
 const DOOR_SIZE: Vec2 = Vec2::new(100.0, 96.0);
@@ -37,11 +42,6 @@ const HUD_HEART_SIZE: Vec2 = Vec2::new(50.0, 40.0);
 /// Minimap pieces sit 25 apart horizontally and 10 vertically.
 const MAP_PICKUP_MARK_SIZE: Vec2 = Vec2::new(28.0, 16.0);
 const MAP_PIECE_SIZE: Vec2 = Vec2::new(40.0, 24.0);
-const ISAAC_TELEPORT_SIZE: Vec2 = Vec2::new(88.0, 420.0);
-const ISAAC_HOLDING_UP_SIZE: Vec2 = Vec2::new(84.0, 180.0);
-/// Dying throws blood and ends in a pool wider than he is.
-const ISAAC_DYING_SIZE: Vec2 = Vec2::new(152.0, 216.0);
-const DEVIL_STATUE_SIZE: Vec2 = Vec2::new(100.0, 112.0);
 const FLY_SIZE: Vec2 = Vec2::new(120.0, 120.0);
 const ENEMY_SHOT_SIZE: Vec2 = Vec2::new(24.0, 24.0);
 const BLOOD_SPLASH_SIZE: Vec2 = Vec2::new(128.0, 128.0);
@@ -76,9 +76,6 @@ const BLOOD_SPLAT_SIZE: Vec2 = Vec2::new(48.0, 28.0);
 const DOOR_MOTION_SIZE: Vec2 = Vec2::new(152.0, 128.0);
 /// The boss door swinging shut flaps out sideways for a few frames.
 const BOSS_DOOR_MOTION_SIZE: Vec2 = Vec2::new(268.0, 156.0);
-/// Hung from the ceiling by a string.
-const SHOPKEEPER_SIZE: Vec2 = Vec2::new(48.0, 320.0);
-const SECRET_SHOPKEEPER_SIZE: Vec2 = Vec2::new(52.0, 140.0);
 const HELD_CARD_SIZE: Vec2 = Vec2::new(32.0, 52.0);
 const HELD_CARD_NAME_SIZE: Vec2 = Vec2::new(316.0, 96.0);
 /// The card name banner (`hud.st1` at x 27) slides in from the stage's left edge: its texture
@@ -197,6 +194,7 @@ impl TextureId {
             | Self::CardSlotAnimation { .. }
             | Self::TrinketSlot(..) => self.held_size(),
             Self::Pickup { kind, phase, .. } => phase.texture_size(kind),
+            Self::PillPickup(_, phase, _) => phase.texture_size(PickupKind::Pill(Pill::ALL[0])),
             Self::ShieldBubble(_) => crate::game::player::shield::BUBBLE_SIZE,
             Self::StageSurround => STAGE_SURROUND_SIZE,
             Self::Tear | Self::DarkTear => TEAR_SIZE,
@@ -208,6 +206,7 @@ impl TextureId {
             Self::KeyBlockOpening(_) => KEY_BLOCK_OPENING_SIZE,
             Self::OrbitingFly(_) => ORBITING_FLY_SIZE,
             Self::Explosion(_) => EXPLOSION_SIZE,
+            Self::GasCloud(_) => GAS_CLOUD_SIZE,
             Self::ExplosionScorch => EXPLOSION_SCORCH_SIZE,
             Self::BombFuse(_) => BOMB_SIZE,
             Self::Door(_) => self.door_size(),
@@ -229,22 +228,5 @@ impl TextureId {
             Self::Decoration { decoration, .. } => decoration_size(decoration),
             Self::IsaacAnimation { animation, .. } => isaac_animation_size(animation),
         }
-    }
-}
-
-fn isaac_animation_size(animation: crate::game::PlayerAnimation) -> Vec2 {
-    use crate::game::PlayerAnimation;
-    match animation {
-        PlayerAnimation::Teleport | PlayerAnimation::TeleportArrival => ISAAC_TELEPORT_SIZE,
-        PlayerAnimation::Dying => ISAAC_DYING_SIZE,
-        _ => ISAAC_HOLDING_UP_SIZE,
-    }
-}
-
-fn decoration_size(decoration: Decoration) -> Vec2 {
-    match decoration {
-        Decoration::DevilStatue => DEVIL_STATUE_SIZE,
-        Decoration::Shopkeeper => SHOPKEEPER_SIZE,
-        Decoration::SecretShopkeeper => SECRET_SHOPKEEPER_SIZE,
     }
 }

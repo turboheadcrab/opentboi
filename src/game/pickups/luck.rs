@@ -2,6 +2,8 @@
 //! squeeze the room-clear roll towards the good end, the Lucky Toe does too and adds a
 //! roll to chests, and Mom's Pearl turns hearts into soul hearts now and then.
 
+use crate::game::pickups::trinket::Trinket;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct PickupLuck {
     pub lucky_foot: bool,
@@ -9,9 +11,16 @@ pub struct PickupLuck {
     pub luck: i32,
     pub lucky_toe: bool,
     pub moms_pearl: bool,
+    /// The trinkets held (`trix`, `atrix`), for the ones that change what a reward is
+    /// (see `trinket_swaps`).
+    pub trinkets: [Option<Trinket>; 2],
 }
 
 impl PickupLuck {
+    pub fn holds(self, trinket: Trinket) -> bool {
+        self.trinkets.contains(&Some(trinket))
+    }
+
     /// The room-clear roll's random fraction `roll` after luck (DoAction 30835–30858): the Lucky Foot
     /// and good luck each squeeze it into the top nine tenths, bad luck lowers it by a tenth per
     /// point; the Lucky Toe squeezes it again, harder if the foot and good luck already help.
@@ -61,6 +70,7 @@ mod tests {
             luck: 1,
             lucky_toe: true,
             moms_pearl: false,
+            trinkets: [None, None],
         };
         // Foot, luck, then the toe's lighter squeeze: ((0 * 0.9 + 0.1) * 0.9 + 0.1) * 0.98 + 0.02.
         assert!(

@@ -1,14 +1,24 @@
 //! The pills the inventory holds and has learned.
 
 use crate::game::hud::pill_text::PillText;
+use crate::game::parameters::InventoryParameters;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
-use crate::game::pickups::pill::Pill;
+use crate::game::pickups::pill::{Pill, PillLooks};
 use crate::game::player::inventory::Inventory;
+use crate::game::random::Random;
 use crate::game::sound_event::SoundEvent;
 use crate::game::texture_id::TextureId;
 
 impl Inventory {
+    /// A new run's inventory, its pills looking as `newstats()` makes them (DoAction 797–800); the
+    /// game rolls this after the floor, so a seed still makes the same floor.
+    pub fn new_run(parameters: InventoryParameters, random: &mut Random) -> Self {
+        let mut inventory = Self::new(parameters);
+        inventory.pills.looks = PillLooks::shuffled(random);
+        inventory
+    }
+
     /// `pillc()`: the card or pill goes into the slot; one held already is dropped. A pill (DoAction 7105)
     /// makes the shell game's shuffle.
     pub(super) fn take_held(&mut self, held: Consumable) -> SoundEvent {
@@ -38,7 +48,10 @@ impl Inventory {
     pub fn held_textures(&self) -> Option<(TextureId, TextureId)> {
         self.held.map(|held| match held {
             Consumable::Card(card) => (TextureId::HeldCard(card), TextureId::HeldCardName(card)),
-            Consumable::Pill(pill) => (TextureId::HeldPill(pill), TextureId::HeldPillName(self.pill_name(pill))),
+            Consumable::Pill(pill) => (
+                TextureId::HeldPill(self.pills.looks.look_of(pill)),
+                TextureId::HeldPillName(self.pill_name(pill)),
+            ),
         })
     }
 }

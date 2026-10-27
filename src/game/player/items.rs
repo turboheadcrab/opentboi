@@ -101,8 +101,10 @@ impl Game {
         }
         self.remember_finds(collection);
         if let Some(taken) = collection.card_taken {
-            self.player
-                .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));
+            self.player.play_animation(PlayerAnimation::PickingUp(Held::holding(
+                taken,
+                self.inventory.pills.looks,
+            )));
         }
         if let Some(trinket) = collection.trinket_taken {
             self.player

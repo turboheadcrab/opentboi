@@ -76,7 +76,7 @@ impl Game {
                 WareKind::Bomb => Some(Held::Bomb),
                 WareKind::Key => Some(Held::Key),
                 WareKind::SoulHeart => Some(Held::SoulHeart),
-                WareKind::Consumable(consumable) => Some(Held::from(consumable)),
+                WareKind::Consumable(consumable) => Some(Held::holding(consumable, self.inventory.pills.looks)),
                 WareKind::DevilDeal(_) => None,
             };
             if let Some(held) = held {

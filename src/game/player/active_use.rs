@@ -62,8 +62,10 @@ impl Game {
             room.pickups.drop_held(held.pickup_kind(), spot);
         }
         self.remember_consumable_taken(taken);
-        self.player
-            .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));
+        self.player.play_animation(PlayerAnimation::PickingUp(Held::holding(
+            taken,
+            self.inventory.pills.looks,
+        )));
     }
 
     /// The Chariot's and My Little Unicorn's ride, with its tune.

@@ -34,7 +34,9 @@ pub const FADING_STEP: f32 = 0.1;
 const FADING_BELOW: f32 = 0.99;
 /// `linecheck()`: the line is looked at every 6 pixels, at the corners of a 10-pixel square
 /// (`pff3()` for each), with 2.5 to spend: a cell of 1 or more ends the sight, one between 0.3 and
-/// 1 costs 0.1, spikes and webs (0.99) cost nothing. The sight is clear while anything is left.
+/// 1 costs 0.1 (DoAction 6077, DoAction 6079), spikes and webs (0.99) cost nothing. The sight is
+/// clear while anything is left. Its steps, corners and credit are DoAction 6161, DoAction 6162,
+/// DoAction 6168, DoAction 6169 and DoAction 6179.
 const WALK_SIGHT_STEP: f32 = 6.0;
 const WALK_SIGHT_CORNER: f32 = 5.0;
 const SIGHT_CREDIT: f32 = 2.5;
@@ -42,8 +44,9 @@ const SIGHT_COST: f32 = 0.1;
 const SIGHT_BLOCKED_FROM: f32 = 1.0;
 const SIGHT_COSTS_ABOVE: f32 = 0.3;
 const SIGHT_IGNORES: f32 = 0.99;
-/// `linecheckxx()`: every 10 pixels, at the point itself; a cell of 1.8 or more stops the blast,
-/// except a hidden wall (1.85) and a pit (3).
+/// `linecheckxx()`: every 10 pixels (DoAction 6110, DoAction 6111, DoAction 6122), at the point
+/// itself, with 2.5 to spend (DoAction 6103); a cell of 1.8 or more stops the blast, except a hidden
+/// wall (1.85) and a pit (3).
 const BLAST_STEP: f32 = 10.0;
 const BLAST_STOPPED_FROM: f32 = 1.8;
 const PIT_VALUE: f32 = 3.0;

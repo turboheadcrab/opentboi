@@ -4,10 +4,12 @@
 use glam::Vec2;
 
 use crate::game::attacks::explosion::Explosion;
+use crate::game::attacks::gas_cloud::GasCloud;
 use crate::game::bounds::Bounds;
 use crate::game::input_state::snap_to_cardinal;
 use crate::game::original_units::distance;
-use crate::game::parameters::ExplosionParameters;
+use crate::game::parameters::{ExplosionParameters, PillParameters};
+use crate::game::random::Random;
 use crate::game::room::TILE_SIZE;
 use crate::game::room::contents::{PendingHit, RoomContents};
 use crate::game::room::grid_object::HitStrength;
@@ -41,6 +43,21 @@ impl RoomContents {
         self.objects_within(center)
             .map(|near| (near, HitStrength::Explosion, Some(center)))
             .collect()
+    }
+
+    /// Bad Gas (`fart()`, DoAction 26697–26719): a cloud at `center`, the enemies near it hurt and
+    /// poisoned, and the sound.
+    pub fn release_gas(
+        &mut self,
+        center: Vec2,
+        pills: &PillParameters,
+        random: &mut Random,
+        sounds: &mut Vec<SoundEvent>,
+    ) {
+        self.gas_clouds
+            .push(GasCloud::starting_at(center, pills.gas_cloud_scale));
+        self.enemies.poison_near(center, pills, random, sounds);
+        sounds.push(SoundEvent::Fart);
     }
 
     /// Blast centers since the last call, and how blasts behave.

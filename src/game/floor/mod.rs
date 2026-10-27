@@ -160,7 +160,14 @@ impl Floor {
             RoomRole::Curse | RoomRole::Devil => RoomArt::Curse,
             RoomRole::Library => RoomArt::Library,
             RoomRole::Sacrifice => RoomArt::Sacrifice,
-            RoomRole::Start | RoomRole::Normal | RoomRole::Treasure | RoomRole::MiniBoss => RoomArt::Basement,
+            RoomRole::Start
+            | RoomRole::Normal
+            | RoomRole::Treasure
+            | RoomRole::MiniBoss
+            | RoomRole::SecondTreasure
+            | RoomRole::Challenge
+            | RoomRole::BossRush
+            | RoomRole::Arcade => RoomArt::Basement,
         }
     }
 
@@ -219,6 +226,12 @@ impl Floor {
 
     pub(crate) fn role_of(&self, cell: FloorCell) -> RoomRole {
         self.plan.roles_by_cell.get(&cell).copied().unwrap_or(RoomRole::Normal)
+    }
+
+    /// Makes the current room a room of `role`, for tests of rules that depend on it.
+    #[cfg(test)]
+    pub(crate) fn make_current_room(&mut self, role: RoomRole) {
+        self.plan.roles_by_cell.insert(self.current_cell, role);
     }
 
     pub fn append_draw_items(&self, input_device: InputDevice, draw_items: &mut Vec<DrawItem>) {

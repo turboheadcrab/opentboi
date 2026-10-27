@@ -128,7 +128,7 @@ macro_rules! holding_up_pills {
 }
 
 /// By the pill's look, its `col`.
-static HOLDING_UP_PILLS: [RenderOverrides; 6] = holding_up_pills!(1 2 3 4 5 6);
+static HOLDING_UP_PILLS: [RenderOverrides; 9] = holding_up_pills!(1 2 3 4 5 6 101 102 103);
 
 /// What Isaac holds up for a trinket: the picture the cards use (43), on the trinket's own frame.
 /// Built once, by the trinket's place in `Trinket::ALL`.
@@ -190,7 +190,7 @@ pub(super) fn source(animation: PlayerAnimation, frame: u8) -> TextureSource {
 fn held_overrides(held: Held) -> &'static RenderOverrides {
     match held {
         Held::Card(card) => &HOLDING_UP[PickupCard::ALL.iter().position(|&each| each == card).unwrap_or(0)],
-        Held::Pill(pill) => &HOLDING_UP_PILLS[pill.index()],
+        Held::Pill(look) => &HOLDING_UP_PILLS[look.index()],
         Held::Trinket(trinket) => holding_up_trinket(trinket),
         Held::Item(item) => &HOLDING_UP_ITEMS[Item::ALL.iter().position(|&each| each == item).unwrap_or(0)],
         ware => &HOLDING_UP_WARES[Held::WARES.iter().position(|&each| each == ware).unwrap_or(0)],

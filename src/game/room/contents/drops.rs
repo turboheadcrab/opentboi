@@ -3,12 +3,12 @@
 
 use glam::Vec2;
 
-use crate::game::original_units::{Frames, Hearts, length};
+use crate::game::original_units::{Frames, Hearts, Pixels, length};
 use crate::game::parameters::FireParameters;
 use crate::game::pickups::kind::{HeartKind, PickupKind};
 use crate::game::pickups::rewards::{self, Drop, RewardSource};
 use crate::game::random::Random;
-use crate::game::room::contents::RoomContents;
+use crate::game::room::contents::{RoomContents, SpawOptions};
 use crate::game::room::grid_kind::BreakableKind;
 use crate::game::room::grid_object::HitStrength;
 use crate::game::room::{COLUMN_COUNT, ROW_COUNT, tile_center};
@@ -86,7 +86,8 @@ impl RoomContents {
                 count: 1,
                 soul_heart: false,
             };
-            let spot = self.free_spot_near(Vec2::ZERO);
+            // `spaw(320, 280, 0, f0)` (DoAction 30934): on a free tile near the room's center.
+            let spot = self.spaw(Vec2::ZERO, Pixels::ZERO, SpawOptions::default(), random);
             self.spawn_drop(drop, spot, false, random);
         }
         true

@@ -14,6 +14,8 @@ mod friends;
 mod ground_drawing;
 mod hazards;
 mod marks;
+mod parameters;
+mod poison;
 mod pooter;
 mod shooter;
 mod shooting;
@@ -29,11 +31,6 @@ use crate::game::attacks::splash::Splash;
 use crate::game::ball_contact::Contact;
 use crate::game::bounds::Bounds;
 use crate::game::original_units::{Frames, Hearts, HitPoints, Mass, Pixels};
-use crate::game::parameters::{
-    ClottyParameters, EnemyShotParameters, FireParameters, FleshMoundParameters, FlyParameters, GameParameters,
-    GaperParameters, HeadlessParameters, HopperParameters, HorfParameters, MulliganParameters, PooterParameters,
-    SpikeParameters, SplatParameters,
-};
 use crate::game::player::death::Killer;
 use crate::game::random::Random;
 use crate::game::room::blood::Splatter;
@@ -43,6 +40,8 @@ use crate::game::room::{sight::TileMarks, stage_to_world, world_to_stage};
 use crate::game::sound_event::SoundEvent;
 pub use fly::{Fly, FlyState};
 pub use friends::FriendTarget;
+pub use parameters::EnemyParameters;
+use poison::Poison;
 use shot::EnemyShot;
 use spawn::Spawned;
 use surroundings::Grid;
@@ -53,44 +52,6 @@ pub(super) const PLAYER_SIZE: Pixels = Pixels(10.0);
 pub(super) const TEAR_SIZE: Pixels = Pixels(8.0);
 pub(super) const TEAR_MASS: Mass = Mass(8.0);
 
-/// The values the enemies and their shots follow.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct EnemyParameters {
-    pub flies: FlyParameters,
-    pub gapers: GaperParameters,
-    pub headless: HeadlessParameters,
-    pub horfs: HorfParameters,
-    pub clottys: ClottyParameters,
-    pub hoppers: HopperParameters,
-    pub flesh_mounds: FleshMoundParameters,
-    pub mulligans: MulliganParameters,
-    pub pooters: PooterParameters,
-    pub shots: EnemyShotParameters,
-    pub fire: FireParameters,
-    pub spikes: SpikeParameters,
-    pub splats: SplatParameters,
-}
-
-impl EnemyParameters {
-    pub fn from_game(parameters: &GameParameters) -> Self {
-        Self {
-            flies: parameters.flies,
-            gapers: parameters.gapers,
-            headless: parameters.headless,
-            horfs: parameters.horfs,
-            clottys: parameters.clottys,
-            hoppers: parameters.hoppers,
-            flesh_mounds: parameters.flesh_mounds,
-            mulligans: parameters.mulligans,
-            pooters: parameters.pooters,
-            shots: parameters.enemy_shots,
-            fire: parameters.fire,
-            spikes: parameters.spikes,
-            splats: parameters.splats,
-        }
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct Enemies {
     parameters: EnemyParameters,
@@ -98,8 +59,7 @@ pub struct Enemies {
     walkers: Vec<Walker>,
     shots: Vec<EnemyShot>,
     splashes: Vec<Splash>,
-    /// Whether the layout placed any enemy the game has (rooms with only other enemies are not
-    /// fought yet).
+    /// Whether the layout placed any enemy the game has (else the room is not fought yet).
     pub spawned_any: bool,
     /// `fra`: time in the room, for the frames the AI acts on.
     frames: Frames,
@@ -107,6 +67,8 @@ pub struct Enemies {
     health_seen: Vec<(u32, HitPoints)>,
     /// The numbers of the enemies alive when `take_deaths` last looked.
     living_seen: Vec<u32>,
+    /// The enemies that are poisoned (see `poison.rs`).
+    poisons: Vec<Poison>,
     /// Where the player was when last seen, and how fast he moved (stage coordinates).
     player: Vec2,
     player_velocity: Vec2,
@@ -150,6 +112,7 @@ impl Enemies {
             frames: Frames::ZERO,
             health_seen: Vec::new(),
             living_seen: Vec::new(),
+            poisons: Vec::new(),
             player: Vec2::ZERO,
             player_velocity: Vec2::ZERO,
             tile_marks: TileMarks::default(),
@@ -237,6 +200,7 @@ impl Enemies {
         }
         let frames_crossed = (self.frames.whole() + 1).saturating_sub(first_frame);
         self.advance_shots((elapsed, frames_crossed), &grid, random, sounds);
+        self.advance_poison(frames_crossed, random, sounds);
         self.tile_marks = grid.sight.marks().clone();
         pecks
     }

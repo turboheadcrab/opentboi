@@ -1,7 +1,7 @@
 //! What the pills have done this run: which effect each look has (`piller`, assigned the first time
 //! the look is used) and the stat changes they left (`ups`).
 
-use crate::game::pickups::pill::Pill;
+use crate::game::pickups::pill::{Pill, PillLooks};
 use crate::game::player::pill_roll::{PillRollContext, roll_effect};
 use crate::game::random::Random;
 
@@ -74,6 +74,8 @@ pub struct PillState {
     pub luck: i32,
     /// `ups[10]`: the flies circling Isaac, in halves.
     pub flies: f32,
+    /// How each pill looks this run (`picers`).
+    pub looks: PillLooks,
 }
 
 impl PillState {
