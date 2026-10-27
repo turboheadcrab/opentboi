@@ -49,6 +49,12 @@ impl Game {
                 self.play_card_animation(SUN_ANIMATION, SoundEvent::HeartPickedUp);
                 self.inventory.heal_fully();
                 self.floor.reveal_map();
+                let damage = self.parameters.cards.sun_damage;
+                self.floor.current_room_mut().enemies.hurt_all(
+                    damage,
+                    &mut self.random,
+                    &mut self.pending_sound_events,
+                );
             }
             Card::TheWorld => self.floor.reveal_map(),
             Card::TheLovers => self.place_heart_pair(HeartKind::Full),

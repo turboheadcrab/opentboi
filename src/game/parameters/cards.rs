@@ -23,6 +23,8 @@ pub struct CardParameters {
     pub unicorn_speed_bonus: f32,
     /// Death hurts every enemy in the room by this much.
     pub death_damage: Damage,
+    /// The Sun hurts every enemy in the room by this much (DoAction 27854–27870).
+    pub sun_damage: Damage,
 }
 
 pub const ORIGINAL_CARDS: CardParameters = CardParameters {
@@ -37,4 +39,5 @@ pub const ORIGINAL_CARDS: CardParameters = CardParameters {
     unicorn_ride_frames: Frames(180.0),
     unicorn_speed_bonus: 0.28,
     death_damage: Damage(60.0),
+    sun_damage: Damage(100.0),
 };
