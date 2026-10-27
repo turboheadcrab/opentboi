@@ -1,11 +1,11 @@
 # The development tasks, the same commands on every machine (`mise run TASK`, `mise tasks` lists
 # them). They run in the development container from `distrobox.ini` when it exists, and directly
-# otherwise (a workstation with README.md's packages): see `scripts/dev-run.sh`. Rust is rustup's
-# latest stable, not pinned. A new checkout asks once: `mise trust`.
+# otherwise (a workstation with README.md's packages): see `scripts/dev-run.sh`. Rust is the version
+# `rust-toolchain.toml` pins (mise does not manage it). A new checkout asks once: `mise trust`.
 
 [tools]
-# The shell script linter (`.shuck.toml`), from its GitHub release binaries.
-"github:ewhauser/shuck" = "latest"
+# The shell script linter (`.shuck.toml`), from its GitHub release binaries, at the version CI uses.
+"github:ewhauser/shuck" = "0.2.7"
 
 [tasks.dev-box]
 description = "Create or recreate the development container (distrobox.ini)"

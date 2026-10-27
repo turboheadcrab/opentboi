@@ -30,11 +30,15 @@ Usage:
   scripts/original-coverage.py --suggest          lines found in the code but not cited, per file
   scripts/original-coverage.py --svg FILE         a map of every gameplay line, grouped by function
                                                   (green: covered, amber: only by the upper bound, grey: not)
+  scripts/original-coverage.py --check-svg FILE   exit 1 unless the map was drawn from the sources as
+                                                  they are (works without the original's scripts)
 """
 import argparse
 import functools
+import hashlib
 import pathlib
 import re
+import sys
 
 SCRIPTS = pathlib.Path.home() / ".cache/opentboi/decompiled/scripts"
 # The game's logic (cited as `DoAction N`) and the main timeline's script (cited as `Timeline N`: sounds
@@ -101,6 +105,36 @@ def citations(timeline_offset):
         code = re.sub(r"//.*", "", text)
         files.append((path, file_names, file_quotes, ranges, text, code))
     return files, names
+
+
+def sources_digest():
+    """A digest of everything in our sources that the map is drawn from, and of this script: what the
+    comments cite (functions, quoted expressions, line numbers) in every file, and the code without
+    comments or spacing in the files that port the game. It needs nothing of the original, so it can
+    be recomputed anywhere; the map carries the one it was drawn from (see `--check-svg`)."""
+    digest = hashlib.sha256(pathlib.Path(__file__).read_bytes())
+    port = [SOURCES / directory for directory in PORT_DIRECTORIES]
+    for path in sorted(SOURCES.rglob("*.rs")):
+        text = path.read_text()
+        comments = re.findall(r"//.*", text)
+        digest.update(path.relative_to(SOURCES).as_posix().encode())
+        for comment in comments:
+            for quote in QUOTE.findall(comment):
+                digest.update(b"quote " + squeeze(quote).encode())
+            for label, first, last in CITED_LINES.findall(comment):
+                digest.update(f"cite {label} {first}-{last}".encode())
+        if any(directory in path.parents for directory in port):
+            digest.update(squeeze(re.sub(r"//.*", "", text)).encode())
+    return digest.hexdigest()
+
+
+DIGEST_PATTERN = re.compile(r"<!-- sources-digest: ([0-9a-f]{64}) -->")
+
+
+def check_svg(path):
+    """Whether the map at `path` was drawn from the sources as they are now."""
+    match = DIGEST_PATTERN.search(path.read_text()) if path.exists() else None
+    return bool(match) and match.group(1) == sources_digest()
 
 
 @functools.lru_cache(maxsize=None)
@@ -324,6 +358,7 @@ def write_svg(path, spans, lines, covered, strict, offset):
              f"at most {100 * bound / total:.1f} % ({bound}) of {total}")
     path.write_text(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SVG_WIDTH} {height:.0f}" font-family="sans-serif">'
+        f'<!-- sources-digest: {sources_digest()} -->'
         f'<rect width="100%" height="100%" fill="#0d1117"/>'
         f'<text x="4" y="21" font-size="16" fill="#ffffff">{title}</text>'
         f'<text x="{SVG_WIDTH - 4}" y="21" font-size="10" fill="{SVG_TIMELINE_LABEL}" text-anchor="end">'
@@ -337,7 +372,11 @@ def main():
     parser.add_argument("--function", help="show one function with its lines marked")
     parser.add_argument("--svg", type=pathlib.Path, help="write a map of every gameplay line to this file")
     parser.add_argument("--suggest", action="store_true", help="list lines found in the code but not cited")
+    parser.add_argument("--check-svg", type=pathlib.Path,
+                        help="exit 1 unless this map was drawn from the sources as they are now (needs no original)")
     arguments = parser.parse_args()
+    if arguments.check_svg:
+        sys.exit(0 if check_svg(arguments.check_svg) else 1)
     lines = GAME_SCRIPT.read_text(errors="replace").splitlines()
     offset = len(lines)
     lines += TIMELINE_SCRIPT.read_text(errors="replace").splitlines()

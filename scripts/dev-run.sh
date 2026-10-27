@@ -26,6 +26,11 @@ container_exists() {
         grep --quiet --line-regexp --fixed-strings "${CONTAINER_NAME}"
 }
 
+# The project pins its Rust version (rust-toolchain.toml) and rustup does not fetch it on its own.
+if [[ -x "${CARGO_BIN}/rustup" ]] && ! "${CARGO_BIN}/rustup" show active-toolchain >/dev/null 2>&1; then
+    "${CARGO_BIN}/rustup" toolchain install
+fi
+
 if [[ -z "${CONTAINER_ID:-}" ]] && container_exists; then
     exec distrobox enter --name "${CONTAINER_NAME}" -- env "PATH=${CARGO_BIN}:${CONTAINER_SYSTEM_PATH}" "$@"
 fi

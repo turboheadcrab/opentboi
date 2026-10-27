@@ -1,5 +1,7 @@
 # OpenTBOI
 
+<img src="packaging/linux/opentboi.svg" alt="OpenTBOI's icon: a tear" width="96" align="right">
+
 An open-source engine, written in Rust, that plays the original *The Binding of Isaac* (the 2011
 Flash game, Steam AppID 113200). It contains **no game assets**: art, sounds and room layouts are
 read from **your own copy** of the game when you first start it.
@@ -50,8 +52,9 @@ Flatpak and distribution-package plans. Windows and macOS packages do not exist 
 
 This always works and is the reference path: packages are built from exactly this.
 
-Install Rust (stable, edition 2024) from [rustup.rs](https://rustup.rs), then the development
-packages for SDL3 (the default frontend), ALSA and udev. On Fedora:
+Install [rustup](https://rustup.rs); the project pins its Rust version in `rust-toolchain.toml` (with
+Clippy and rustfmt), and `rustup toolchain install` in the checkout fetches exactly that one. Then
+the development packages for SDL3 (the default frontend), ALSA and udev. On Fedora:
 
 ```sh
 sudo dnf install SDL3-devel alsa-lib-devel systemd-devel

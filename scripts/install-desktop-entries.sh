@@ -8,12 +8,16 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly PROJECT_ROOT
 readonly LAUNCHER_BINARY="${PROJECT_ROOT}/target/desktop/opentboi"
 readonly APPLICATIONS_DIRECTORY="${XDG_DATA_HOME:-${HOME}/.local/share}/applications"
-# Steam installs this icon for the original game (AppID 113200).
-readonly ICON_NAME="steam_icon_113200"
+# The project's own icon, installed into the user's icon theme (as the release package does), so the
+# launchers show it on every system, whatever Steam has or has not put there.
+readonly ICON_NAME="opentboi"
+readonly ICON_SOURCE="${PROJECT_ROOT}/packaging/linux/opentboi.svg"
+readonly ICON_DIRECTORY="${XDG_DATA_HOME:-${HOME}/.local/share}/icons/hicolor/scalable/apps"
 
 cd "${PROJECT_ROOT}"
 cargo build --release --all-features
-mkdir -p "$(dirname "${LAUNCHER_BINARY}")" "${APPLICATIONS_DIRECTORY}"
+mkdir -p "$(dirname "${LAUNCHER_BINARY}")" "${APPLICATIONS_DIRECTORY}" "${ICON_DIRECTORY}"
+cp "${ICON_SOURCE}" "${ICON_DIRECTORY}/${ICON_NAME}.svg"
 # Linux refuses to write into a running executable ("Text file busy"), so copy beside it and
 # rename over it: a running game keeps its old file, the next launch gets the new one.
 cp target/release/opentboi "${LAUNCHER_BINARY}.new"
@@ -41,4 +45,8 @@ ENTRY
 write_entry opentboi.desktop "OpenTBOI" sdl3 opentboi
 write_entry opentboi-bevy.desktop "OpenTBOI (Bevy)" bevy opentboi-bevy
 update-desktop-database "${APPLICATIONS_DIRECTORY}"
+# Some desktops read the icon theme's cache; the tool is optional.
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache --quiet --force --ignore-theme-index "${ICON_DIRECTORY}/../.." || true
+fi
 echo "Installed launchers for ${LAUNCHER_BINARY}"

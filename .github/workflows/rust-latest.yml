@@ -1,0 +1,37 @@
+# The Rust toolchain is pinned (rust-toolchain.toml). Once a week this builds with the newest stable and
+# the beta, so that new Clippy lints and compiler changes show up before anyone moves the pin. It is
+# informational: it is not a required check, and a failure here is a reason to prepare the next bump,
+# not an emergency.
+name: Latest Rust
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  newer:
+    name: Clippy and tests on ${{ matrix.channel }}
+    runs-on: ubuntu-latest
+    container: fedora:44
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [stable, beta]
+    steps:
+      - name: System packages
+        run: dnf install -y gcc gcc-c++ git curl python3 SDL3-devel alsa-lib-devel systemd-devel
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Rust ${{ matrix.channel }}
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/rustup" toolchain install "${{ matrix.channel }}" --component clippy
+          "$HOME/.cargo/bin/rustup" override set "${{ matrix.channel }}"
+      - run: rustc --version && cargo clippy --version
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked

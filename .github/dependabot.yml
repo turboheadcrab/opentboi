@@ -1,0 +1,24 @@
+# Versions are pinned (Cargo.lock, rust-toolchain.toml, GitHub Actions by commit); these keep them moving.
+# A release has to be a week old before a pull request proposes it, so one that gets pulled in its
+# first days (a compromised or broken release) never reaches us. The Rust toolchain is moved by hand:
+# see rust-toolchain.toml and the weekly "Latest Rust" workflow.
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]

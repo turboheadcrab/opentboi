@@ -87,16 +87,22 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   raw number from the original (`col`, a frame index). Convert at the edge (`Frames::from`,
   `.get()`), and when a needed unit type is missing, add it to `original_units.rs` first. Random
   draws go through `Random` (`below`, `index`, `centered`), not raw floats.
+- Versions are pinned and moved on purpose: `Cargo.lock`, the Rust toolchain (`rust-toolchain.toml`,
+  an exact version; bump it with the fixes the newer Clippy asks for, in one commit), the shell
+  linter (`scripts/install-shuck.sh`, version and checksum) and the GitHub Actions (by commit).
+  Dependabot proposes the crates' and Actions' updates a week after release; the weekly "Latest Rust"
+  workflow tells when a newer compiler would break the build.
 - Before finishing: `cargo fmt`, `cargo clippy --all-targets --all-features` with no warnings (also
-  once per single frontend), `cargo test`.
+  once per single frontend), `cargo test`, and `shuck check scripts packaging .github` when a shell
+  script changed.
   Then regenerate the desktop launchers with `scripts/install-desktop-entries.sh` (a release build of
   both frontends copied to `target/desktop/`), so the shortcuts run the latest code.
   `mise run check` does all of that, in the development container where there is one (below).
 - Build and test through the `mise run` tasks (`mise.toml`): on machines without the build packages
   (Bazzite and other immutable systems) they run in the distrobox from `distrobox.ini`
   (`mise run dev-box` creates it; `scripts/dev-run.sh` picks the container or the host). Never
-  layer packages onto an immutable host (`rpm-ostree install`). Rust is rustup's latest stable,
-  deliberately not pinned: new Clippy lints are fixed as they come.
+  layer packages onto an immutable host (`rpm-ostree install`). The Rust version is the one
+  `rust-toolchain.toml` pins; `scripts/dev-run.sh` has rustup install it when it is missing.
   Tests that need the real extracted SWF are `#[ignore]`d; run them with `cargo test -- --ignored`.
   After adding or resizing a texture, run `cargo test texture_extents -- --ignored --nocapture` to
   check its canvas holds all of its art.

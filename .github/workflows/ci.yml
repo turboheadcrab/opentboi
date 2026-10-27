@@ -10,6 +10,10 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # The build fails when docs/original-coverage-map.svg was drawn from other sources than these
+  # (build.rs checks the digest the map carries; redrawing needs the original's scripts, which CI
+  # cannot have, so a maintainer pushes the redrawn map).
+  OPENTBOI_REQUIRE_COVERAGE_MAP: "1"
 
 jobs:
   source:
@@ -22,13 +26,13 @@ jobs:
         include:
           - name: Fedora 44, system SDL3
             image: fedora:44
-            install: dnf install -y gcc gcc-c++ git curl SDL3-devel alsa-lib-devel systemd-devel
+            install: dnf install -y gcc gcc-c++ git curl python3 SDL3-devel alsa-lib-devel systemd-devel
             features: ""
           - name: Ubuntu 24.04, SDL3 built from source
             image: ubuntu:24.04
             install: >-
               apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-              build-essential cmake pkg-config git curl ca-certificates libasound2-dev libudev-dev
+              build-essential cmake pkg-config git curl ca-certificates python3 libasound2-dev libudev-dev
               libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxfixes-dev libxss-dev libxtst-dev
               libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev libdrm-dev libgbm-dev
               libgl-dev libegl-dev libvulkan-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev
@@ -36,11 +40,12 @@ jobs:
     steps:
       - name: System packages
         run: ${{ matrix.install }}
-      - uses: actions/checkout@v4
-      - name: Rust (rustup, stable)
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Rust (rustup, the version rust-toolchain.toml names)
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal -c rustfmt,clippy
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/rustup" toolchain install
       - run: cargo fmt --check
       # The feature flags are meant to split into separate arguments (or to be empty).
       - run: |
@@ -54,12 +59,22 @@ jobs:
     name: Licence list stays generatable
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: taiki-e/install-action@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The version rust-toolchain.toml names (rustup is on the runner).
+      - run: rustup toolchain install
+      - uses: taiki-e/install-action@5488ac5a951645ce95062214902ac4b6bc1a1037 # v2.87.32
         with:
           tool: cargo-about
       # Fails when a new dependency brings a licence that about.toml has not accepted.
       - run: |
           cargo fetch --locked
           cargo about generate --config about.toml --all-features --offline --output-file THIRD-PARTY-LICENSES about.hbs
+
+  shell:
+    name: Shell scripts are lint-clean
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The version and checksum are pinned in the script.
+      - run: scripts/install-shuck.sh
+      - run: ~/.local/bin/shuck check scripts packaging .github

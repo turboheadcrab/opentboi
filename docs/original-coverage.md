@@ -222,5 +222,10 @@ green where our code cites the line or uses its values, amber where only the fun
 in a comment of a file that uses the line's numbers, grey where nothing does. It holds function
 names and counts, no code. `build.rs` redraws it whenever `src/` or the script changes, if the
 original's scripts are in your cache (they come from your own copy of the game, so a contributor
-without them leaves the file as it is). Redraw it by hand with
+without them leaves the file as it is). The map carries a digest of the sources it was drawn from (what the
+comments cite, and the code of the porting modules without comments or spacing); the build
+recomputes it, which needs nothing of the original, and a map drawn from other sources is out of
+date: a warning for a contributor, an error in CI (`OPENTBOI_REQUIRE_COVERAGE_MAP=1`) until someone
+who has the scripts pushes the redrawn map. Changes outside `src/game` and `src/game_assets` that
+cite nothing don't move it. Redraw it by hand with
 `scripts/original-coverage.py --svg docs/original-coverage-map.svg`.
