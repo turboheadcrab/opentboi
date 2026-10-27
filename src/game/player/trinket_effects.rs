@@ -99,3 +99,7 @@ impl Game {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "trinket_effect_tests.rs"]
+mod tests;

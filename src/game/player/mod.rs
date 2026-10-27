@@ -9,6 +9,7 @@ pub mod cards;
 #[cfg(test)]
 mod creep_tests;
 pub mod death;
+mod finds;
 mod gambling;
 pub mod hazards;
 pub mod inventory;
@@ -24,8 +25,6 @@ mod pill_tests;
 mod red_chest_opening;
 pub mod shield;
 mod shooting_axes;
-#[cfg(test)]
-mod trinket_effect_tests;
 mod trinket_effects;
 #[cfg(test)]
 mod trinket_tests;
@@ -238,6 +237,7 @@ impl Player {
                 riding_unicorn: stats.riding_unicorn,
                 tint: stats.ride_tint,
                 demonic: stats.demonic,
+                tick_hat: stats.tick_hat,
             };
             self.look
                 .append_draw_items(self.position, stats.scale, outfit, draw_items);

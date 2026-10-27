@@ -9,7 +9,7 @@ use super::hud_values::{OVERLAY_CLIP, STAGE_CENTER_IN_OVERLAY};
 use super::{TextureSource, framed};
 use std::sync::OnceLock;
 
-use crate::game::{BannerName, CARD_NAME_TEXTURE_CENTER_X, Item, PickupCard, SlotRing, TextureId, Trinket};
+use crate::game::{BannerName, CARD_NAME_TEXTURE_CENTER_X, Item, PickupCard, SlotView, TextureId, Trinket};
 use crate::game_assets::script::GameScript;
 use crate::game_assets::vector_art::CharacterLibrary;
 use crate::game_assets::vector_art::{ChildState, FrameSelection, NO_OVERRIDES, RenderOverrides};
@@ -140,8 +140,8 @@ pub(super) struct CardTexts {
     item_banners: Vec<RenderOverrides>,
     /// By place in `Trinket::ALL`.
     trinket_banners: Vec<RenderOverrides>,
-    /// The HUD slot with each trinket, by place in `Trinket::ALL` and `SlotRing::ALL`.
-    pub(super) trinket_slots: Vec<[RenderOverrides; 2]>,
+    /// The HUD slot with each trinket, by place in `Trinket::ALL` and `SlotView::ALL`.
+    pub(super) trinket_slots: Vec<[RenderOverrides; 3]>,
     /// The fortune machine's, in the order of the script's list.
     fortune_banners: Vec<RenderOverrides>,
     /// By place in `PillText::ALL`.
@@ -213,7 +213,7 @@ pub(super) fn read_names(library: &CharacterLibrary) {
                 .into_iter()
                 .map(|trinket| {
                     let text = leaked(trinket_names.get(trinket.index()).cloned().unwrap_or_default());
-                    SlotRing::ALL.map(|ring| super::held_trinket::slot_overrides(trinket, text, ring))
+                    SlotView::ALL.map(|view| super::held_trinket::slot_overrides(trinket, text, view))
                 })
                 .collect(),
             fortune_banners: fortunes

@@ -1,7 +1,7 @@
 //! Names of the artwork the game draws, each rendered to exactly `world_size()` around its origin point.
 
 use crate::game::floor::MapPiece;
-use crate::game::hud::{HudHeart, held_trinket::SlotRing};
+use crate::game::hud::{HudHeart, held_trinket::SlotView};
 use crate::game::input_state::InputDevice;
 pub use crate::game::pickups::phase::PickupPhase;
 use crate::game::pickups::{kind::PickupKind, trinket::Trinket};
@@ -191,8 +191,8 @@ pub enum TextureId {
     /// The same for a pill held, and the name of its effect (or the unknown one).
     HeldPill(crate::game::pickups::pill::Pill),
     HeldPillName(crate::game::hud::pill_text::PillText),
-    /// The HUD's corner with the trinket held: picture, name and, unless it animates, the ring.
-    TrinketSlot(Trinket, SlotRing),
+    /// The HUD's corner with a trinket held: picture, name and, unless it animates, the ring.
+    TrinketSlot(Trinket, SlotView),
     /// The HUD's card (or pill) slot animating: taken (`pilll` frame 2) or used (frame 3).
     CardSlotAnimation {
         used: bool,

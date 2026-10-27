@@ -581,15 +581,34 @@ one player only, so none of this is in the script to port; it is our own design)
   starts with (18 of them, each handed out once); the room-clear roll, chests, the fortune machine and
   the devil beggar giving them; taking one (the sound, Isaac holding it up, the name banner read from the
   game, the held one swapping out and lying on, the already-held and Tick refusals); every trinket in
-  the treasure room for checking (`--showcase`); the stat effects of the Goat Hoof, Curved Horn, Game
-  Squid and Cancer; and the HUD's trinket slot (picture, name strip and ring, with the taking
-  animation).
-- Left: the second trinket slot's HUD (`extra3`); Mom's Purse (item 139) and its second slot; the trinkets that
-  unlock later (ids 29, 35, 42, 47, 49, 50, 54–56 join the pool through `colss`); a gold pickup
-  being always the Counterfeit Penny; the Tick's hat; and the effects of the other trinkets (about
-  45 places in the original's script check for one: tear effects for the Pinky Eye, Push Pin and
-  Game Squid, pickup effects for the pennies, hurt-time effects, room-change effects). Look each
-  one up with the script's check for it (`trixx(ID)`) before porting.
+  the treasure room for checking (`--showcase`); both HUD slots (picture, name strip and ring, with
+  the taking animation); Mom's Purse (item 139, on a pedestal in the start room) and the second
+  slot it opens; the Tick's hat; and the effects of the Goat Hoof, Curved Horn, Game Squid, Cancer,
+  Fish Head, Red Patch, A Missing Page, the Polaroid (its bubble), the Cursed Skull, Samson's Lock,
+  the Tick (a heart in the boss room), Isaac's Fork, the Lucky Toe and Mom's Pearl.
+- Left, blocked by what the game lacks: the Umbilical Cord (at half a heart it grants the familiar
+  item 100) and Eve's Bird Foot (a kill sometimes calls the Dead Bird familiar): no familiars yet;
+  the Tick's 15 % off the health of enemies above 60 hit points (none that strong yet); the Polaroid's
+  part in the heaven door and in an unlock (no later chapters); Samson's Lock's red tint and its size
+  change; the Fork's rising heart (`hearter`).
+- Left, not looked at yet: the tear effects (Pinky Eye, Push Pin, Game Squid's dark tear), the pennies
+  (extra pickups from coins), the pickup swaps (Ace of Spades, Safety Cap, Match Stick, Rusted Key,
+  Child's Heart), the Left Hand and Judas' Tongue, Blue Baby's Soul and Isaac's Head (ghost
+  familiars), Maggy's Faith and Cain's Eye, and Liberty Cap. Which trinkets join the pool later
+  (`junx()`) and a gold pickup being always the Counterfeit Penny. Look each one up with the script's
+  check for it (`trixx(ID)`) before porting.
+
+## Items: `itz()` and what feeds it
+- Done: `item_roll` (`itz()` and `itzz()`): the test each candidate of an item pool goes through
+  (already held, found in an earlier run, no fourth familiar, the power level's odds for a major
+  item), the power level (`wiptz`) kept in the inventory and raised by major items taken, and the
+  save's memory of items found (`Progress`), which taking a pill or a card also feeds (items 43 and
+  61).
+- Left: the pools themselves (`ittt`, ... each room kind's list of candidates) and what draws from
+  them: treasure room, shop, boss, devil, angel and secret room pedestals; the devil room's pedestal
+  looks that `itz()` picks (DoAction 1459–1470); the characters' starting power level (DoAction
+  877–885) and the other power-level changes (DoAction 5143, `giveit()`); hard mode. The power
+  level is not saved yet.
 
 ## Original Steam Controller outside Steam Input
 - With Steam running, the 2015 Steam Controller (wireless dongle 28de:1142) reaches a program started

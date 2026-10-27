@@ -3,6 +3,8 @@
 
 use std::collections::BTreeSet;
 
+use crate::game::pickups::item::ItemNumber;
+
 /// Something earned that changes later runs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Unlock {
@@ -14,9 +16,26 @@ pub enum Unlock {
 pub struct Progress {
     blood_donations: u32,
     unlocks: BTreeSet<Unlock>,
+    /// The items found in earlier runs (`colss`, DoAction 6319): each is turned down now and then
+    /// when a pedestal draws it.
+    collected_items: BTreeSet<ItemNumber>,
 }
 
 impl Progress {
+    /// An item is found (DoAction 6318–6320), or one of the two that pills and cards stand for is taken
+    /// (DoAction 7110, DoAction 7115).
+    pub fn record_item(&mut self, item: ItemNumber) {
+        self.collected_items.insert(item);
+    }
+
+    #[cfg_attr(
+        not(test),
+        allow(dead_code, reason = "the item pools that ask are not in the game yet")
+    )]
+    pub fn has_collected(&self, item: ItemNumber) -> bool {
+        self.collected_items.contains(&item)
+    }
+
     /// `ader()` counts a donation (DoAction 7236) and, past the limit (DoAction 7237), unlocks the
     /// item (DoAction 7239).
     pub fn record_blood_donation(&mut self, donations_before_unlock: u32) {

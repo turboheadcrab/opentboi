@@ -56,6 +56,8 @@ pub struct PlayerStats {
     pub dark_tears: bool,
     /// Isaac looks demonic (the Empress's item 122, `curs()`).
     pub demonic: bool,
+    /// Isaac wears the Tick's hat.
+    pub tick_hat: bool,
     /// On the unicorn (`unic`): faster, and no tears.
     pub riding_unicorn: bool,
     /// The color Isaac flashes on it.
@@ -97,6 +99,7 @@ impl RoomBoosts {
             flying: self.flying,
             dark_tears: self.devil,
             demonic: self.empress,
+            tick_hat: false,
             riding_unicorn: false,
             ride_tint: None,
         }
@@ -134,6 +137,7 @@ impl Game {
         if held(Trinket::Cancer) {
             stats.delay_offset += amounts.cancer_delay;
         }
+        stats.tick_hat = held(Trinket::Tick);
         stats
     }
 

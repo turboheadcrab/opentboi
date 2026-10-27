@@ -205,9 +205,9 @@ impl TextureId {
                 .map(Self::HeldPillName),
         );
         hud.extend(Trinket::ALL.into_iter().flat_map(|trinket| {
-            crate::game::hud::held_trinket::SlotRing::ALL
+            crate::game::hud::held_trinket::SlotView::ALL
                 .into_iter()
-                .map(move |ring| Self::TrinketSlot(trinket, ring))
+                .map(move |view| Self::TrinketSlot(trinket, view))
         }));
         hud.extend((0..BUBBLE_FRAME_COUNT).map(Self::ShieldBubble));
         for (used, length) in [(false, SLOT_TAKEN_FRAME_COUNT), (true, SLOT_USED_FRAME_COUNT)] {

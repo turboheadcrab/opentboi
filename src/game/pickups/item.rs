@@ -1,6 +1,17 @@
 //! Items: what an item pedestal holds and Isaac keeps for the run. Each has the original's number,
 //! which is also its frame in the item pictures and its place in the list of item names.
 
+/// The original's number for any item, including the ones the game does not have yet (what the
+/// item rolls and the save data count by).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ItemNumber(pub u16);
+
+impl From<Item> for ItemNumber {
+    fn from(item: Item) -> Self {
+        Self(item.number())
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Item {
     /// Better odds at the machines and at room rewards (see where `Inventory::has` asks for it).

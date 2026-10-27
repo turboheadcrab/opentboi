@@ -145,11 +145,7 @@ fn append_held(
         input_device,
         draw_items,
     );
-    held_trinket::append_draw_items(
-        inventory.trinkets().first().copied(),
-        overlay.trinket_slot_animation(),
-        draw_items,
-    );
+    held_trinket::append_draw_items(inventory.trinkets(), overlay.trinket_slot_animation(), draw_items);
 }
 
 /// The HUD update's heart loop: red heart containers first (full, half or empty from `hp`), then

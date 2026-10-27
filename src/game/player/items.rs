@@ -99,6 +99,7 @@ impl Game {
         if collection.used_key {
             self.spend_key();
         }
+        self.remember_finds(collection);
         if let Some(taken) = collection.card_taken {
             self.player
                 .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));

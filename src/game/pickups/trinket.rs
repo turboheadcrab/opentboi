@@ -1,5 +1,7 @@
-//! Trinkets (pickup frame 7 with `col` 29–62): small passive charms, held in a slot of their own
-//! beside the card or pill (`trix`). Their names are read from the game (see `game_assets::script`).
+//! Trinkets (pickup frame 7 with `col` 29–62; `pillc()` takes any `col` above 28 and below 69 for
+//! one, DoAction 7073, but the game has none past 62): small passive charms, held in a slot of their
+//! own beside the card or pill (`trix`). Their names are read from the game (see
+//! `game_assets::script`), as `pillc()` does (DoAction 7079, DoAction 7080).
 //! A run hands out each trinket at most once, from a pool that starts with the ones every player
 //! has (`junx()`, DoAction 306–344).
 

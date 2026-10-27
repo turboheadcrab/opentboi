@@ -23,6 +23,10 @@ const SKIN_FALLBACK_COLOR: Rgba = Rgba::opaque(0.96, 0.82, 0.76);
 
 /// What Isaac looks like apart from his motion.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent facts about how Isaac looks, each read on its own"
+)]
 pub struct Outfit {
     /// Flying hides his legs.
     pub flying: bool,
@@ -32,6 +36,8 @@ pub struct Outfit {
     pub tint: Option<RideColor>,
     /// The demonic look (the Empress); the unicorn ride keeps his plain body.
     pub demonic: bool,
+    /// He wears the Tick's hat.
+    pub tick_hat: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -139,7 +145,11 @@ impl PlayerLook {
     pub fn append_draw_items(&self, floor_point: Vec2, scale: f32, outfit: Outfit, draw_items: &mut Vec<DrawItem>) {
         let demonic = outfit.demonic && !outfit.riding_unicorn;
         let texture = |part: IsaacPart| TextureId::Isaac {
-            part: if demonic { part.demonic() } else { part },
+            part: match (demonic, outfit.tick_hat) {
+                (true, _) => part.demonic(),
+                (false, true) => part.wearing_tick_hat(),
+                (false, false) => part,
+            },
             tint: outfit.tint,
         };
         let body_depth = actor_depth(floor_point.y);

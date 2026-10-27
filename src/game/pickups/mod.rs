@@ -6,6 +6,14 @@ mod collect;
 mod collection;
 pub mod consumable;
 pub mod item;
+#[cfg_attr(
+    not(test),
+    allow(
+        dead_code,
+        reason = "the item pools whose candidates it tests are not in the game yet"
+    )
+)]
+pub mod item_roll;
 pub mod kind;
 pub mod luck;
 mod markers;

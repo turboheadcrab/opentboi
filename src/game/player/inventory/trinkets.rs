@@ -33,9 +33,10 @@ impl Inventory {
     }
 
     /// `pillc()`'s trinket branch (DoAction 7053–7170): the trinket goes into the first slot, the one
-    /// there moving to the second, and the sound of the shell game plays. One already held, or the
-    /// Tick when there is no second slot (it cannot be swapped out), makes the pickup stay: `None`. A
-    /// full set of slots gives up the oldest trinket to `dropped_trinket`.
+    /// there moving to the second, and the sound of the shell game plays (DoAction 7084). One already
+    /// held, or the Tick when there is no second slot (it cannot be swapped out), makes the pickup
+    /// stay: `None`. A full set of slots gives up the oldest trinket to `dropped_trinket`. Taking the
+    /// Tick puts its hat on Isaac (DoAction 7093, DoAction 7095, see `PlayerStats::tick_hat`).
     pub fn take_trinket(&mut self, trinket: Trinket) -> Option<SoundEvent> {
         if self.has_trinket(trinket) || (self.has_trinket(Trinket::Tick) && self.trinket_slots() < 2) {
             return None;
@@ -45,8 +46,8 @@ impl Inventory {
         }
         self.trinkets.insert(0, trinket);
         self.taken_trinket = Some(trinket);
-        // The Tick is kept in the first slot (DoAction 7174–7179), where the second one's holder
-        // can't push it out.
+        // The Tick taken into the second slot (DoAction 7174) is put in the first (DoAction 7177), where
+        // the next trinket taken can't push it out.
         if self.trinkets.get(1) == Some(&Trinket::Tick) {
             self.trinkets.swap(0, 1);
         }

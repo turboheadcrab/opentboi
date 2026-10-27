@@ -70,7 +70,7 @@ fn source_for(texture_id: TextureId) -> TextureSource {
         TextureId::ShopWare(frame) => wares::ware_source(frame),
         TextureId::ShopConsumableWare { color, on_sale } => wares::consumable_ware_source(color, on_sale),
         TextureId::HudGlyph(glyph) => glyphs::source(glyph),
-        TextureId::TrinketSlot(trinket, ring) => held_trinket::source(trinket, ring),
+        TextureId::TrinketSlot(trinket, view) => held_trinket::source(trinket, view),
         TextureId::ShieldBubble(frame) => shield_bubble::source(frame),
         TextureId::Decoration { .. } => decorations::source_for(texture_id),
         TextureId::Gaper { .. } => gaper::source_for(texture_id),

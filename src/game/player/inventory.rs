@@ -35,6 +35,8 @@ pub struct Inventory {
     pub eternal_hearts_united: bool,
     /// The passive items taken this run, in order.
     items: Vec<Item>,
+    /// `wiptz`: how strong the major items taken have made Isaac, which sets how likely another is.
+    item_power: f32,
     /// The active item and its charge.
     pub active: ActiveSlot,
     /// `pilc`: the card or pill held.
@@ -42,7 +44,8 @@ pub struct Inventory {
     /// A card or pill just taken, and the one it replaced (`pillc()`), which the pickup becomes.
     pub taken: Option<Consumable>,
     pub dropped: Option<Consumable>,
-    /// `trix`: the trinkets held, the newest last; and the one just taken and the one it replaced.
+    /// `trix` and `atrix`: the trinkets held, the newest first; and the one just taken and the one it
+    /// replaced.
     trinkets: Vec<Trinket>,
     pub taken_trinket: Option<Trinket>,
     pub dropped_trinket: Option<Trinket>,
@@ -71,6 +74,7 @@ impl Inventory {
             eternal_heart: false,
             eternal_hearts_united: false,
             items: Vec::new(),
+            item_power: 0.0,
             active: ActiveSlot::default(),
             held: None,
             taken: None,
@@ -189,59 +193,12 @@ impl Inventory {
         self.bombs = self.bombs.saturating_sub(u8::from(has_bomb));
         has_bomb
     }
-
-    /// `lasth = 0` before a hurt that must go through: no blink left from an earlier hit.
-    pub fn end_invulnerability(&mut self) {
-        self.invulnerable_frames = Frames::ZERO;
-    }
-
-    /// `playerhurt()`: soul hearts absorb the hit (the rest is lost), else the eternal heart softens
-    /// it by half a heart and red hearts take it. Returns whether it hurt.
-    pub fn hurt(&mut self, damage: Hearts) -> bool {
-        // Not while invulnerable after a hit, nor on the unicorn.
-        if self.invulnerable_frames > Frames::ZERO || self.is_shielded() || self.ride.is_riding() {
-            return false;
-        }
-        if self.soul_hearts > Hearts::ZERO {
-            self.soul_hearts = (self.soul_hearts - damage).max(Hearts::ZERO);
-        } else {
-            if self.eternal_heart {
-                self.eternal_heart = false;
-                self.red_hearts += Hearts::HALF;
-            }
-            self.red_hearts = (self.red_hearts - damage).max(Hearts::ZERO);
-        }
-        self.invulnerable_frames = self.parameters.invulnerable_frames_per_heart * damage.get();
-        true
-    }
-
-    pub fn is_dead(&self) -> bool {
-        self.red_hearts <= Hearts::ZERO && self.soul_hearts <= Hearts::ZERO && !self.eternal_heart
-    }
-
-    pub fn rides_unicorn(&self) -> bool {
-        self.ride.is_riding()
-    }
-
-    pub fn is_invulnerable(&self) -> bool {
-        self.invulnerable_frames > Frames::ZERO
-    }
-
-    pub fn advance(&mut self, elapsed: Frames) {
-        self.invulnerable_frames = (self.invulnerable_frames - elapsed).max(Frames::ZERO);
-        self.advance_shield(elapsed);
-    }
-
-    /// Whether the player is hidden this frame by the hurt blink.
-    pub fn blinks_hidden(&self) -> bool {
-        let frames_left = Frames(self.invulnerable_frames.get().ceil());
-        let periods_left = (frames_left / self.parameters.blink_period_frames).ceil();
-        frames_left > self.parameters.blink_until_frames_left && periods_left % 2.0 == 0.0
-    }
 }
 
 mod blood;
 mod gains;
+mod hurt;
+mod item_power;
 mod pills;
 mod trinkets;
 
