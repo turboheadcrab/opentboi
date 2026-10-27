@@ -21,6 +21,10 @@ pub struct RoomBoosts {
     pub flying: bool,
     /// The Empress (counted as 1.5 of item 122).
     pub empress: bool,
+    /// The Red Patch's points of damage bonus for the room (`razor`).
+    pub razor: f32,
+    /// Samson's Lock's rage above the usual (`rage - 1`) for the room.
+    pub rage: f32,
 }
 
 /// Isaac's stats with the room's boosts applied.
@@ -65,8 +69,12 @@ impl RoomBoosts {
         let strength = f32::from(self.strength);
         let empress = if self.empress { cards.empress_strength } else { 0.0 };
         let devil_bonus = if self.devil { cards.devil_damage_bonus } else { 0.0 };
-        let damage_bonus =
-            devil_bonus + strength * cards.strength_damage_bonus + empress * empress * cards.empress_damage_scale;
+        let trinkets = parameters.trinkets;
+        let damage_bonus = devil_bonus
+            + strength * cards.strength_damage_bonus
+            + empress * empress * cards.empress_damage_scale
+            + self.razor * trinkets.razor_damage_per_point
+            + self.rage;
         let speed_bonus = ((strength + empress) * cards.strength_speed_bonus
             + pills.speed * pill_parameters.speed_per_point)
             .min(cards.maximum_speed_bonus);

@@ -8,6 +8,7 @@ use crate::game::pickups::kind::{
     BOMB_FRAME, BROWN_CHEST_FRAME, CARD_MARKER_FRAME, COIN_FRAME, GOLDEN_CHEST_FRAME, HEART_FRAME, ITEM_PEDESTAL_FRAME,
     KEY_FRAME, PILL_FRAME, TRINKET_MARKER_FRAME,
 };
+use crate::game::pickups::luck::PickupLuck;
 use crate::game::random::Random;
 
 const TRINKET_ODDS: Odds = Odds::one_in(2);
@@ -86,12 +87,12 @@ pub fn golden_poop_coins(random: &mut Random) -> Drop {
 /// The room-clear roll (chapter 1), a random fraction: nothing below 0.22, a pill, card or trinket
 /// below 0.3, then a coin below 0.45, a heart below 0.58 (or 1 in 30 when missing more than a
 /// heart), a key below 0.76 less 0.007 per chapter and 0.01 per key held (up to 10), a bomb below
-/// 0.95, else a chest. The Lucky Foot squeezes the roll into its top nine tenths.
+/// 0.95, else a chest. Luck squeezes the roll towards the good end (see [`PickupLuck`]).
 pub fn room_clear_reward(
     random: &mut Random,
     keys: u8,
     missing_more_than_a_heart: bool,
-    lucky_foot: bool,
+    luck: PickupLuck,
 ) -> Option<u8> {
     const NOTHING_BELOW: f32 = 0.22;
     const TRINKET_BELOW: f32 = 0.3;
@@ -102,13 +103,7 @@ pub fn room_clear_reward(
     const KEY_LESS_PER_KEY: f32 = 0.01;
     const KEYS_COUNTED: u8 = 10;
     const BOMB_BELOW: f32 = 0.95;
-    const LUCKY_FOOT_KEPT: f32 = 0.9;
-    let roll = random.next_unit();
-    let roll = if lucky_foot {
-        roll * LUCKY_FOOT_KEPT + (1.0 - LUCKY_FOOT_KEPT)
-    } else {
-        roll
-    };
+    let roll = luck.squeeze_clear_roll(random.next_unit());
     if roll <= NOTHING_BELOW {
         return None;
     }
@@ -141,7 +136,7 @@ fn room_clear_consumable(random: &mut Random) -> u8 {
 }
 
 /// A chest's or the tinted rock's contents.
-pub fn contents(source: RewardSource, random: &mut Random) -> Vec<Drop> {
+pub fn contents(source: RewardSource, luck: PickupLuck, random: &mut Random) -> Vec<Drop> {
     let tinted = source == RewardSource::TintedRock;
     let golden = source == RewardSource::GoldenChest;
     let roll_range = if golden {
@@ -154,8 +149,11 @@ pub fn contents(source: RewardSource, random: &mut Random) -> Vec<Drop> {
     } else {
         (random.below(roll_range) - 1).max(MINIMUM_CHEST_ROLLS)
     };
-    // A roll for trinkets (`trixies()`): only matters with trinkets.
-    random.happens(TRINKET_CHECK_ODDS);
+    // Two chests in three check the trinkets (`trixies()`, DoAction 31345–31349): the Lucky Toe adds
+    // a roll.
+    if !random.happens(TRINKET_CHECK_ODDS) && luck.lucky_toe {
+        rolls += 1;
+    }
     let mut drops = Vec::new();
     let mut roll_index = 0;
     while roll_index < rolls {

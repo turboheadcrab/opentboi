@@ -25,7 +25,7 @@ impl Game {
         self.player.play_animation(PlayerAnimation::HoldingUp(Held::Item(item)));
         match item {
             Item::MyLittleUnicorn => self.ride_unicorn(),
-            Item::LuckyFoot => {}
+            Item::LuckyFoot | Item::MomsPurse => {}
         }
     }
 

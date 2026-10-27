@@ -96,6 +96,7 @@ impl Game {
         self.frames_in_room = Frames::ZERO;
         self.blue_flies.leave_room(&self.parameters.blue_flies);
         self.end_room_boosts();
+        self.trinkets_welcome(entry);
         self.pending_sound_events.extend(entry.jingle);
         self.player.place_at(entry.position);
         // The floor's splat bitmap is made anew for each room: old blood is gone.

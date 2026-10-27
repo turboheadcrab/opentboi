@@ -7,6 +7,7 @@ mod births;
 mod blob_drawing;
 mod contact;
 mod crowding;
+mod deaths;
 mod drawing;
 mod fly;
 mod friends;
@@ -104,6 +105,8 @@ pub struct Enemies {
     frames: Frames,
     /// Each enemy's number and hit points when last asked who was hurt (see `friends.rs`).
     health_seen: Vec<(u32, HitPoints)>,
+    /// The numbers of the enemies alive when `take_deaths` last looked.
+    living_seen: Vec<u32>,
     /// Where the player was when last seen, and how fast he moved (stage coordinates).
     player: Vec2,
     player_velocity: Vec2,
@@ -146,6 +149,7 @@ impl Enemies {
             splashes: Vec::new(),
             frames: Frames::ZERO,
             health_seen: Vec::new(),
+            living_seen: Vec::new(),
             player: Vec2::ZERO,
             player_velocity: Vec2::ZERO,
             tile_marks: TileMarks::default(),

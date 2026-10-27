@@ -1,10 +1,10 @@
 //! The list of every texture, for rendering them all up front.
 
 use super::{
-    BLOOD_SPLASH_FRAME_COUNT, BLOWN_DOOR_FRAME_COUNT, BOMB_FUSE_FRAME_COUNT, BreakableKind, DoorStyle, DoorTexture,
-    ENEMY_SHOT_BRIGHTNESS_STEPS, ETERNAL_HEART_UNION_FRAME_COUNT, EXPLOSION_FRAME_COUNT, FlyAnimation, FlyKind,
-    HudHeart, InputDevice, IsaacPart, KEY_BLOCK_OPENING_FRAME_COUNT, MOVING_DOOR_STYLES, MapPiece,
-    ORBITING_FLY_FRAME_COUNT, PickupKind, PickupPhase, RoomArt, SHOP_DOOR_UNLOCKING_FRAME_COUNT,
+    BLOOD_SPLASH_FRAME_COUNT, BLOWN_DOOR_FRAME_COUNT, BOMB_FUSE_FRAME_COUNT, BUBBLE_FRAME_COUNT, BreakableKind,
+    DoorStyle, DoorTexture, ENEMY_SHOT_BRIGHTNESS_STEPS, ETERNAL_HEART_UNION_FRAME_COUNT, EXPLOSION_FRAME_COUNT,
+    FlyAnimation, FlyKind, HudHeart, InputDevice, IsaacPart, KEY_BLOCK_OPENING_FRAME_COUNT, MOVING_DOOR_STYLES,
+    MapPiece, ORBITING_FLY_FRAME_COUNT, PickupKind, PickupPhase, RoomArt, SHOP_DOOR_UNLOCKING_FRAME_COUNT,
     TEAR_GROUND_SPLASH_FRAME_COUNT, TEAR_HIT_SPLASH_FRAME_COUNT, TextureId, TileKind, card_animation_frame_count,
     door_closing_frame_count, door_opening_frame_count,
 };
@@ -18,8 +18,9 @@ use crate::game::room::layout::Decoration;
 const SHOP_CONSUMABLE_COLORS: std::ops::RangeInclusive<u8> = 1..=15;
 /// The minimap's pickup marks, frames 1–10.
 const MAP_PICKUP_MARK_COUNT: u8 = 10;
-/// The overlay's frames the cards play: The Devil, Death, The Empress, The Sun.
-const CARD_ANIMATIONS: [u8; 4] = [2, 11, 13, 15];
+/// The overlay's frames the cards play: The Devil, A Missing Page (the trinket), Death, The Empress,
+/// The Sun.
+const CARD_ANIMATIONS: [u8; 5] = [2, 3, 11, 13, 15];
 /// Textures that have no frames or variants to count.
 const SINGLE_TEXTURES: [TextureId; 6] = [
     TextureId::Hud,
@@ -208,6 +209,7 @@ impl TextureId {
                 .into_iter()
                 .map(move |ring| Self::TrinketSlot(trinket, ring))
         }));
+        hud.extend((0..BUBBLE_FRAME_COUNT).map(Self::ShieldBubble));
         for (used, length) in [(false, SLOT_TAKEN_FRAME_COUNT), (true, SLOT_USED_FRAME_COUNT)] {
             hud.extend((0..length).map(|frame| Self::CardSlotAnimation { used, frame }));
         }

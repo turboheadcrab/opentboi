@@ -169,9 +169,6 @@ pub enum TextureId {
         /// Flashing red from a hit (`hurtcol`).
         flashing: bool,
     },
-    /// A gambling machine or beggar: machine clip `frame` (see `machines::clip`), its animation's
-    /// frame `animation` from 0. Rendered on first use only; [`TextureId::on_demand_textures`]
-    /// lists them.
     /// A character of the HUD font (one of `HUD_GLYPHS`), for the stats panel.
     HudGlyph(u8),
     /// The minimap's mark for what is left in a room (`itmc` frame 1–10, see `map_mark`).
@@ -212,6 +209,11 @@ pub enum TextureId {
         clip_frame: u8,
         frame: u8,
     },
+    /// Frame `0..BUBBLE_FRAME_COUNT` of the bubble round Isaac while a trinket shields him.
+    ShieldBubble(u8),
+    /// A gambling machine or beggar: machine clip `frame` (see `machines::clip`), its animation's
+    /// frame `animation` from 0. Rendered on first use only; [`TextureId::on_demand_textures`]
+    /// lists them.
     Machine {
         /// The fortune machine's or the devil beggar's look.
         alternate: bool,
@@ -237,14 +239,5 @@ mod mulligan;
 mod on_demand;
 mod room_art;
 mod size;
-pub use clotty::*;
-pub use enemy::*;
-pub use frame_counts::*;
-pub use gaper::*;
-pub use headless::*;
-pub use horf::*;
-pub use isaac::*;
-pub use motions::*;
-pub use mulligan::*;
-pub use room_art::RoomArt;
-pub use size::CARD_NAME_TEXTURE_CENTER_X;
+pub use {clotty::*, enemy::*, frame_counts::*, gaper::*, headless::*, horf::*, isaac::*, motions::*, mulligan::*};
+pub use {room_art::RoomArt, size::CARD_NAME_TEXTURE_CENTER_X};

@@ -86,7 +86,7 @@ impl Game {
         self.pending_sound_events.push(SoundEvent::Summoned);
     }
 
-    fn play_card_animation(&mut self, animation: u8, sound: SoundEvent) {
+    pub(super) fn play_card_animation(&mut self, animation: u8, sound: SoundEvent) {
         self.overlay.play_card_animation(animation);
         self.pending_sound_events.push(sound);
     }

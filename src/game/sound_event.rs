@@ -121,6 +121,8 @@ pub enum SoundEvent {
     DevilCard,
     DeathCard,
     ChariotTune,
+    /// Health gained by a trinket (`Vamp_Gulp.mp`).
+    HealthGulped,
     /// The Empress (`curs()`: `isaacsatanitemget.mp`).
     EmpressCard,
     /// Flies buzzing (`insect_swarm_loop.wav`): never an event, only a [`LoopingSound`].

@@ -7,10 +7,12 @@ pub enum Item {
     LuckyFoot,
     /// My Little Unicorn, an active item: a unicorn ride (see `player::unicorn_ride`).
     MyLittleUnicorn,
+    /// Mom's Purse: room for a second trinket (`ups[139]`, see `Inventory::trinket_slots`).
+    MomsPurse,
 }
 
 impl Item {
-    pub const ALL: [Self; 2] = [Self::LuckyFoot, Self::MyLittleUnicorn];
+    pub const ALL: [Self; 3] = [Self::LuckyFoot, Self::MyLittleUnicorn, Self::MomsPurse];
     /// The active ones, used with their own button.
     pub const ACTIVE: [Self; 1] = [Self::MyLittleUnicorn];
 
@@ -19,13 +21,14 @@ impl Item {
         match self {
             Self::LuckyFoot => 46,
             Self::MyLittleUnicorn => 77,
+            Self::MomsPurse => 139,
         }
     }
 
     /// For an active item, the rooms to clear between uses; `None` for a passive one.
     pub const fn charges(self) -> Option<u8> {
         match self {
-            Self::LuckyFoot => None,
+            Self::LuckyFoot | Self::MomsPurse => None,
             Self::MyLittleUnicorn => Some(6),
         }
     }

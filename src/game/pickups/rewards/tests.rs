@@ -15,7 +15,7 @@ fn breakables_drop_something_about_one_time_in_ten() {
 fn chests_hold_a_few_known_things() {
     let mut random = Random::with_seed(9);
     for _ in 0..ROLLS {
-        let drops = contents(RewardSource::BrownChest, &mut random);
+        let drops = contents(RewardSource::BrownChest, PickupLuck::default(), &mut random);
         assert!(drops.len() <= 3);
         assert!(
             drops
@@ -32,7 +32,7 @@ fn a_brown_chest_sometimes_holds_a_pill_and_a_golden_one_a_card_instead() {
     let mut random = Random::with_seed(11);
     let frames = |source, random: &mut Random| -> Vec<u8> {
         (0..ROLLS)
-            .flat_map(|_| contents(source, random))
+            .flat_map(|_| contents(source, PickupLuck::default(), random))
             .map(|drop| drop.frame)
             .collect()
     };
@@ -47,7 +47,7 @@ fn a_brown_chest_sometimes_holds_a_pill_and_a_golden_one_a_card_instead() {
 fn the_tinted_rock_gives_soul_hearts_but_no_coins() {
     let mut random = Random::with_seed(2);
     let drops: Vec<Drop> = (0..ROLLS)
-        .flat_map(|_| contents(RewardSource::TintedRock, &mut random))
+        .flat_map(|_| contents(RewardSource::TintedRock, PickupLuck::default(), &mut random))
         .collect();
     assert!(drops.iter().all(|drop| drop.frame != COIN_FRAME));
     assert!(
@@ -62,8 +62,30 @@ fn the_tinted_rock_gives_soul_hearts_but_no_coins() {
 fn room_clear_rewards_skip_about_a_quarter() {
     let mut random = Random::with_seed(4);
     let given = (0..ROLLS)
-        .filter(|_| room_clear_reward(&mut random, 0, false, false).is_some())
+        .filter(|_| room_clear_reward(&mut random, 0, false, PickupLuck::default()).is_some())
         .count();
     let fraction = given as f32 / ROLLS as f32;
     assert!((0.70..0.80).contains(&fraction), "{fraction}");
+}
+
+#[test]
+fn the_lucky_toe_gives_more_rooms_a_reward_and_chests_more_rolls() {
+    let toe = PickupLuck {
+        lucky_toe: true,
+        ..PickupLuck::default()
+    };
+    let rewards = |luck| {
+        let mut random = Random::with_seed(4);
+        (0..ROLLS)
+            .filter(|_| room_clear_reward(&mut random, 0, false, luck).is_some())
+            .count()
+    };
+    assert!(rewards(toe) > rewards(PickupLuck::default()) + 50);
+    let drops = |luck| {
+        let mut random = Random::with_seed(8);
+        (0..ROLLS)
+            .map(|_| contents(RewardSource::BrownChest, luck, &mut random).len())
+            .sum::<usize>()
+    };
+    assert!(drops(toe) > drops(PickupLuck::default()));
 }

@@ -50,6 +50,8 @@ pub struct Inventory {
     pub pills: PillState,
     /// Time left in which the player cannot be hurt.
     invulnerable_frames: Frames,
+    /// The bubble that shields from every hit (`playsave`).
+    shield_frames: Frames,
     /// The unicorn ride's invincibility, apart from the blink after a hit.
     pub ride: UnicornRide,
 }
@@ -78,6 +80,7 @@ impl Inventory {
             dropped_trinket: None,
             pills: PillState::default(),
             invulnerable_frames: Frames::ZERO,
+            shield_frames: Frames::ZERO,
             ride: UnicornRide::default(),
         }
     }
@@ -196,7 +199,7 @@ impl Inventory {
     /// it by half a heart and red hearts take it. Returns whether it hurt.
     pub fn hurt(&mut self, damage: Hearts) -> bool {
         // Not while invulnerable after a hit, nor on the unicorn.
-        if self.invulnerable_frames > Frames::ZERO || self.ride.is_riding() {
+        if self.invulnerable_frames > Frames::ZERO || self.is_shielded() || self.ride.is_riding() {
             return false;
         }
         if self.soul_hearts > Hearts::ZERO {
@@ -226,6 +229,7 @@ impl Inventory {
 
     pub fn advance(&mut self, elapsed: Frames) {
         self.invulnerable_frames = (self.invulnerable_frames - elapsed).max(Frames::ZERO);
+        self.advance_shield(elapsed);
     }
 
     /// Whether the player is hidden this frame by the hurt blink.

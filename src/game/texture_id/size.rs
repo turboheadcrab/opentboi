@@ -1,11 +1,10 @@
 //! How large each texture is in world units: the canvas its art is rendered on (checked with
 //! `cargo test texture_extents -- --ignored --nocapture`).
 
-use crate::game::texture_id::DoorTexture;
 use glam::Vec2;
 
 use super::{
-    ClottyAnimation, DoorStyle, FlyAnimation, FlyKind, GaperAnimation, HeadlessAnimation, HorfAnimation,
+    ClottyAnimation, DoorStyle, DoorTexture, FlyAnimation, FlyKind, GaperAnimation, HeadlessAnimation, HorfAnimation,
     MulliganAnimation, TextureId,
 };
 use crate::game::room::layout::Decoration;
@@ -77,6 +76,7 @@ const BLOOD_SPLAT_SIZE: Vec2 = Vec2::new(48.0, 28.0);
 const DOOR_MOTION_SIZE: Vec2 = Vec2::new(152.0, 128.0);
 /// The boss door swinging shut flaps out sideways for a few frames.
 const BOSS_DOOR_MOTION_SIZE: Vec2 = Vec2::new(268.0, 156.0);
+/// Hung from the ceiling by a string.
 const SHOPKEEPER_SIZE: Vec2 = Vec2::new(48.0, 320.0);
 const SECRET_SHOPKEEPER_SIZE: Vec2 = Vec2::new(52.0, 140.0);
 const HELD_CARD_SIZE: Vec2 = Vec2::new(32.0, 52.0);
@@ -197,6 +197,7 @@ impl TextureId {
             | Self::CardSlotAnimation { .. }
             | Self::TrinketSlot(..) => self.held_size(),
             Self::Pickup { kind, phase, .. } => phase.texture_size(kind),
+            Self::ShieldBubble(_) => crate::game::player::shield::BUBBLE_SIZE,
             Self::StageSurround => STAGE_SURROUND_SIZE,
             Self::Tear | Self::DarkTear => TEAR_SIZE,
             Self::TearShadow => TEAR_SHADOW_SIZE,
@@ -243,7 +244,6 @@ fn isaac_animation_size(animation: crate::game::PlayerAnimation) -> Vec2 {
 fn decoration_size(decoration: Decoration) -> Vec2 {
     match decoration {
         Decoration::DevilStatue => DEVIL_STATUE_SIZE,
-        // Hung from the ceiling by a string.
         Decoration::Shopkeeper => SHOPKEEPER_SIZE,
         Decoration::SecretShopkeeper => SECRET_SHOPKEEPER_SIZE,
     }

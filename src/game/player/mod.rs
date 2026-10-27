@@ -22,7 +22,11 @@ pub mod pill_state;
 #[cfg(test)]
 mod pill_tests;
 mod red_chest_opening;
+pub mod shield;
 mod shooting_axes;
+#[cfg(test)]
+mod trinket_effect_tests;
+mod trinket_effects;
 #[cfg(test)]
 mod trinket_tests;
 mod tuning;

@@ -85,10 +85,11 @@ pub(super) fn tinted_rock_cell(index: i32) -> Option<(u32, u32)> {
 }
 
 /// Where the start room's items stand (stage pixels): either side of the middle, above the
-/// controls drawing.
-const START_ROOM_ITEMS: [(Item, glam::Vec2); 2] = [
+/// controls drawing, and Mom's Purse above them.
+const START_ROOM_ITEMS: [(Item, glam::Vec2); 3] = [
     (Item::LuckyFoot, glam::Vec2::new(270.0, 190.0)),
     (Item::MyLittleUnicorn, glam::Vec2::new(370.0, 190.0)),
+    (Item::MomsPurse, glam::Vec2::new(320.0, 140.0)),
 ];
 /// A fortune teller in the lower left corner, and a dime beside it to play with.
 const START_ROOM_FORTUNE_TELLER: glam::Vec2 = glam::Vec2::new(130.0, 370.0);
