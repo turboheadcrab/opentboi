@@ -54,6 +54,9 @@ jobs:
         run: |
           # shellcheck disable=SC2086
           cargo clippy --locked --all-targets ${{ matrix.features }} -- -D warnings
+      # The Bevy frontend is not in the default features, so nothing else here compiles it.
+      - name: Clippy, Bevy frontend
+        run: cargo clippy --locked --all-targets --no-default-features --features bevy-frontend -- -D warnings
       - name: Build and test
         run: |
           # shellcheck disable=SC2086
