@@ -20,6 +20,12 @@ updates:
       dependencies:
         patterns: ["*"]
         update-types: [minor, patch]
+    # glam's minor versions are breaking (0.x), and Bevy's math types are glam's: ours must be the
+    # version Bevy uses (see Cargo.toml), or the Bevy frontend stops compiling. Lift this when a new
+    # Bevy release moves to the newer glam.
+    ignore:
+      - dependency-name: glam
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

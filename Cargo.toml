@@ -46,6 +46,7 @@ bevy = { version = "0.20", optional = true, default-features = false, features =
     "mp3",
 ] }
 flate2 = "1.1"
+# The version Bevy's math types are (Bevy 0.20 uses 0.33): the Bevy frontend mixes the two.
 glam = "0.33"
 steamlocate = "2.1"
 # Ruffle's SWF parser; the cached SWF is already uncompressed, so no codec features are needed.
