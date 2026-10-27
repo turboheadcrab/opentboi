@@ -44,7 +44,11 @@ pub fn landing_sound(
         // Cards scamper; pills jump (`Fetus_Jump_` 0–1).
         PickupKind::Card(_) => SoundEvent::CardLanded,
         PickupKind::Pill(_) => SoundEvent::PillLanded,
-        PickupKind::Bomb(_) | PickupKind::Chest(_) | PickupKind::ItemPedestal | PickupKind::Item(_) => return None,
+        PickupKind::Bomb(_)
+        | PickupKind::Chest(_)
+        | PickupKind::ItemPedestal
+        | PickupKind::Item(_)
+        | PickupKind::Trinket(_) => return None,
     })
 }
 

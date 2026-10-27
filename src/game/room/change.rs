@@ -96,6 +96,10 @@ impl Game {
         self.frames_in_room = Frames::ZERO;
         self.blue_flies.leave_room(&self.parameters.blue_flies);
         self.end_room_boosts();
+        // The ride and the bubble end with the room (DoAction 32966, DoAction 32967).
+        self.inventory.ride.end();
+        self.inventory.end_shield();
+        self.trinkets_welcome(entry);
         self.pending_sound_events.extend(entry.jingle);
         self.player.place_at(entry.position);
         // The floor's splat bitmap is made anew for each room: old blood is gone.

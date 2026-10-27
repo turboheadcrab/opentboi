@@ -48,6 +48,8 @@ pub struct FiringParameters {
     pub delay_minimum: Frames,
     /// Sum of fire-rate item bonuses; 0 without items.
     pub delay_bonus: f32,
+    /// Frames added to the delay after its minimum is applied (Cancer takes two off).
+    pub delay_offset: Frames,
     /// Mouse aim is measured from this far above the player's floor point (`_ymouse - yp + 10`).
     pub mouse_aim_height: Pixels,
     /// After a shot the face timer `plox` is `7 + delay * 0.45`; it drops by one per frame.
@@ -61,7 +63,7 @@ pub struct FiringParameters {
 impl FiringParameters {
     pub fn delay_counter(&self) -> Frames {
         let root = (1.0 + self.delay_bonus * self.delay_bonus_scale).max(0.0).sqrt();
-        (self.delay_base - self.delay_per_root * root).max(self.delay_minimum)
+        (self.delay_base - self.delay_per_root * root).max(self.delay_minimum) + self.delay_offset
     }
 
     pub fn frames_between_shots(&self) -> Frames {

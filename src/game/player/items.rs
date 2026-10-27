@@ -6,7 +6,6 @@ use glam::Vec2;
 use crate::game::ball_contact::Body;
 use crate::game::hud::name_banner::BannerName;
 use crate::game::original_units::{Frames, Hearts};
-use crate::game::pickups::item::Item;
 use crate::game::pickups::kind::ChestKind;
 use crate::game::pickups::rewards::RewardSource;
 use crate::game::pickups::{Collection, PickupSurroundings};
@@ -29,7 +28,9 @@ impl Game {
         self.inventory.ride.advance(elapsed, recolor, &mut self.random);
         let with_key = self.has_key();
         let player_position = self.player.position();
+        let luck = self.pickup_luck();
         let room = self.floor.current_room_mut();
+        room.pickups.luck = luck;
         let collection = room.pickups.collect(
             player_position,
             &mut self.inventory,
@@ -74,16 +75,15 @@ impl Game {
 
     fn give_clear_reward(&mut self) {
         let missing_red_hearts = self.inventory.maximum_red_hearts - self.inventory.red_hearts;
-        let lucky_foot = self.inventory.has(Item::LuckyFoot);
         let cleared = self.floor.current_room_mut().give_clear_reward(
             self.frames_in_room,
             self.inventory.keys,
             missing_red_hearts,
-            lucky_foot,
             &mut self.random,
         );
         if cleared {
             self.recharge_active_item();
+            self.trinkets_react_to_clearing();
         }
     }
 
@@ -99,9 +99,16 @@ impl Game {
         if collection.used_key {
             self.spend_key();
         }
+        self.remember_finds(collection);
         if let Some(taken) = collection.card_taken {
             self.player
                 .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));
+        }
+        if let Some(trinket) = collection.trinket_taken {
+            self.player
+                .play_animation(PlayerAnimation::PickingUp(Held::Trinket(trinket)));
+            self.overlay.show_name(BannerName::Trinket(trinket));
+            self.overlay.animate_trinket_slot();
         }
         if let Some(item) = collection.item_taken {
             self.player.play_animation(PlayerAnimation::PickingUp(Held::Item(item)));
@@ -158,6 +165,7 @@ impl Game {
         self.update_bombs(input.place_bomb, elapsed);
         self.update_cards(input, elapsed);
         self.update_active_item(input);
+        self.trinkets_react_to_kills();
     }
 
     fn update_bombs(&mut self, place_requested: bool, elapsed: Frames) {
@@ -205,8 +213,11 @@ impl Game {
     /// The grunt, and dying at no health left.
     pub(crate) fn react_to_hurt(&mut self, killer: Killer) {
         self.pending_sound_events.push(SoundEvent::PlayerHurt);
+        self.trinkets_react_to_hurt();
         if self.inventory.is_dead() {
             self.die(killer);
+        } else {
+            self.trinkets_react_to_near_death();
         }
     }
 

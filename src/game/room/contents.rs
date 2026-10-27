@@ -231,6 +231,7 @@ mod floor_frames;
 mod key_blocks;
 mod map_mark;
 mod spawn_spot;
+pub use spawn_spot::SpawOptions;
 
 #[cfg(test)]
 mod tests;

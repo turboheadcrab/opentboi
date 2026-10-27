@@ -3,6 +3,7 @@ use glam::Vec2;
 use super::*;
 use crate::game::hud::name_banner::FORTUNE_COUNT;
 use crate::game::parameters::GameParameters;
+use crate::game::texture_id::FlyKind;
 
 const PARAMETERS: PickupParameters = GameParameters::ORIGINAL.pickups;
 
@@ -210,4 +211,30 @@ fn layout_markers_place_machines() {
     assert_eq!(MachineKind::for_marker(33, &mut random), Some(MachineKind::ShellGame));
     assert_eq!(MachineKind::for_marker(37, &mut random), Some(MachineKind::DevilBeggar));
     assert_eq!(MachineKind::for_marker(1, &mut random), None);
+}
+
+#[test]
+fn the_slot_machine_lets_out_a_fly_or_gives_one_to_orbit() {
+    let mut pretty_flies = 0;
+    let mut flies = 0;
+    for seed in 1..400 {
+        let mut random = Random::with_seed(seed);
+        let mut machines = Machines::new(PARAMETERS);
+        machines.place(MachineKind::SlotMachine, Vec2::ZERO);
+        machines.bump(
+            player_at(Vec2::new(0.0, -10.0)),
+            1,
+            Frames(1.0),
+            &mut random,
+            &mut Vec::new(),
+        );
+        let events = run(&mut machines, 200, &mut random);
+        let pretty = events.contains(&MachineEvent::PrettyFly);
+        let fly = events.contains(&MachineEvent::Fly(FlyKind::Black));
+        assert!(!(pretty && fly), "one play gives one or the other");
+        pretty_flies += usize::from(pretty);
+        flies += usize::from(fly);
+    }
+    assert!(pretty_flies > 0, "a pretty fly came up in 400 plays");
+    assert!(flies > pretty_flies, "a fly comes up two times in three on that result");
 }

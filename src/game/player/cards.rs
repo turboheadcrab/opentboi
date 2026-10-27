@@ -13,6 +13,7 @@ use crate::game::original_units::{Frames, Pixels};
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::kind::{BombKind, PickupKind};
 use crate::game::player::animation::{Held, PlayerAnimation};
+use crate::game::room::contents::SpawOptions;
 use crate::game::sound_event::SoundEvent;
 
 /// No card is used in a room's first second.
@@ -69,6 +70,7 @@ impl Game {
                 }
             }
         }
+        self.identify_held_pill(elapsed);
         self.advance_tower(elapsed);
         self.advance_teleport(elapsed);
     }
@@ -110,7 +112,7 @@ impl Game {
             // Around the room's center (`spaw()`).
             let radius = self.random.pixels_below(TOWER_REACH);
             let room = self.floor.current_room_mut();
-            let spot = room.spawn_spot(Vec2::ZERO, radius, &mut self.random);
+            let spot = room.spaw(Vec2::ZERO, radius, SpawOptions::default(), &mut self.random);
             room.pickups.spawn(PickupKind::Bomb(BombKind::Troll), spot, Vec2::ZERO);
         }
     }

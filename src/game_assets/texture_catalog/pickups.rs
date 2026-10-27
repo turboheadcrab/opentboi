@@ -6,8 +6,9 @@ use super::shared_clips::{FUSE_SPARK_CLIP, PICKUP_CLIP};
 use swf::CharacterId;
 
 use super::{TextureSource, framed};
-use crate::game::{ChestKind, Item, PickupKind, PickupPhase};
+use crate::game::{ChestKind, Item, PickupKind, PickupPhase, Trinket};
 use crate::game_assets::vector_art::{ChildState, FrameSelection, RenderOverrides};
+use std::sync::OnceLock;
 
 const VARIANT_COUNT: u8 = 5;
 
@@ -78,9 +79,13 @@ macro_rules! bobbing_item {
 }
 
 /// By index into `Item::ALL`, then the bob's frame.
-static ITEM_PEDESTALS: [[RenderOverrides; ITEM_BOB_FRAMES]; 2] = [
+static ITEM_PEDESTALS: [[RenderOverrides; ITEM_BOB_FRAMES]; 6] = [
     bobbing_item!(46; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
     bobbing_item!(77; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
+    bobbing_item!(139; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
+    bobbing_item!(85; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
+    bobbing_item!(102; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
+    bobbing_item!(75; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20),
 ];
 const ITEM_BOB_FRAMES: usize = 20;
 
@@ -135,8 +140,31 @@ static PILLS: [[RenderOverrides; 6]; 3] = [
     ],
 ];
 
+/// By phase, then the trinket's place in `Trinket::ALL`: the same clip frame as a card, its variant
+/// clip on the trinket's own frame. Built once (the frames are not literals).
+fn trinket_overrides(phase: PickupPhase, trinket: Trinket) -> &'static RenderOverrides {
+    static TRINKETS: OnceLock<Vec<RenderOverrides>> = OnceLock::new();
+    let overrides = TRINKETS.get_or_init(|| {
+        let phase_frames: [u16; 3] = [3, 1, 2];
+        phase_frames
+            .into_iter()
+            .flat_map(|phase_frame| {
+                Trinket::ALL.into_iter().map(move |each| RenderOverrides {
+                    children: Box::leak(Box::new([("d", ChildState::Frame(phase_frame))])),
+                    texts: &[],
+                    hidden_characters: &[],
+                    character_frames: Box::leak(Box::new([(CARD_VARIANT_CLIP, u16::from(each.color_variant()))])),
+                    tint: None,
+                })
+            })
+            .collect()
+    });
+    &overrides[phase as usize * Trinket::ALL.len() + trinket.index()]
+}
+
 pub(super) fn source(kind: PickupKind, phase: PickupPhase, frame: u8) -> TextureSource {
     let animated = match kind {
+        PickupKind::Trinket(trinket) => Some(trinket_overrides(phase, trinket)),
         PickupKind::Pill(pill) => Some(&PILLS[phase as usize][pill.index()]),
         PickupKind::Card(card) => Some(&CARDS[phase as usize][usize::from(!card.is_tarot())]),
         PickupKind::Chest(ChestKind::Red) => Some(&RED_CHEST[phase as usize]),

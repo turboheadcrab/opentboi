@@ -1,32 +1,64 @@
 //! Items: what an item pedestal holds and Isaac keeps for the run. Each has the original's number,
 //! which is also its frame in the item pictures and its place in the list of item names.
 
+/// The original's number for any item, including the ones the game does not have yet (what the
+/// item rolls and the save data count by).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ItemNumber(pub u16);
+
+impl From<Item> for ItemNumber {
+    fn from(item: Item) -> Self {
+        Self(item.number())
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Item {
     /// Better odds at the machines and at room rewards (see where `Inventory::has` asks for it).
     LuckyFoot,
     /// My Little Unicorn, an active item: a unicorn ride (see `player::unicorn_ride`).
     MyLittleUnicorn,
+    /// Mom's Purse: room for a second trinket (`ups[139]`, see `Inventory::trinket_slots`).
+    MomsPurse,
+    /// Deck of Cards, an active item: using it takes a random card, as if picked up (`pillc(3)`).
+    DeckOfCards,
+    /// Mom's Bottle of Pills, an active item: using it takes a random pill, as if picked up
+    /// (`pillc(4)`).
+    MomsBottleOfPills,
+    /// PHD: pills only help, and some are left out (see `PillRollContext::phd`); it also names the
+    /// held pill now and then (`identify_held_pill`).
+    Phd,
 }
 
 impl Item {
-    pub const ALL: [Self; 2] = [Self::LuckyFoot, Self::MyLittleUnicorn];
+    pub const ALL: [Self; 6] = [
+        Self::LuckyFoot,
+        Self::MyLittleUnicorn,
+        Self::MomsPurse,
+        Self::DeckOfCards,
+        Self::MomsBottleOfPills,
+        Self::Phd,
+    ];
     /// The active ones, used with their own button.
-    pub const ACTIVE: [Self; 1] = [Self::MyLittleUnicorn];
+    pub const ACTIVE: [Self; 3] = [Self::MyLittleUnicorn, Self::DeckOfCards, Self::MomsBottleOfPills];
 
     /// The original's number for it.
     pub const fn number(self) -> u16 {
         match self {
             Self::LuckyFoot => 46,
             Self::MyLittleUnicorn => 77,
+            Self::MomsPurse => 139,
+            Self::DeckOfCards => 85,
+            Self::MomsBottleOfPills => 102,
+            Self::Phd => 75,
         }
     }
 
     /// For an active item, the rooms to clear between uses; `None` for a passive one.
     pub const fn charges(self) -> Option<u8> {
         match self {
-            Self::LuckyFoot => None,
-            Self::MyLittleUnicorn => Some(6),
+            Self::LuckyFoot | Self::MomsPurse | Self::Phd => None,
+            Self::MyLittleUnicorn | Self::DeckOfCards | Self::MomsBottleOfPills => Some(6),
         }
     }
 

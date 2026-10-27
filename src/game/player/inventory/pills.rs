@@ -9,7 +9,8 @@ use crate::game::sound_event::SoundEvent;
 use crate::game::texture_id::TextureId;
 
 impl Inventory {
-    /// `pillc()`: the card or pill goes into the slot; one held already is dropped.
+    /// `pillc()`: the card or pill goes into the slot; one held already is dropped. A pill (DoAction 7105)
+    /// makes the shell game's shuffle.
     pub(super) fn take_held(&mut self, held: Consumable) -> SoundEvent {
         self.dropped = self.held.replace(held);
         self.taken = Some(held);
@@ -20,9 +21,9 @@ impl Inventory {
         }
     }
 
-    /// Whether pills only help (the Lucky Foot, `ups[46]`).
+    /// Whether pills only help (the Lucky Foot, `ups[46]`, or PHD, `ups[75]`; DoAction 26757).
     pub fn pills_only_help(&self) -> bool {
-        self.has(Item::LuckyFoot)
+        self.has(Item::LuckyFoot) || self.has(Item::Phd)
     }
 
     /// What the HUD calls `pill`: its effect once it has one, else the unknown pill.

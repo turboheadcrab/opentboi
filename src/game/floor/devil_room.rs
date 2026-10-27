@@ -32,18 +32,20 @@ pub(super) fn add_devil_room(plan: &mut FloorPlan) -> Option<DoorSide> {
 }
 
 impl Floor {
+    /// The room last left, or the start room if there is none (`lastl`, DoAction 4880–4884).
+    pub fn room_last_left(&self) -> FloorCell {
+        self.last_room
+            .filter(|&room| room != DEVIL_CELL)
+            .unwrap_or(FloorCell::START)
+    }
+
     /// `Some` when the devil room decides what lies through `side`: from the boss room its door,
     /// from the devil room only the way back.
     pub(super) fn devil_passage(&self, side: DoorSide) -> Option<DevilPassage> {
         let door = self.devil_door?;
         if self.current_cell == DEVIL_CELL {
-            // Back to the room last left, or the start room if there is none.
-            let back = self
-                .last_room
-                .filter(|&room| room != DEVIL_CELL)
-                .unwrap_or(FloorCell::START);
             return Some(if side == door.opposite() {
-                DevilPassage::Leads(back)
+                DevilPassage::Leads(self.room_last_left())
             } else {
                 DevilPassage::Closed
             });

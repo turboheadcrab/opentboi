@@ -48,6 +48,7 @@ mod wall_contact;
 use glam::Vec2;
 
 pub use draw::{DrawItem, Rgba};
+pub use hud::held_trinket::SlotView;
 pub use hud::message::{PickupMessage, texture_center_in_clip};
 pub use hud::name_banner::{BannerName, FORTUNE_COUNT};
 pub use hud::pill_text::{HUD_NAME_COUNT, MESSAGES_BEFORE_PILLS, PillText};
@@ -59,10 +60,8 @@ pub use input_state::{
 pub use music::{MusicEvent, MusicStart, MusicTrack};
 pub use parameters::{GameParameters, ParameterProvider, TranscribedOriginal};
 pub use pickups::card::{Card as PickupCard, TAROT_COUNT};
-pub use pickups::item::Item;
 pub use pickups::kind::{ChestKind, PickupKind};
-pub use pickups::phase::PickupPhase;
-pub use pickups::pill::Pill as PickupPill;
+pub use pickups::{item::Item, phase::PickupPhase, pill::Pill as PickupPill, trinket::Trinket};
 pub use player::animation::{Held, PlayerAnimation};
 pub use player::death::Killer;
 pub use room::grid_kind::{BreakableKind, TileKind};

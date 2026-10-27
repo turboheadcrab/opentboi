@@ -6,6 +6,7 @@
 
 pub mod active_item_label;
 pub mod held_card;
+pub mod held_trinket;
 pub mod item_box;
 pub mod message;
 pub mod minimap;
@@ -115,12 +116,7 @@ pub fn append_draw_items(
     draw_items.push(textured(key_icon, KEY_ICON_POSITION, HUD_VALUE_DEPTH));
     draw_items.push(active_item_label::draw_item(input_device));
     draw_items.push(overlay.item_box.draw_item(inventory.active.held()));
-    held_card::append_draw_items(
-        inventory.held_textures(),
-        overlay.slot_animation(),
-        input_device,
-        draw_items,
-    );
+    append_held(inventory, overlay, input_device, draw_items);
     for (slot, heart) in (0_u8..).zip(life_bar(inventory)) {
         let Some(heart) = heart else { continue };
         let grid = Vec2::new(f32::from(slot % HEARTS_PER_ROW), f32::from(slot / HEARTS_PER_ROW));
@@ -134,6 +130,22 @@ pub fn append_draw_items(
         NO_FALLBACK,
         SURROUND_DEPTH,
     ));
+}
+
+/// The card or pill held, and the trinket.
+fn append_held(
+    inventory: &Inventory,
+    overlay: &overlay::Overlay,
+    input_device: InputDevice,
+    draw_items: &mut Vec<DrawItem>,
+) {
+    held_card::append_draw_items(
+        inventory.held_textures(),
+        overlay.slot_animation(),
+        input_device,
+        draw_items,
+    );
+    held_trinket::append_draw_items(inventory.trinkets(), overlay.trinket_slot_animation(), draw_items);
 }
 
 /// The HUD update's heart loop: red heart containers first (full, half or empty from `hp`), then

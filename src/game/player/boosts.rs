@@ -3,8 +3,9 @@
 
 use crate::game::Game;
 use crate::game::bounds::Bounds;
-use crate::game::original_units::{Damage, Hearts, Pixels, PixelsPerFrame};
+use crate::game::original_units::{Damage, Frames, Hearts, Pixels, PixelsPerFrame};
 use crate::game::parameters::{CardParameters, GameParameters};
+use crate::game::pickups::trinket::Trinket;
 use crate::game::player::pill_state::PillState;
 use crate::game::player::unicorn_ride::RideColor;
 use crate::game::room::grid_object::GridObject;
@@ -20,6 +21,10 @@ pub struct RoomBoosts {
     pub flying: bool,
     /// The Empress (counted as 1.5 of item 122).
     pub empress: bool,
+    /// The Red Patch's points of damage bonus for the room (`razor`).
+    pub razor: f32,
+    /// Samson's Lock's rage above the usual (`rage - 1`) for the room.
+    pub rage: f32,
 }
 
 /// Isaac's stats with the room's boosts applied.
@@ -38,6 +43,8 @@ pub struct PlayerStats {
     pub tear_rise_bonus: PixelsPerFrame,
     /// The sum the fire rate depends on (`firr()`).
     pub delay_bonus: f32,
+    /// Frames added to the fire delay (trinkets).
+    pub delay_offset: Frames,
     /// What a tear's velocity is multiplied by (shot speed).
     pub shot_speed_multiplier: f32,
     /// How lucky Isaac is (`luck`).
@@ -49,6 +56,8 @@ pub struct PlayerStats {
     pub dark_tears: bool,
     /// Isaac looks demonic (the Empress's item 122, `curs()`).
     pub demonic: bool,
+    /// Isaac wears the Tick's hat.
+    pub tick_hat: bool,
     /// On the unicorn (`unic`): faster, and no tears.
     pub riding_unicorn: bool,
     /// The color Isaac flashes on it.
@@ -62,8 +71,12 @@ impl RoomBoosts {
         let strength = f32::from(self.strength);
         let empress = if self.empress { cards.empress_strength } else { 0.0 };
         let devil_bonus = if self.devil { cards.devil_damage_bonus } else { 0.0 };
-        let damage_bonus =
-            devil_bonus + strength * cards.strength_damage_bonus + empress * empress * cards.empress_damage_scale;
+        let trinkets = parameters.trinkets;
+        let damage_bonus = devil_bonus
+            + strength * cards.strength_damage_bonus
+            + empress * empress * cards.empress_damage_scale
+            + self.razor * trinkets.razor_damage_per_point
+            + self.rage;
         let speed_bonus = ((strength + empress) * cards.strength_speed_bonus
             + pills.speed * pill_parameters.speed_per_point)
             .min(cards.maximum_speed_bonus);
@@ -79,12 +92,14 @@ impl RoomBoosts {
             tear_height_bonus: cards.strength_range_bonus * strength + range_height * pills.range,
             tear_rise_bonus: pill_parameters.range_rise_per_point * pills.range,
             delay_bonus: pills.tears * pill_parameters.delay_bonus_per_tear,
+            delay_offset: Frames::ZERO,
             shot_speed_multiplier: shot_speed,
             luck: pills.luck,
             scale: 1.0 + (strength + empress) * cards.strength_size_bonus,
             flying: self.flying,
             dark_tears: self.devil,
             demonic: self.empress,
+            tick_hat: false,
             riding_unicorn: false,
             ride_tint: None,
         }
@@ -93,7 +108,7 @@ impl RoomBoosts {
 
 impl Game {
     pub(crate) fn player_stats(&self) -> PlayerStats {
-        let stats = self.cards.boosts.stats(&self.parameters, &self.inventory.pills);
+        let stats = self.stats_with_trinkets(self.cards.boosts.stats(&self.parameters, &self.inventory.pills));
         if !self.inventory.rides_unicorn() {
             return stats;
         }
@@ -103,6 +118,27 @@ impl Game {
             ride_tint: self.inventory.ride.color(),
             ..stats
         }
+    }
+
+    /// What the trinkets held add: speed (the Goat Hoof), flat damage (the Curved Horn, the Game
+    /// Squid) and a shorter fire delay (Cancer).
+    fn stats_with_trinkets(&self, mut stats: PlayerStats) -> PlayerStats {
+        let amounts = self.parameters.trinkets;
+        let held = |trinket| self.inventory.has_trinket(trinket);
+        if held(Trinket::GoatHoof) {
+            stats.speed += amounts.goat_hoof_speed;
+        }
+        if held(Trinket::CurvedHorn) {
+            stats.damage += amounts.curved_horn_damage;
+        }
+        if held(Trinket::GameSquid) {
+            stats.damage += amounts.game_squid_damage;
+        }
+        if held(Trinket::Cancer) {
+            stats.delay_offset += amounts.cancer_delay;
+        }
+        stats.tick_hat = held(Trinket::Tick);
+        stats
     }
 
     /// What stops Isaac (walls and obstacles; flying, only metal blocks and walls) and the webs

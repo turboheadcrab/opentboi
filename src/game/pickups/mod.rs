@@ -3,9 +3,19 @@
 
 pub mod card;
 mod collect;
+mod collection;
 pub mod consumable;
 pub mod item;
+#[cfg_attr(
+    not(test),
+    allow(
+        dead_code,
+        reason = "the item pools whose candidates it tests are not in the game yet"
+    )
+)]
+pub mod item_roll;
 pub mod kind;
+pub mod luck;
 mod markers;
 pub mod phase;
 pub mod pickup;
@@ -14,6 +24,7 @@ pub mod red_chest;
 pub mod rewards;
 pub mod showcase;
 pub mod sounds;
+pub mod trinket;
 
 use glam::Vec2;
 
@@ -21,17 +32,17 @@ use crate::game::attacks::explosion::blast_push;
 use crate::game::ball_contact::{Body, Contact, ball_hit};
 use crate::game::bounds::Bounds;
 use crate::game::draw::DrawItem;
-use crate::game::hud::message::PickupMessage;
 use crate::game::original_units::{Frames, length};
 use crate::game::parameters::{ExplosionParameters, PickupParameters, WallParameters};
 use crate::game::pickups::consumable::Consumable;
-use crate::game::pickups::kind::{BombKind, ChestKind, HeartKind, PickupKind};
+use crate::game::pickups::kind::{BombKind, HeartKind, PickupKind};
 use crate::game::pickups::pickup::Pickup;
 use crate::game::pickups::red_chest::RedChestChance;
 use crate::game::pickups::sounds::landing_sound;
 use crate::game::random::Random;
 use crate::game::room::layout::RoomLayout;
 use crate::game::sound_event::SoundEvent;
+pub use collection::Collection;
 pub use markers::markers;
 
 /// What pickups move among this tick.
@@ -46,26 +57,14 @@ pub struct PickupSurroundings<'tiles> {
     pub walls: WallParameters,
 }
 
-/// What touching the pickups did that the room has to follow up.
-#[derive(Default)]
-pub struct Collection {
-    /// Chests opened: their contents spill out here.
-    pub opened_chests: Vec<(Vec2, ChestKind)>,
-    /// A golden chest took a key.
-    pub used_key: bool,
-    pub message: Option<PickupMessage>,
-    /// A card or pill taken: Isaac holds it up (`pillc()`).
-    pub card_taken: Option<crate::game::pickups::consumable::Consumable>,
-    /// An item taken: Isaac holds it up and its name shows; the pedestal stays, empty.
-    pub item_taken: Option<crate::game::pickups::item::Item>,
-}
-
 #[derive(Clone, Debug)]
 pub struct Pickups {
     parameters: PickupParameters,
     lying: Vec<Pickup>,
     /// Whether brown chests made here turn red.
     pub red_chests: RedChestChance,
+    /// What Isaac carries that changes what the room gives, kept up to date every tick.
+    pub luck: luck::PickupLuck,
 }
 
 impl Pickups {
@@ -78,6 +77,7 @@ impl Pickups {
             parameters,
             lying,
             red_chests: RedChestChance::default(),
+            luck: luck::PickupLuck::default(),
         }
     }
 
@@ -98,7 +98,7 @@ impl Pickups {
     /// taken for a moment and is tossed up like a handed-back one.
     pub fn drop_swapped(&mut self, held: Consumable, center: Vec2, player_position: Vec2) {
         let mut pickup = Pickup::new(held.pickup_kind(), center, Vec2::ZERO);
-        pickup.hand_back(held, player_position, collect::SWAP_BLOCK);
+        pickup.hand_back(held.pickup_kind(), player_position, collect::SWAP_BLOCK);
         self.lying.push(pickup);
     }
 
@@ -206,6 +206,10 @@ impl Pickups {
     #[cfg(test)]
     pub fn lying_kinds(&self) -> Vec<PickupKind> {
         self.lying.iter().map(|pickup| pickup.kind).collect()
+    }
+
+    pub(crate) fn lying_kinds_mut(&mut self) -> impl Iterator<Item = &mut PickupKind> {
+        self.lying.iter_mut().map(|pickup| &mut pickup.kind)
     }
 
     /// Kinds of what still lies here (not taken, chests not opened).

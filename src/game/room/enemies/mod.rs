@@ -7,11 +7,13 @@ mod births;
 mod blob_drawing;
 mod contact;
 mod crowding;
+mod deaths;
 mod drawing;
 mod fly;
 mod friends;
 mod ground_drawing;
 mod hazards;
+mod marks;
 mod pooter;
 mod shooter;
 mod shooting;
@@ -37,8 +39,7 @@ use crate::game::random::Random;
 use crate::game::room::blood::Splatter;
 use crate::game::room::grid_object::GridObject;
 use crate::game::room::layout::RoomLayout;
-use crate::game::room::sight::TileMarks;
-use crate::game::room::{stage_to_world, world_to_stage};
+use crate::game::room::{sight::TileMarks, stage_to_world, world_to_stage};
 use crate::game::sound_event::SoundEvent;
 pub use fly::{Fly, FlyState};
 pub use friends::FriendTarget;
@@ -104,6 +105,8 @@ pub struct Enemies {
     frames: Frames,
     /// Each enemy's number and hit points when last asked who was hurt (see `friends.rs`).
     health_seen: Vec<(u32, HitPoints)>,
+    /// The numbers of the enemies alive when `take_deaths` last looked.
+    living_seen: Vec<u32>,
     /// Where the player was when last seen, and how fast he moved (stage coordinates).
     player: Vec2,
     player_velocity: Vec2,
@@ -146,6 +149,7 @@ impl Enemies {
             splashes: Vec::new(),
             frames: Frames::ZERO,
             health_seen: Vec::new(),
+            living_seen: Vec::new(),
             player: Vec2::ZERO,
             player_velocity: Vec2::ZERO,
             tile_marks: TileMarks::default(),

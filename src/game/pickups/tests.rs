@@ -3,7 +3,8 @@ use crate::game::ball_contact::{Body, Contact};
 use crate::game::bounds::Bounds;
 use crate::game::original_units::Frames;
 use crate::game::parameters::GameParameters;
-use crate::game::pickups::kind::{BombKind, CoinKind, HeartKind};
+use crate::game::pickups::kind::{BombKind, ChestKind, CoinKind, HeartKind};
+use crate::game::pickups::luck::PickupLuck;
 use crate::game::player::inventory::Inventory;
 use crate::game::room::interior_bounds;
 use crate::game::room::layout::LayoutCell;
@@ -16,6 +17,7 @@ fn pickups_with(kind: PickupKind) -> Pickups {
         parameters: GameParameters::ORIGINAL.pickups,
         lying: vec![Pickup::new(kind, Vec2::ZERO, Vec2::ZERO)],
         red_chests: RedChestChance::default(),
+        luck: PickupLuck::default(),
     }
 }
 
@@ -183,6 +185,7 @@ fn a_placed_pedestal_gives_way_slowly_and_snaps_back_from_big_shoves() {
         parameters: GameParameters::ORIGINAL.pickups,
         lying: vec![Pickup::placed(PickupKind::ItemPedestal, Vec2::ZERO)],
         red_chests: RedChestChance::default(),
+        luck: PickupLuck::default(),
     };
     pickups.lying[0].move_to(Vec2::new(10.0, 0.0), interior_bounds(), &[]);
     advance_frames(&mut pickups, 1);
@@ -201,6 +204,7 @@ fn pushed_distance(kind: PickupKind) -> f32 {
         parameters: GameParameters::ORIGINAL.pickups,
         lying: vec![Pickup::placed(kind, Vec2::ZERO)],
         red_chests: RedChestChance::default(),
+        luck: PickupLuck::default(),
     };
     advance_frames(&mut pickups, 40);
     let walking = Vec2::new(4.0, 0.0);

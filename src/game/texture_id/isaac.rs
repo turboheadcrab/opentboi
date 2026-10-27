@@ -24,6 +24,8 @@ const DEMONIC_BODY_SIZE: Vec2 = Vec2::new(96.0, 80.0);
 pub enum IsaacPart {
     /// Frame `0..ISAAC_HEAD_FRAME_COUNT`.
     Head(u8),
+    /// The head wearing the Tick's hat (hat 61 on `hat4`), frame `0..ISAAC_HEAD_FRAME_COUNT`.
+    TickHead(u8),
     /// The unicorn's head, frame `0..ISAAC_HEAD_FRAME_COUNT`.
     UnicornHead(u8),
     BodyStanding,
@@ -45,7 +47,14 @@ pub enum IsaacPart {
 impl IsaacPart {
     pub fn all() -> impl Iterator<Item = Self> + Clone {
         (0..ISAAC_HEAD_FRAME_COUNT)
-            .flat_map(|frame| [Self::Head(frame), Self::UnicornHead(frame), Self::DemonicHead(frame)])
+            .flat_map(|frame| {
+                [
+                    Self::Head(frame),
+                    Self::TickHead(frame),
+                    Self::UnicornHead(frame),
+                    Self::DemonicHead(frame),
+                ]
+            })
             .chain([
                 Self::BodyStanding,
                 Self::FlyingBody,
@@ -60,6 +69,14 @@ impl IsaacPart {
                 (0..ISAAC_HORIZONTAL_WALK_FRAME_COUNT)
                     .flat_map(|frame| [Self::BodyWalkHorizontal(frame), Self::DemonicBodyWalkHorizontal(frame)]),
             )
+    }
+
+    /// The same part wearing the Tick's hat (only his own head can).
+    pub fn wearing_tick_hat(self) -> Self {
+        match self {
+            Self::Head(frame) => Self::TickHead(frame),
+            other => other,
+        }
     }
 
     /// The same part in the demonic look (the unicorn's head is the same for everyone).
@@ -94,7 +111,7 @@ impl IsaacPart {
 
     pub fn size(self) -> Vec2 {
         match self {
-            Self::Head(_) => ISAAC_HEAD_SIZE,
+            Self::Head(_) | Self::TickHead(_) => ISAAC_HEAD_SIZE,
             Self::UnicornHead(_) => UNICORN_HEAD_SIZE,
             Self::DemonicHead(_) => DEMONIC_HEAD_SIZE,
             Self::BodyStanding | Self::FlyingBody | Self::BodyWalkVertical(_) | Self::BodyWalkHorizontal(_) => {

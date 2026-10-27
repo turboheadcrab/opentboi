@@ -9,7 +9,7 @@ use super::hud_values::{OVERLAY_CLIP, STAGE_CENTER_IN_OVERLAY};
 use super::{TextureSource, framed};
 use std::sync::OnceLock;
 
-use crate::game::{BannerName, CARD_NAME_TEXTURE_CENTER_X, Item, PickupCard, TextureId};
+use crate::game::{BannerName, CARD_NAME_TEXTURE_CENTER_X, Item, PickupCard, SlotView, TextureId, Trinket};
 use crate::game_assets::script::GameScript;
 use crate::game_assets::vector_art::CharacterLibrary;
 use crate::game_assets::vector_art::{ChildState, FrameSelection, NO_OVERRIDES, RenderOverrides};
@@ -51,6 +51,7 @@ fn name_source(name: BannerName, frame: u8) -> TextureSource {
     let overrides = match name {
         BannerName::Card(card) => texts.banners.get(card_index(card)),
         BannerName::Item(item) => texts.item_banners.get(item_index(item)),
+        BannerName::Trinket(trinket) => texts.trinket_banners.get(trinket.index()),
         BannerName::Fortune(index) => texts.fortune_banners.get(usize::from(index)),
         BannerName::Pill(text) => texts.pill_banners.get(super::pills::text_index(text)),
     }
@@ -137,6 +138,10 @@ pub(super) struct CardTexts {
     banners: Vec<RenderOverrides>,
     held_names: Vec<RenderOverrides>,
     item_banners: Vec<RenderOverrides>,
+    /// By place in `Trinket::ALL`.
+    trinket_banners: Vec<RenderOverrides>,
+    /// The HUD slot with each trinket, by place in `Trinket::ALL` and `SlotView::ALL`.
+    pub(super) trinket_slots: Vec<[RenderOverrides; 3]>,
     /// The fortune machine's, in the order of the script's list.
     fortune_banners: Vec<RenderOverrides>,
     /// By place in `PillText::ALL`.
@@ -161,10 +166,15 @@ fn banner_overrides(text: &'static str) -> RenderOverrides {
     }
 }
 
+/// How wide the strip behind a name is (`black._xscale = length * 7 + 20`), in thousandths.
+pub(super) fn name_strip_per_mille(text: &str) -> u16 {
+    let characters = u16::try_from(text.len()).unwrap_or(u16::MAX);
+    (characters * NAME_STRIP_PER_CHARACTER + NAME_STRIP_BASE) * PER_MILLE_PER_PERCENT
+}
+
 /// The name strip showing `text`, wide enough for it, without the badge that names the button.
 fn held_name_overrides(text: &'static str) -> RenderOverrides {
-    let characters = u16::try_from(text.len()).unwrap_or(u16::MAX);
-    let per_mille = (characters * NAME_STRIP_PER_CHARACTER + NAME_STRIP_BASE) * PER_MILLE_PER_PERCENT;
+    let per_mille = name_strip_per_mille(text);
     RenderOverrides {
         children: Box::leak(Box::new([("black", ChildState::HorizontalScale { per_mille })])),
         hidden_characters: &[CARD_LABEL_SHAPE],
@@ -179,6 +189,7 @@ pub(super) fn read_names(library: &CharacterLibrary) {
         let script = GameScript::from_movie(library.movie());
         let names = script.card_names().unwrap_or_default();
         let item_names = script.item_names();
+        let trinket_names = script.trinket_names();
         let fortunes = script.fortune_messages();
         let pill_texts: Vec<&'static str> = script.pill_texts().into_iter().map(leaked).collect();
         if names.len() < PickupCard::ALL.len() {
@@ -195,6 +206,16 @@ pub(super) fn read_names(library: &CharacterLibrary) {
             banners: names.iter().map(|&text| banner_overrides(text)).collect(),
             held_names: names.iter().map(|&text| held_name_overrides(text)).collect(),
             item_banners: Item::ALL.map(|item| banner_overrides(item_name(item))).into(),
+            trinket_banners: (0..Trinket::ALL.len())
+                .map(|index| banner_overrides(leaked(trinket_names.get(index).cloned().unwrap_or_default())))
+                .collect(),
+            trinket_slots: Trinket::ALL
+                .into_iter()
+                .map(|trinket| {
+                    let text = leaked(trinket_names.get(trinket.index()).cloned().unwrap_or_default());
+                    SlotView::ALL.map(|view| super::held_trinket::slot_overrides(trinket, text, view))
+                })
+                .collect(),
             fortune_banners: fortunes
                 .into_iter()
                 .map(|fortune| banner_overrides(leaked(fortune)))
@@ -210,6 +231,8 @@ pub(super) fn card_texts() -> &'static CardTexts {
         banners: Vec::new(),
         held_names: Vec::new(),
         item_banners: Vec::new(),
+        trinket_banners: Vec::new(),
+        trinket_slots: Vec::new(),
         fortune_banners: Vec::new(),
         pill_banners: Vec::new(),
         pill_names: Vec::new(),

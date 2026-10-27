@@ -10,27 +10,54 @@ use crate::game::hud::message::PickupMessage;
 use crate::game::hud::name_banner::BannerName;
 use crate::game::hud::pill_text::PillText;
 use crate::game::odds::Odds;
-use crate::game::original_units::Hearts;
+use crate::game::original_units::{Frames, Hearts};
+use crate::game::pickups::consumable::Consumable;
+use crate::game::pickups::item::Item;
 use crate::game::pickups::pill::Pill;
 use crate::game::player::animation::PlayerAnimation;
 use crate::game::player::death::Killer;
-use crate::game::player::pill_state::{PillEffect, PillKind, PillRollContext};
+use crate::game::player::pill_roll::PillRollContext;
+use crate::game::player::pill_state::{PillEffect, PillKind};
 use crate::game::sound_event::SoundEvent;
 
 /// Puberty is the hat one time in two, else the pill-eater's face.
 const HAT_ODDS: Odds = Odds::one_in(2);
+/// PHD names the held pill one frame in this many.
+const PHD_NAMES_PILL_ODDS: Odds = Odds::one_in(150);
 /// Health Up even with this much health or less, whichever pill version it is.
 const HEALTH_UP_BELOW: Hearts = Hearts(1.0);
 
 impl Game {
-    /// Uses `pill`: gives its look an effect if it had none, then applies it.
-    pub(crate) fn use_pill(&mut self, pill: Pill) {
-        let context = PillRollContext {
+    fn pill_roll_context(&self) -> PillRollContext {
+        PillRollContext {
             hurt: self.inventory.red_hearts < self.inventory.maximum_red_hearts,
             hearts_in_all: self.inventory.red_hearts + self.inventory.soul_hearts,
             has_bombs_or_keys: self.inventory.bombs > 0 || self.inventory.keys > 0,
             lucky: self.inventory.pills_only_help(),
-        };
+            phd: self.inventory.has(Item::Phd),
+        }
+    }
+
+    /// PHD names the held pill now and then: each frame, one time in 150, its look takes an effect
+    /// (DoAction 29787–29790).
+    pub(crate) fn identify_held_pill(&mut self, elapsed: Frames) {
+        if !self.inventory.has(Item::Phd) {
+            return;
+        }
+        let crossed = self.frames_in_room.whole() - (self.frames_in_room - elapsed).whole();
+        for _ in 0..crossed {
+            if let Some(Consumable::Pill(pill)) = self.inventory.held
+                && self.random.happens(PHD_NAMES_PILL_ODDS)
+            {
+                let context = self.pill_roll_context();
+                self.inventory.pills.assign(pill, context, &mut self.random);
+            }
+        }
+    }
+
+    /// Uses `pill`: gives its look an effect if it had none, then applies it.
+    pub(crate) fn use_pill(&mut self, pill: Pill) {
+        let context = self.pill_roll_context();
         let effect = self.inventory.pills.assign(pill, context, &mut self.random);
         self.apply_pill(effect, effect.good || context.lucky);
     }

@@ -1,5 +1,12 @@
 # TODO (later, not now)
 
+## Next priority: a `Marker` enum
+- The room-clear and machine rolls name what to spawn by a raw frame of the original's pickup clip
+  (`CARD_MARKER_FRAME`, `TRINKET_MARKER_FRAME` and the other `*_FRAME` constants, plain `u8`s in
+  `pickups/kind.rs`, `rewards.rs`, `machines/payout.rs` and their tests, about 40 places). Replace them
+  with a `Marker` enum (the closed set of kinds a marker can ask for), converted to and from the
+  frame at the edge only; do it as a refactor of its own before more kinds are added.
+
 ## Enemies: after the flies
 - Knockback from blasts (half the speed kept, then pushed away); the blast already has to see them.
 - Other enemy markers are still skipped: rooms holding only those keep the timed clear-reward
@@ -531,9 +538,12 @@ frame-locked logic (replaced by time-based updates).
 - Blood creep is ported (`room/creep.rs`) but nothing leaves it yet: bosses, the spider boss, the dark rooms' slowing and the creep's long stay and colours (`longstay`, `colorit`) come with them. `playerhurt()` also raises every hit to a full heart past chapter 6.
 - `physix()`: enemy and enemy-shot parts with enemies; `slow`/`sloww` with items; `turdb`
   (standing over a broken poop's tile) and ladders.
-- Cards: The Magician (homing, range), The High Priestess (Mom's foot) wait for items; The Empress's demonic look is done (head mode 30, body outfit 8 or 9) except holding up item 122 and its look while riding the unicorn (the plain body shows); The Joker should go to the devil room;
-  The Devil's look (red tears `fmode 8`, face `hmode 8`); card names in
-  the demo (follow jumps).
+- Cards: The Magician (homing, range), The High Priestess (Mom's foot) wait for items; The Empress's demonic look is done (head mode 30, body outfit 8 or 9) except holding up item 122 and its look while riding the unicorn (the plain body shows) and its tear look (tear frame 30);
+  The Devil's look (red tears `fmode 8`, face `hmode 8`); the 15 % more damage per tear that The Devil
+  and Strength give (DoAction 3732–3735); Death's use counter, which unlocks something after five uses
+  (DoAction 27967–27971); card names in the demo (follow jumps). `docs`-less status of every card:
+  22 complete, 3 partial (The Devil, Strength, The Empress), 2 not done (The Magician, The High
+  Priestess).
 - Pills are in (`player::pill_effects`); the shop sells them too (a pill, or a tarot card); still missing: the random look swaps (`picc`), Isaac's colour flash, blue flies (`Friends`), the poison cloud (`Bad Gas`), the bombs of `Explosive Diarrhea`, puberty's hat and face, the fart sound (not an MP3 in the bank), Strength counting in the tear's first rise like range pills do.
 - `--showcase` puts every card in the treasure room (and every pickup kind in the boss room,
   every machine in the shop); off in normal play.
@@ -570,10 +580,38 @@ one player only, so none of this is in the script to port; it is our own design)
   floor stay shared.
 
 ## Trinkets (`pillc()`'s trinket branch)
-- Everything of `pillc()` for cards and pills is ported. Left: the trinket branch (ids 29–68: the
-  second slot, its names banner, Mom's Purse's extra slot, the Tick's hat, the already-held check)
-  and the bookkeeping of unlocks (`colss`). It needs trinkets as a pickup kind, a HUD slot and the
-  effects of the 34 named trinkets first.
+- Done: the 34 trinkets (`Trinket`, ids 29–62) as a pickup kind, with their art; the pool every run
+  starts with (18 of them, each handed out once); the room-clear roll, chests, the fortune machine and
+  the devil beggar giving them; taking one (the sound, Isaac holding it up, the name banner read from the
+  game, the held one swapping out and lying on, the already-held and Tick refusals); every trinket in
+  the treasure room for checking (`--showcase`); both HUD slots (picture, name strip and ring, with
+  the taking animation); Mom's Purse (item 139, on a pedestal in the start room) and the second
+  slot it opens; the Tick's hat; and the effects of the Goat Hoof, Curved Horn, Game Squid, Cancer,
+  Fish Head, Red Patch, A Missing Page, the Polaroid (its bubble), the Cursed Skull, Samson's Lock,
+  the Tick (a heart in the boss room), Isaac's Fork, the Lucky Toe and Mom's Pearl.
+- Left, blocked by what the game lacks: the Umbilical Cord (at half a heart it grants the familiar
+  item 100) and Eve's Bird Foot (a kill sometimes calls the Dead Bird familiar): no familiars yet;
+  the Tick's 15 % off the health of enemies above 60 hit points (none that strong yet); the Polaroid's
+  part in the heaven door and in an unlock (no later chapters); Samson's Lock's red tint and its size
+  change; the Fork's rising heart (`hearter`).
+- Left, not looked at yet: the tear effects (Pinky Eye, Push Pin, Game Squid's dark tear), the pennies
+  (extra pickups from coins), the pickup swaps (Ace of Spades, Safety Cap, Match Stick, Rusted Key,
+  Child's Heart), the Left Hand and Judas' Tongue, Blue Baby's Soul and Isaac's Head (ghost
+  familiars), Maggy's Faith and Cain's Eye, and Liberty Cap. Which trinkets join the pool later
+  (`junx()`) and a gold pickup being always the Counterfeit Penny. Look each one up with the script's
+  check for it (`trixx(ID)`) before porting.
+
+## Items: `itz()` and what feeds it
+- Done: `item_roll` (`itz()` and `itzz()`): the test each candidate of an item pool goes through
+  (already held, found in an earlier run, no fourth familiar, the power level's odds for a major
+  item), the power level (`wiptz`) kept in the inventory and raised by major items taken, and the
+  save's memory of items found (`Progress`), which taking a pill or a card also feeds (items 43 and
+  61).
+- Left: the pools themselves (`ittt`, ... each room kind's list of candidates) and what draws from
+  them: treasure room, shop, boss, devil, angel and secret room pedestals; the devil room's pedestal
+  looks that `itz()` picks (DoAction 1459–1470); the characters' starting power level (DoAction
+  877–885) and the other power-level changes (DoAction 5143, `giveit()`); hard mode. The power
+  level is not saved yet.
 
 ## Original Steam Controller outside Steam Input
 - With Steam running, the 2015 Steam Controller (wireless dongle 28de:1142) reaches a program started

@@ -12,6 +12,7 @@ use crate::game::pickups::card::Card;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
 use crate::game::pickups::pill::Pill;
+use crate::game::pickups::trinket::Trinket;
 use crate::game::texture_id::TextureId;
 
 /// The teleport clip (5713) has 19 frames; holding up an item (5816) 20.
@@ -51,6 +52,8 @@ pub enum Held {
     Card(Card),
     /// A pill: the same picture on its look's frame.
     Pill(Pill),
+    /// A trinket: the same picture on its own frame.
+    Trinket(Trinket),
     /// Bought from the shop: item pictures 200 a heart, 201 a bomb, 202 a key, 203 a soul heart.
     Heart,
     Bomb,

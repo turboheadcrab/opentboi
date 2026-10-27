@@ -9,7 +9,9 @@ use glam::Vec2;
 use crate::game::Game;
 use crate::game::ball_contact::{Body, Contact};
 use crate::game::floor::PLAYED_CHAPTER;
+use crate::game::hud::message::PickupMessage;
 use crate::game::hud::name_banner::BannerName;
+use crate::game::hud::pill_text::PillText;
 use crate::game::machines::{Cost, MachineEvent, Throw};
 use crate::game::original_units::{Frames, PixelsPerFrame};
 use crate::game::pickups::kind::{HeartKind, PickupKind};
@@ -112,6 +114,16 @@ impl Game {
                 }
                 MachineEvent::PedestalBelow => room.pickups.place(PickupKind::ItemPedestal, center + PEDESTAL_BELOW),
                 MachineEvent::Fortune(index) => self.overlay.show_name(BannerName::Fortune(index)),
+                // The same orbiting flies the pill gives (`ups[10]`), and `emo()`'s thumbs up.
+                MachineEvent::PrettyFly => {
+                    self.inventory.pills.flies += self.parameters.pills.fly_gain;
+                    self.overlay.show_message(PickupMessage::Pill(PillText::PrettyFly));
+                    self.player.play_animation(PlayerAnimation::ThumbsUp);
+                }
+                MachineEvent::Fly(kind) => {
+                    room.enemies.add_fly(kind, center, &mut self.random);
+                    self.player.play_animation(PlayerAnimation::ThumbsDown);
+                }
                 MachineEvent::Contents(source) => room.spill(source, center, &mut self.random),
             }
         }

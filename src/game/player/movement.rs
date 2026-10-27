@@ -43,7 +43,7 @@ impl Player {
         self.rebound_from_walls(target - position, elapsed);
     }
 
-    /// `physix()` (DoAction 25960–26112): pressing into a wall or obstacle turns that part of the
+    /// `physix()` (DoAction 25959–26112): pressing into a wall or obstacle turns that part of the
     /// velocity around (so tears fired then do not inherit it), slows Isaac, and for a moment makes
     /// diagonal input slide along the wall.
     fn rebound_from_walls(&mut self, blocked: Vec2, elapsed: Frames) {
@@ -54,7 +54,7 @@ impl Player {
         if blocked.dot(self.velocity) > 0.0 {
             self.slide = Some((blocked, walls.player_slide_frames));
         }
-        self.velocity = rebound(self.velocity, blocked, COLLISION_RADIUS, walls);
+        self.velocity = rebound(self.velocity, blocked, walls);
         self.velocity *= walls.player_friction.over(elapsed);
     }
 

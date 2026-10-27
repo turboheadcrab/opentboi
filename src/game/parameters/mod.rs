@@ -26,6 +26,7 @@ mod pickups;
 mod pills;
 mod pooters;
 mod screen_fade;
+mod trinkets;
 mod walls;
 use crate::game::odds::Odds;
 use crate::game::original_units::{
@@ -51,6 +52,7 @@ pub use pickups::{FireParameters, InventoryParameters, PickupParameters, SpikePa
 pub use pills::PillParameters;
 pub use pooters::{EnemyShotParameters, PooterParameters};
 pub use screen_fade::ScreenFadeParameters;
+pub use trinkets::TrinketParameters;
 pub use walls::WallParameters;
 
 pub use sections::{
@@ -87,6 +89,7 @@ pub struct GameParameters {
     pub mulligans: MulliganParameters,
     pub death: DeathParameters,
     pub pills: PillParameters,
+    pub trinkets: TrinketParameters,
     pub screen_fade: ScreenFadeParameters,
     pub pooters: PooterParameters,
     pub enemy_shots: EnemyShotParameters,
@@ -111,6 +114,7 @@ impl GameParameters {
             delay_bonus_scale: 1.3,
             delay_minimum: Frames(5.0),
             delay_bonus: 0.0,
+            delay_offset: Frames(0.0),
             mouse_aim_height: Pixels(10.0),
             face_timer_base: Frames(7.0),
             face_timer_per_delay: 0.45,
@@ -234,6 +238,7 @@ impl GameParameters {
         mulligans: mulligans::ORIGINAL_MULLIGANS,
         death: death::ORIGINAL_DEATH,
         pills: pills::ORIGINAL_PILLS,
+        trinkets: trinkets::ORIGINAL_TRINKETS,
         screen_fade: screen_fade::ORIGINAL_SCREEN_FADE,
         pooters: pooters::ORIGINAL_POOTERS,
         enemy_shots: pooters::ORIGINAL_ENEMY_SHOTS,

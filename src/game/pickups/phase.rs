@@ -25,6 +25,8 @@ const ITEM_PEDESTAL_SIZES: [Vec2; 3] = [Vec2::ZERO, Vec2::new(64.0, 96.0), Vec2:
 /// The item floats above its pedestal.
 const HELD_ITEM_PEDESTAL_SIZES: [Vec2; 3] = [Vec2::ZERO, Vec2::new(72.0, 168.0), Vec2::ZERO];
 const CARD_SIZES: [Vec2; 3] = [Vec2::new(68.0, 160.0), Vec2::new(40.0, 56.0), Vec2::new(164.0, 68.0)];
+/// A trinket's art is a little wider than a card's.
+const TRINKET_SIZES: [Vec2; 3] = [Vec2::new(76.0, 160.0), Vec2::new(44.0, 56.0), Vec2::new(196.0, 68.0)];
 const CHEST_SIZES: [Vec2; 3] = [Vec2::new(152.0, 160.0), Vec2::new(64.0, 64.0), Vec2::new(96.0, 96.0)];
 
 impl PickupPhase {
@@ -39,6 +41,7 @@ impl PickupPhase {
             PickupKind::ItemPedestal => ITEM_PEDESTAL_SIZES,
             PickupKind::Item(_) => HELD_ITEM_PEDESTAL_SIZES,
             PickupKind::Card(_) | PickupKind::Pill(_) => CARD_SIZES,
+            PickupKind::Trinket(_) => TRINKET_SIZES,
         };
         sizes[self as usize]
     }

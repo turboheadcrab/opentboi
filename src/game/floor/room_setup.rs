@@ -67,6 +67,21 @@ fn curse_layout_index(random: &mut Random) -> usize {
     }
 }
 
+/// What a room of `role` holds beyond its layout: the devil's deals, the treasure room's item (the
+/// Deck of Cards, until the item pools exist) and the super secret room's hearts.
+pub(super) fn stock_room(room: &mut RoomContents, role: RoomRole, super_secret_style: u8, random: &mut Random) {
+    match role {
+        RoomRole::Devil => room.wares.make_devil_deals(random),
+        RoomRole::Treasure => room.pickups.stock_pedestals(Item::DeckOfCards),
+        RoomRole::SuperSecret => {
+            if let Some(heart) = super_secret_hearts(super_secret_style) {
+                room.pickups.set_heart_kind(heart);
+            }
+        }
+        _ => {}
+    }
+}
+
 /// `create()` in the super secret room: hearts are full red ones in style 0 (`col = 1`) and
 /// eternal in style 1 (`col = 4`).
 pub(super) fn super_secret_hearts(style: u8) -> Option<HeartKind> {
@@ -85,10 +100,13 @@ pub(super) fn tinted_rock_cell(index: i32) -> Option<(u32, u32)> {
 }
 
 /// Where the start room's items stand (stage pixels): either side of the middle, above the
-/// controls drawing.
-const START_ROOM_ITEMS: [(Item, glam::Vec2); 2] = [
+/// controls drawing, and Mom's Purse above them.
+const START_ROOM_ITEMS: [(Item, glam::Vec2); 5] = [
     (Item::LuckyFoot, glam::Vec2::new(270.0, 190.0)),
     (Item::MyLittleUnicorn, glam::Vec2::new(370.0, 190.0)),
+    (Item::MomsPurse, glam::Vec2::new(320.0, 140.0)),
+    (Item::MomsBottleOfPills, glam::Vec2::new(440.0, 140.0)),
+    (Item::Phd, glam::Vec2::new(200.0, 140.0)),
 ];
 /// A fortune teller in the lower left corner, and a dime beside it to play with.
 const START_ROOM_FORTUNE_TELLER: glam::Vec2 = glam::Vec2::new(130.0, 370.0);
@@ -113,7 +131,7 @@ pub(super) fn add_start_room_items(rooms: &mut BTreeMap<FloorCell, RoomContents>
 }
 
 /// Temporary, for checking art and rules: one pickup of every kind (and two eternal hearts) waits
-/// in the boss room, one machine of each kind in the shop, every card in the treasure room.
+/// in the boss room, one machine of each kind in the shop, every card and trinket in the treasure room.
 pub(super) fn add_showcases(plan: &FloorPlan, rooms: &mut BTreeMap<FloorCell, RoomContents>) {
     let cell_of = |wanted: RoomRole| {
         plan.roles_by_cell
@@ -130,5 +148,6 @@ pub(super) fn add_showcases(plan: &FloorPlan, rooms: &mut BTreeMap<FloorCell, Ro
     }
     if let Some(treasure_room) = cell_of(RoomRole::Treasure).and_then(|cell| rooms.get_mut(&cell)) {
         treasure_room.pickups.add_every_card();
+        treasure_room.pickups.add_every_trinket();
     }
 }

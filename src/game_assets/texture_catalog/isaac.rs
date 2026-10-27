@@ -8,7 +8,7 @@ use swf::CharacterId;
 
 use super::{TextureSource, centered_on, isaac_demonic};
 use crate::game::{IsaacPart, RideColor};
-use crate::game_assets::vector_art::{RenderOverrides, Tint};
+use crate::game_assets::vector_art::{ChildState, RenderOverrides, Tint};
 
 const ISAAC_HEAD_CLIP: CharacterId = 2261;
 const UNICORN_HEAD_CLIP: CharacterId = 2803;
@@ -41,6 +41,26 @@ const fn ride_tint(multiply_per_mille: [u16; 3], lift: i16) -> RenderOverrides {
     }
 }
 
+/// The head's mode clip (3069) holds the face `d` (2261, one frame for each look) and six hat places;
+/// the Tick's hat is hat 61 on the fifth.
+const ISAAC_HEAD_MODE_CLIP: CharacterId = 3069;
+const TICK_HAT_FRAME: u16 = 61;
+
+macro_rules! tick_heads {
+    ($($face:literal)*) => {
+        [$(RenderOverrides {
+            children: &[("d", ChildState::Frame($face)), ("hat4", ChildState::Frame(TICK_HAT_FRAME))],
+            texts: &[],
+            hidden_characters: &[],
+            character_frames: &[],
+            tint: None,
+        }),*]
+    };
+}
+
+/// By the head's frame.
+static TICK_HEADS: [RenderOverrides; 8] = tick_heads!(1 2 3 4 5 6 7 8);
+
 /// By `RideColor`.
 static RIDE_TINTS: [RenderOverrides; 5] = [
     ride_tint([1000, 0, 0], 50),
@@ -65,6 +85,10 @@ pub(super) fn source(part: IsaacPart, tint: Option<RideColor>) -> TextureSource 
 fn untinted_source(part: IsaacPart) -> TextureSource {
     match part {
         IsaacPart::Head(frame) => centered_on(ISAAC_HEAD_CLIP, 1 + u16::from(frame), ISAAC_HEAD_CENTER),
+        IsaacPart::TickHead(frame) => TextureSource {
+            overrides: &TICK_HEADS[usize::from(frame) % TICK_HEADS.len()],
+            ..centered_on(ISAAC_HEAD_MODE_CLIP, 1, ISAAC_HEAD_CENTER)
+        },
         IsaacPart::UnicornHead(frame) => centered_on(UNICORN_HEAD_CLIP, 1 + u16::from(frame), ISAAC_HEAD_CENTER),
         IsaacPart::BodyWalkVertical(frame) => centered_on(
             ISAAC_VERTICAL_WALK_CLIP,

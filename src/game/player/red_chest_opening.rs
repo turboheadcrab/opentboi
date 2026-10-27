@@ -7,6 +7,7 @@ use crate::game::floor::DEVIL_CELL;
 use crate::game::pickups::kind::{BombKind, PickupKind};
 use crate::game::pickups::pill::Pill;
 use crate::game::pickups::red_chest::{MEGA_TROLL_BOMB_RADIUS, RedChestContents, red_chest_contents};
+use crate::game::room::contents::SpawOptions;
 
 impl Game {
     pub(crate) fn open_red_chest(&mut self, center: Vec2) {
@@ -15,7 +16,7 @@ impl Game {
             RedChestContents::Item => room.pickups.place(PickupKind::ItemPedestal, center),
             RedChestContents::DevilRoom => self.teleport(DEVIL_CELL),
             RedChestContents::MegaTrollBomb => {
-                let spot = room.spawn_spot(center, MEGA_TROLL_BOMB_RADIUS, &mut self.random);
+                let spot = room.spaw(center, MEGA_TROLL_BOMB_RADIUS, SpawOptions::default(), &mut self.random);
                 room.pickups
                     .spawn(PickupKind::Bomb(BombKind::MegaTroll), spot, Vec2::ZERO);
             }

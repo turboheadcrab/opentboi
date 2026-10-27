@@ -4,6 +4,7 @@
 
 use crate::game::attacks::splash::Splash;
 use crate::game::draw::DrawItem;
+use crate::game::player::shield;
 use crate::game::{Game, room};
 
 impl Game {
@@ -48,6 +49,11 @@ impl Game {
         if !blinking && !self.inventory.ride.blinks_hidden() {
             self.player.append_draw_items(draw_items);
         }
+        draw_items.extend(shield::draw_item(
+            self.player.position(),
+            self.inventory.shield_frames(),
+            self.frames_in_room,
+        ));
         self.floor.append_draw_items(self.last_input_device, draw_items);
         self.bombs.append_draw_items(draw_items);
         self.blue_flies.append_draw_items(draw_items);

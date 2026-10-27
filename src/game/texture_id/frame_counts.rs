@@ -32,5 +32,7 @@ pub const EMPRESS_ANIMATION: u8 = 13;
 pub fn card_animation_frame_count(clip_frame: u8) -> u8 {
     if clip_frame == EMPRESS_ANIMATION { 33 } else { 31 }
 }
+/// The bubble a shielded Isaac has round him loops through the 29 frames of its clip.
+pub const BUBBLE_FRAME_COUNT: u8 = 29;
 /// Door clip frame 8: the key turns and the shop door swings open.
 pub const SHOP_DOOR_UNLOCKING_FRAME_COUNT: u8 = 28;

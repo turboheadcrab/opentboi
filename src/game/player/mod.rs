@@ -9,6 +9,7 @@ pub mod cards;
 #[cfg(test)]
 mod creep_tests;
 pub mod death;
+mod finds;
 mod gambling;
 pub mod hazards;
 pub mod inventory;
@@ -18,11 +19,14 @@ pub mod items;
 pub mod look;
 mod movement;
 mod pill_effects;
+pub mod pill_roll;
 pub mod pill_state;
 #[cfg(test)]
 mod pill_tests;
 mod red_chest_opening;
+pub mod shield;
 mod shooting_axes;
+mod trinket_effects;
 mod tuning;
 pub mod unicorn_ride;
 use glam::Vec2;
@@ -232,6 +236,7 @@ impl Player {
                 riding_unicorn: stats.riding_unicorn,
                 tint: stats.ride_tint,
                 demonic: stats.demonic,
+                tick_hat: stats.tick_hat,
             };
             self.look
                 .append_draw_items(self.position, stats.scale, outfit, draw_items);

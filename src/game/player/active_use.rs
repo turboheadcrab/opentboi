@@ -5,9 +5,13 @@ use glam::Vec2;
 
 use crate::game::Game;
 use crate::game::InputState;
-use crate::game::original_units::Frames;
+use crate::game::original_units::{Frames, Pixels};
+use crate::game::pickups::card::Card;
+use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
+use crate::game::pickups::pill::Pill;
 use crate::game::player::animation::{Held, PlayerAnimation};
+use crate::game::room::contents::SpawOptions;
 use crate::game::sound_event::SoundEvent;
 
 /// No item is used in a room's first ten frames.
@@ -22,11 +26,44 @@ impl Game {
         let Some(item) = self.inventory.active.use_held() else {
             return;
         };
-        self.player.play_animation(PlayerAnimation::HoldingUp(Held::Item(item)));
+        // The deck and the bottle show what they give instead (`showit = false`, DoAction 27174,
+        // DoAction 27216).
+        if !matches!(item, Item::DeckOfCards | Item::MomsBottleOfPills) {
+            self.player.play_animation(PlayerAnimation::HoldingUp(Held::Item(item)));
+        }
         match item {
             Item::MyLittleUnicorn => self.ride_unicorn(),
-            Item::LuckyFoot => {}
+            // `pillc(3)` (DoAction 7064, DoAction 7066): a random card, `tater()`.
+            Item::DeckOfCards => {
+                let card = Card::roll(&mut self.random);
+                self.take_given(Consumable::Card(card));
+            }
+            // `pillc(4)` (DoAction 7060, DoAction 7062): a random pill.
+            Item::MomsBottleOfPills => {
+                let pill = Pill::roll(&mut self.random);
+                self.take_given(Consumable::Pill(pill));
+            }
+            Item::LuckyFoot | Item::MomsPurse | Item::Phd => {}
         }
+    }
+
+    /// What Deck of Cards and Mom's Bottle of Pills give (DoAction 27173, DoAction 27215): `taken` as if
+    /// it were picked up. A card or pill held is put down where Isaac stands (DoAction 7139), out of
+    /// reach until he steps off it, and the slot shows the name (DoAction 7156).
+    fn take_given(&mut self, taken: Consumable) {
+        let sound = self.inventory.take(taken.pickup_kind());
+        self.pending_sound_events.extend(sound);
+        if let Some(held) = self.inventory.dropped.take() {
+            // It lies on the nearest free tile (`spaw(player.xp, player.yp, 0, 5.3)`, DoAction 7141),
+            // not under Isaac's feet.
+            let near = self.player.position();
+            let room = self.floor.current_room_mut();
+            let spot = room.spaw(near, Pixels::ZERO, SpawOptions::default(), &mut self.random);
+            room.pickups.drop_held(held.pickup_kind(), spot);
+        }
+        self.remember_consumable_taken(taken);
+        self.player
+            .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));
     }
 
     /// The Chariot's and My Little Unicorn's ride, with its tune.

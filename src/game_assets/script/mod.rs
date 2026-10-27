@@ -9,7 +9,7 @@ mod expression;
 mod primitives;
 mod texts;
 
-use crate::game::{FORTUNE_COUNT, TAROT_COUNT};
+use crate::game::{FORTUNE_COUNT, TAROT_COUNT, Trinket};
 pub use decoder::ScriptFunction;
 #[cfg(test)]
 pub use expression::Operator;
@@ -98,6 +98,17 @@ impl GameScript {
             let playing = (0..PLAYING_CARD_COUNT).map_while(|offset| playing_card(FIRST_PLAYING_CARD_INDEX + offset));
             Some(tarot.into_iter().chain(playing).collect())
         })
+    }
+
+    /// The trinkets' names, by `col` less the first trinket's (the order of `Trinket::ALL`): the only
+    /// list of exactly that many texts in the movie, the one `pillc()` names a trinket taken from.
+    /// Empty if there is none.
+    pub fn trinket_names(&self) -> Vec<String> {
+        self.functions
+            .iter()
+            .flat_map(|function| &function.statements)
+            .find_map(|statement| statement_text_list(statement, Trinket::ALL.len()))
+            .unwrap_or_default()
     }
 
     /// The fortunes the fortune machine tells, in the script's order: the only list of exactly

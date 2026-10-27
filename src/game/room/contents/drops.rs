@@ -49,7 +49,7 @@ impl RoomContents {
 
     /// A chest's or the tinted rock's contents fly out from `center`.
     pub fn spill(&mut self, source: RewardSource, center: Vec2, random: &mut Random) {
-        for drop in rewards::contents(source, random) {
+        for drop in rewards::contents(source, self.pickups.luck, random) {
             let nested_chest = drop.is_chest();
             if nested_chest && source != RewardSource::TintedRock {
                 self.spawn_drop(drop, center - Vec2::new(0.0, NESTED_CHEST_DROP), false, random);
@@ -67,7 +67,6 @@ impl RoomContents {
         frames_in_room: Frames,
         keys: u8,
         missing_red_hearts: Hearts,
-        lucky_foot: bool,
         random: &mut Random,
     ) -> bool {
         const CLEARED_AFTER: Frames = Frames(7.0);
@@ -80,7 +79,8 @@ impl RoomContents {
             return false;
         }
         self.clear_reward_pending = false;
-        if let Some(frame) = rewards::room_clear_reward(random, keys, missing_red_hearts > Hearts::ONE, lucky_foot) {
+        let missing_more_than_a_heart = missing_red_hearts > Hearts::ONE;
+        if let Some(frame) = rewards::room_clear_reward(random, keys, missing_more_than_a_heart, self.pickups.luck) {
             let drop = Drop {
                 frame,
                 count: 1,
@@ -120,12 +120,27 @@ impl RoomContents {
     /// `kind` set down at `center`, or thrown out from it in a random direction at 5 px per frame
     /// (`cspawn()`: DoAction 29253, DoAction 29254).
     pub(crate) fn spawn_pickup(&mut self, kind: PickupKind, center: Vec2, thrown: bool, random: &mut Random) {
+        let kind = self.pearl_to_soul_heart(kind, random);
         let velocity = if thrown {
             random.direction(self.parameters.pickups.throw_speed_per_frame.get())
         } else {
             Vec2::ZERO
         };
         self.pickups.spawn(kind, center, velocity);
+    }
+
+    /// Mom's Pearl: a red heart made turns into a soul heart one time in ten (`create()`, DoAction
+    /// 3308–3310).
+    fn pearl_to_soul_heart(&self, kind: PickupKind, random: &mut Random) -> PickupKind {
+        let odds = self.parameters.trinkets.moms_pearl_odds;
+        match kind {
+            PickupKind::Heart(HeartKind::Full | HeartKind::Half)
+                if self.pickups.luck.moms_pearl && random.happens(odds) =>
+            {
+                PickupKind::Heart(HeartKind::Soul)
+            }
+            _ => kind,
+        }
     }
 
     /// `posw()`: the nearest tile center no grid object blocks.

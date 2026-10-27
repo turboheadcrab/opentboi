@@ -48,6 +48,11 @@ impl UnicornRide {
         self.frames_left = self.frames_left.max(frames);
     }
 
+    /// Entering a room ends the ride (`unic = -1`, DoAction 32967).
+    pub fn end(&mut self) {
+        self.frames_left = Frames::ZERO;
+    }
+
     pub fn is_riding(self) -> bool {
         self.frames_left > Frames::ZERO
     }

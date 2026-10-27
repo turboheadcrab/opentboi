@@ -7,7 +7,6 @@ use crate::game::bounds::Bounds;
 use crate::game::draw::{DrawItem, Rgba, actor_depth};
 use crate::game::original_units::{Frames, Pixels, Retention, distance};
 use crate::game::parameters::WallParameters;
-use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::kind::{BROWN_CHEST_FRAME, PickupKind};
 use crate::game::pickups::phase::PickupPhase;
 use crate::game::texture_id::TextureId;
@@ -93,7 +92,7 @@ impl Pickup {
         let target = self.center + self.velocity * elapsed;
         self.move_to(target, room_interior, solid_tiles);
         let blocked = target - self.center;
-        self.velocity = rebound(self.velocity, blocked, RADIUS, walls);
+        self.velocity = rebound(self.velocity, blocked, walls);
         self.cling_to_anchor(elapsed, solid_tiles);
         let Some(collected_frames) = &mut self.collected_frames else {
             return true;
@@ -113,12 +112,12 @@ impl Pickup {
         self.center = *anchor;
     }
 
-    /// `pillc()` handing the held card or pill back (DoAction 7139–7152): this pickup becomes it,
-    /// cannot be taken for a while, lands again and is tossed up by half of how far the player
-    /// stands above it.
-    pub fn hand_back(&mut self, held: Consumable, player_position: Vec2, block: Frames) {
+    /// `pillc()` handing the held card or pill back (DoAction 7139–7152): this pickup becomes it
+    /// (DoAction 7143), cannot be taken for a while, lands again (DoAction 7148) and is tossed up by
+    /// half of how far the player stands above it (DoAction 7151).
+    pub fn hand_back(&mut self, held: PickupKind, player_position: Vec2, block: Frames) {
         const TOSS_PER_PIXEL_ABOVE: f32 = 0.5;
-        self.kind = held.pickup_kind();
+        self.kind = held;
         self.swap_blocked_frames = block;
         self.landing_started_at = self.age_frames;
         self.velocity.y += (player_position.y - self.center.y).max(0.0) * TOSS_PER_PIXEL_ABOVE;

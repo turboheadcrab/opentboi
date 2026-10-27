@@ -8,9 +8,10 @@ use crate::game::Game;
 use crate::game::floor::FloorCell;
 use crate::game::floor::plan::RoomRole;
 use crate::game::machines::MachineKind;
-use crate::game::original_units::Pixels;
+use crate::game::original_units::{Damage, Pixels};
 use crate::game::pickups::card::Card;
 use crate::game::pickups::kind::{HeartKind, PickupKind};
+use crate::game::room::contents::SpawOptions;
 use crate::game::sound_event::SoundEvent;
 
 /// The Lovers and The Hierophant: two hearts 40 to each side of Isaac (`spaw()`).
@@ -37,18 +38,14 @@ impl Game {
             Card::TheHangedMan => self.cards.boosts.flying = true,
             Card::Death => {
                 self.play_card_animation(DEATH_ANIMATION, SoundEvent::DeathCard);
-                let damage = self.parameters.cards.death_damage;
-                self.floor.current_room_mut().enemies.hurt_all(
-                    damage,
-                    &mut self.random,
-                    &mut self.pending_sound_events,
-                );
+                self.hurt_every_enemy(self.parameters.cards.death_damage);
             }
             Card::Strength => self.use_strength(),
             Card::TheSun => {
                 self.play_card_animation(SUN_ANIMATION, SoundEvent::HeartPickedUp);
                 self.inventory.heal_fully();
                 self.floor.reveal_map();
+                self.hurt_every_enemy(self.parameters.cards.sun_damage);
             }
             Card::TheWorld => self.floor.reveal_map(),
             Card::TheLovers => self.place_heart_pair(HeartKind::Full),
@@ -81,12 +78,20 @@ impl Game {
     fn summon(&mut self, kind: MachineKind) {
         let position = self.player.position();
         let room = self.floor.current_room_mut();
-        let spot = room.spawn_spot(position, SPAWN_RADIUS, &mut self.random);
+        let spot = room.spaw(position, SPAWN_RADIUS, SpawOptions::default(), &mut self.random);
         room.machines.place(kind, spot);
         self.pending_sound_events.push(SoundEvent::Summoned);
     }
 
-    fn play_card_animation(&mut self, animation: u8, sound: SoundEvent) {
+    /// Death, The Sun and A Missing Page hurt every enemy in the room.
+    fn hurt_every_enemy(&mut self, damage: Damage) {
+        self.floor
+            .current_room_mut()
+            .enemies
+            .hurt_all(damage, &mut self.random, &mut self.pending_sound_events);
+    }
+
+    pub(super) fn play_card_animation(&mut self, animation: u8, sound: SoundEvent) {
         self.overlay.play_card_animation(animation);
         self.pending_sound_events.push(sound);
     }
@@ -96,7 +101,7 @@ impl Game {
         let position = self.player.position();
         for side in [HEART_PAIR_OFFSET, -HEART_PAIR_OFFSET] {
             let room = self.floor.current_room_mut();
-            let spot = room.spawn_spot(position + side, Pixels::ZERO, &mut self.random);
+            let spot = room.spaw(position + side, Pixels::ZERO, SpawOptions::default(), &mut self.random);
             room.pickups.spawn(PickupKind::Heart(heart), spot, Vec2::ZERO);
         }
     }
@@ -109,7 +114,7 @@ impl Game {
                 continue;
             };
             let room = self.floor.current_room_mut();
-            let spot = room.spawn_spot(position, SPAWN_RADIUS, &mut self.random);
+            let spot = room.spaw(position, SPAWN_RADIUS, SpawOptions::default(), &mut self.random);
             room.pickups.spawn(kind, spot, Vec2::ZERO);
         }
     }
