@@ -46,7 +46,7 @@ bevy = { version = "0.20", optional = true, default-features = false, features =
     "mp3",
 ] }
 flate2 = "1.1"
-glam = "0.34"
+glam = "0.33"
 steamlocate = "2.1"
 # Ruffle's SWF parser; the cached SWF is already uncompressed, so no codec features are needed.
 swf = { version = "0.3", default-features = false }
