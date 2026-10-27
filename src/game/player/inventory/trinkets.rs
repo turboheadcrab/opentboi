@@ -71,6 +71,11 @@ impl Inventory {
         self.shield_frames = self.shield_frames.max(frames);
     }
 
+    /// Entering a room pops the bubble (`playsave = -1`, DoAction 32966).
+    pub fn end_shield(&mut self) {
+        self.shield_frames = Frames::ZERO;
+    }
+
     pub fn is_shielded(&self) -> bool {
         self.shield_frames > Frames::ZERO
     }

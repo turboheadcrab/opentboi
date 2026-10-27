@@ -91,7 +91,11 @@ impl Pickups {
     /// pill that was held lies where Isaac stands, out of reach until he steps off it.
     pub fn drop_held(&mut self, held: PickupKind, center: Vec2) {
         let mut pickup = Pickup::new(held, center, Vec2::ZERO);
-        pickup.swap_blocked_frames = SWAP_BLOCK;
+        // It can be touched at once (`dones = false`, DoAction 7145), so touching it while it is
+        // blocked keeps it blocked (DoAction 7833) however soon after it appears: it stays where
+        // Isaac stands until he steps off it, instead of the block running out unseen.
+        pickup.age_frames = self.parameters.frames_until_collectable + Frames::ONE;
+        pickup.hand_back(held, center, SWAP_BLOCK);
         self.lying.push(pickup);
     }
 }

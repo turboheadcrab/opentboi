@@ -108,6 +108,46 @@ fn the_deck_of_cards_gives_a_card_and_puts_down_the_one_held() {
 }
 
 #[test]
+/// DoAction 7833: a card put down under Isaac stays blocked while he stands on it, and is taken
+/// once he has stepped off and back on.
+fn a_card_put_down_by_the_deck_is_not_picked_up_while_isaac_stands_on_it() {
+    use crate::game::pickups::card::Card;
+    use crate::game::pickups::consumable::Consumable;
+    let mut game = game();
+    game.inventory.take_item(Item::DeckOfCards);
+    game.inventory.take(PickupKind::Card(Card::TheFool));
+    let use_item = InputState {
+        use_item: true,
+        ..InputState::default()
+    };
+    game.advance(&use_item, ONE_FRAME);
+    let held = game.inventory.held;
+    let spot = game
+        .floor
+        .current_room()
+        .pickups
+        .positions()
+        .last()
+        .expect("the card put down");
+    game.player.place_at(spot);
+    for _ in 0..120 {
+        game.advance(&InputState::default(), ONE_FRAME);
+    }
+    assert_eq!(game.inventory.held, held, "still holding what the deck gave");
+    let lying = game.floor.current_room().pickups.lying_kinds();
+    assert!(lying.contains(&PickupKind::Card(Card::TheFool)), "{lying:?}");
+    game.player.place_at(spot + glam::Vec2::new(200.0, 0.0));
+    for _ in 0..20 {
+        game.advance(&InputState::default(), ONE_FRAME);
+    }
+    game.player.place_at(spot);
+    for _ in 0..20 {
+        game.advance(&InputState::default(), ONE_FRAME);
+    }
+    assert_eq!(game.inventory.held, Some(Consumable::Card(Card::TheFool)));
+}
+
+#[test]
 /// `pillc(4)` from Mom's Bottle of Pills: a random pill, with the card held put down.
 fn mom_s_bottle_of_pills_gives_a_pill_and_puts_down_the_card_held() {
     use crate::game::pickups::card::Card;

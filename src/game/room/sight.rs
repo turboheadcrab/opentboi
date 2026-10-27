@@ -69,6 +69,16 @@ impl Default for TileMarks {
 }
 
 impl TileMarks {
+    /// Writes `value` into the cell under `stage_point` (`levz[ingrid(x, y)] = value`).
+    pub fn mark(&mut self, stage_point: Vec2, value: f32) {
+        self.0[index(ingrid(stage_point, true))] = value;
+    }
+
+    /// What the cell under `stage_point` holds.
+    pub fn value_at(&self, stage_point: Vec2) -> f32 {
+        self.0[index(ingrid(stage_point, true))]
+    }
+
     /// `actions2()`'s fading, on `frame` of the room.
     pub fn fade(&mut self, frame: Frames) {
         if frame.is_on_cycle(FADING_EVERY, Frames::ZERO) {

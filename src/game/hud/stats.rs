@@ -63,6 +63,7 @@ fn lines(parameters: &GameParameters, stats: PlayerStats) -> [(&'static str, f32
     };
     let firing = FiringParameters {
         delay_bonus: parameters.firing.delay_bonus + stats.delay_bonus,
+        delay_offset: parameters.firing.delay_offset + stats.delay_offset,
         ..parameters.firing
     };
     [

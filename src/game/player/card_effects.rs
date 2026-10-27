@@ -11,6 +11,7 @@ use crate::game::machines::MachineKind;
 use crate::game::original_units::{Damage, Pixels};
 use crate::game::pickups::card::Card;
 use crate::game::pickups::kind::{HeartKind, PickupKind};
+use crate::game::room::contents::SpawOptions;
 use crate::game::sound_event::SoundEvent;
 
 /// The Lovers and The Hierophant: two hearts 40 to each side of Isaac (`spaw()`).
@@ -77,7 +78,7 @@ impl Game {
     fn summon(&mut self, kind: MachineKind) {
         let position = self.player.position();
         let room = self.floor.current_room_mut();
-        let spot = room.spawn_spot(position, SPAWN_RADIUS, &mut self.random);
+        let spot = room.spaw(position, SPAWN_RADIUS, SpawOptions::default(), &mut self.random);
         room.machines.place(kind, spot);
         self.pending_sound_events.push(SoundEvent::Summoned);
     }
@@ -100,7 +101,7 @@ impl Game {
         let position = self.player.position();
         for side in [HEART_PAIR_OFFSET, -HEART_PAIR_OFFSET] {
             let room = self.floor.current_room_mut();
-            let spot = room.spawn_spot(position + side, Pixels::ZERO, &mut self.random);
+            let spot = room.spaw(position + side, Pixels::ZERO, SpawOptions::default(), &mut self.random);
             room.pickups.spawn(PickupKind::Heart(heart), spot, Vec2::ZERO);
         }
     }
@@ -113,7 +114,7 @@ impl Game {
                 continue;
             };
             let room = self.floor.current_room_mut();
-            let spot = room.spawn_spot(position, SPAWN_RADIUS, &mut self.random);
+            let spot = room.spaw(position, SPAWN_RADIUS, SpawOptions::default(), &mut self.random);
             room.pickups.spawn(kind, spot, Vec2::ZERO);
         }
     }

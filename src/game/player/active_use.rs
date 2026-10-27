@@ -11,6 +11,7 @@ use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
 use crate::game::pickups::pill::Pill;
 use crate::game::player::animation::{Held, PlayerAnimation};
+use crate::game::room::contents::SpawOptions;
 use crate::game::sound_event::SoundEvent;
 
 /// No item is used in a room's first ten frames.
@@ -57,7 +58,7 @@ impl Game {
             // not under Isaac's feet.
             let near = self.player.position();
             let room = self.floor.current_room_mut();
-            let spot = room.spawn_spot(near, Pixels::ZERO, &mut self.random);
+            let spot = room.spaw(near, Pixels::ZERO, SpawOptions::default(), &mut self.random);
             room.pickups.drop_held(held.pickup_kind(), spot);
         }
         self.remember_consumable_taken(taken);
