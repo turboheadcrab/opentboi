@@ -547,7 +547,7 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "bevy_transform",
- "rodio",
+ "rodio 0.22.2",
  "tracing",
 ]
 
@@ -3661,7 +3661,7 @@ dependencies = [
  "flate2",
  "glam 0.34.1",
  "png",
- "rodio",
+ "rodio 0.23.0",
  "ruffle_render",
  "sdl3",
  "steamlocate",
@@ -4075,6 +4075,18 @@ dependencies = [
  "symphonia",
  "thiserror 2.0.21",
  "tracing",
+]
+
+[[package]]
+name = "rodio"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36e3ee0a5ca418bac59a15d5506e498ab138359edbb67257a6b8a3b93d411f39"
+dependencies = [
+ "dasp_sample",
+ "num-rational",
+ "symphonia",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
