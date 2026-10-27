@@ -44,8 +44,7 @@ if ! gh api -X PUT "repos/${repository}/branches/main/protection" --input - >/de
     "contexts": [
       "Source build, Fedora 44, system SDL3",
       "Source build, Ubuntu 24.04, SDL3 built from source",
-      "Licence list stays generatable",
-      "Coverage map was regenerated"
+      "Licence list stays generatable"
     ]
   },
   "enforce_admins": false,

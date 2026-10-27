@@ -1,0 +1,10 @@
+# The Rust toolchain every machine and CI uses: an exact version, so that the compiler and Clippy
+# (whose lints change from release to release) give the same answer everywhere. Rustup installs
+# it from this file (`rustup toolchain install` in this directory); there is nothing to choose.
+#
+# Moving it on is a deliberate change: bump the version, fix what the new Clippy finds, and say so
+# in the commit. The weekly "Latest Rust" workflow warns when a newer stable would break the build.
+[toolchain]
+channel = "1.99.1"
+profile = "minimal"
+components = ["clippy", "rustfmt"]

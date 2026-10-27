@@ -85,8 +85,14 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   raw number from the original (`col`, a frame index). Convert at the edge (`Frames::from`,
   `.get()`), and when a needed unit type is missing, add it to `original_units.rs` first. Random
   draws go through `Random` (`below`, `index`, `centered`), not raw floats.
+- Versions are pinned and moved on purpose: `Cargo.lock`, the Rust toolchain (`rust-toolchain.toml`,
+  an exact version; bump it with the fixes the newer Clippy asks for, in one commit), the shell
+  linter (`scripts/install-shuck.sh`, version and checksum) and the GitHub Actions (by commit).
+  Dependabot proposes the crates' and Actions' updates a week after release; the weekly "Latest Rust"
+  workflow tells when a newer compiler would break the build.
 - Before finishing: `cargo fmt`, `cargo clippy --all-targets --all-features` with no warnings (also
-  once per single frontend), `cargo test`.
+  once per single frontend), `cargo test`, and `shuck check scripts packaging .github` when a shell
+  script changed.
   Then regenerate the desktop launchers with `scripts/install-desktop-entries.sh` (a release build of
   both frontends copied to `target/desktop/`), so the shortcuts run the latest code.
   Tests that need the real extracted SWF are `#[ignore]`d; run them with `cargo test -- --ignored`.

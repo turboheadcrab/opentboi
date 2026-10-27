@@ -34,12 +34,13 @@ mkdir -p "${OUTPUT_DIRECTORY}"
             libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxfixes-dev libxss-dev libxtst-dev \
             libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev libdrm-dev libgbm-dev \
             libgl-dev libegl-dev libvulkan-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev
-        curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+        curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
         . "$HOME/.cargo/env"
-        cargo install cargo-about --locked --features cli
         mkdir /work
         tar -C /source --exclude=./target --exclude=./downloads -cf - . | tar -C /work -xf -
         cd /work
+        rustup toolchain install
+        cargo install cargo-about --locked --features cli
         scripts/package-linux-tarball.sh
         cp target/dist/* /output/
     '

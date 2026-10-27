@@ -4,6 +4,9 @@
 //! Needs `cargo install cargo-about --locked --features cli`. Without it, or when generation
 //! fails, the build carries on with a warning, so a contributor without the tool can still compile.
 //! Set `OPENTBOI_REQUIRE_LICENSES=1` (release and CI builds) to make that a build error instead.
+//!
+//! Also redraws the coverage map `docs/original-coverage-map.svg` (see `generate_coverage_map`),
+//! which CI requires to be up to date with `OPENTBOI_REQUIRE_COVERAGE_MAP=1`.
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -14,6 +17,7 @@ const SETTINGS_FILE: &str = "about.toml";
 const LOCK_FILE: &str = "Cargo.lock";
 const BUILD_SCRIPT_FILE: &str = "build.rs";
 const REQUIRE_VARIABLE: &str = "OPENTBOI_REQUIRE_LICENSES";
+const REQUIRE_MAP_VARIABLE: &str = "OPENTBOI_REQUIRE_COVERAGE_MAP";
 const CARGO_VARIABLE: &str = "CARGO";
 const MANIFEST_DIRECTORY_VARIABLE: &str = "CARGO_MANIFEST_DIR";
 const DEFAULT_CARGO: &str = "cargo";
@@ -41,38 +45,60 @@ fn main() {
         println!("cargo:rerun-if-changed={input}");
     }
     println!("cargo:rerun-if-env-changed={REQUIRE_VARIABLE}");
+    println!("cargo:rerun-if-env-changed={REQUIRE_MAP_VARIABLE}");
 
     if let Err(reason) = generate_licenses() {
-        let required = std::env::var_os(REQUIRE_VARIABLE).is_some_and(|value| !value.is_empty() && value != "0");
-        assert!(!required, "{OUTPUT_FILE} could not be generated: {reason}");
+        assert!(
+            !is_required(REQUIRE_VARIABLE),
+            "{OUTPUT_FILE} could not be generated: {reason}"
+        );
         println!("cargo:warning={OUTPUT_FILE} was not regenerated: {reason}");
     }
     if let Err(reason) = generate_coverage_map() {
-        println!("cargo:warning={COVERAGE_MAP} was not regenerated: {reason}");
+        assert!(
+            !is_required(REQUIRE_MAP_VARIABLE),
+            "{COVERAGE_MAP} is out of date: {reason}"
+        );
+        println!("cargo:warning={COVERAGE_MAP} is out of date: {reason}");
     }
 }
 
 /// Redraws the map of how much of the original's script the sources cover, whenever the sources
-/// change. Without the original's scripts (made from the user's copy of the game) there is nothing
-/// to map, and the build goes on silently: the pull request check "Coverage map was regenerated"
-/// (`.github/workflows/coverage-map.yml`) is what makes sure someone who has them redraws it.
+/// change. Without the original's scripts (made from the user's copy of the game) it cannot be
+/// redrawn, so it is checked instead: the map carries a digest of the sources it was drawn from,
+/// which needs nothing of the original, and a map drawn from other sources is out of date. That is
+/// a warning for a contributor and, with `OPENTBOI_REQUIRE_COVERAGE_MAP=1` (CI), a build error.
 fn generate_coverage_map() -> Result<(), String> {
     let home = std::env::var_os(HOME_VARIABLE)
         .map(PathBuf::from)
         .ok_or("HOME is not set")?;
-    if !DECOMPILED_SCRIPTS.iter().all(|script| home.join(script).exists()) {
-        return Ok(());
-    }
+    let redrawable = DECOMPILED_SCRIPTS.iter().all(|script| home.join(script).exists());
+    let arguments = if redrawable {
+        ["--svg", COVERAGE_MAP]
+    } else {
+        ["--check-svg", COVERAGE_MAP]
+    };
     let status = Command::new(PYTHON)
-        .args(["-I", COVERAGE_SCRIPT, "--svg", COVERAGE_MAP])
+        .arg("-I")
+        .arg(COVERAGE_SCRIPT)
+        .args(arguments)
         .stdout(Stdio::null())
         .status()
         .map_err(|error| format!("{PYTHON} could not be started: {error}"))?;
-    if status.success() {
-        Ok(())
-    } else {
-        Err(format!("{COVERAGE_SCRIPT} {status}"))
+    match (status.success(), redrawable) {
+        (true, _) => Ok(()),
+        (false, true) => Err(format!("{COVERAGE_SCRIPT} {status}")),
+        (false, false) => Err(
+            "it was drawn from other sources than these, and redrawing it needs the original's \
+             scripts in ~/.cache/opentboi (a maintainer who has them can push the redrawn map)"
+                .to_owned(),
+        ),
     }
+}
+
+/// Whether the environment variable `name` is set to something other than empty or `0`.
+fn is_required(name: &str) -> bool {
+    std::env::var_os(name).is_some_and(|value| !value.is_empty() && value != "0")
 }
 
 fn cargo_about(arguments: &[&str]) -> Command {
