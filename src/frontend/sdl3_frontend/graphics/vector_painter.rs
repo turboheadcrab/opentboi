@@ -170,6 +170,7 @@ impl<'creator> VectorPainter<'creator> {
 }
 
 /// The triangles carry premultiplied colors; the safe API has no such blend mode.
+#[allow(unsafe_code, reason = "SDL's safe wrapper has no premultiplied blend mode")]
 fn set_premultiplied_blending(canvas: &mut WindowCanvas) {
     // SAFETY: the renderer is alive and the mode is a valid SDL blend mode.
     unsafe { sdl3::sys::render::SDL_SetRenderDrawBlendMode(canvas.raw(), SDL_BLENDMODE_BLEND_PREMULTIPLIED) };

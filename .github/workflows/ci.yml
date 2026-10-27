@@ -58,6 +58,36 @@ jobs:
         run: |
           # shellcheck disable=SC2086
           cargo test --locked ${{ matrix.features }}
+      - name: Documentation (broken links and bad markup fail)
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: |
+          # shellcheck disable=SC2086
+          cargo doc --no-deps --locked ${{ matrix.features }}
+
+  dependencies:
+    name: Dependencies are licensed, safe and used
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: taiki-e/install-action@5488ac5a951645ce95062214902ac4b6bc1a1037 # v2.87.32
+        with:
+          tool: cargo-deny,cargo-machete
+      # Licences (deny.toml), known vulnerabilities, unknown sources.
+      - run: cargo deny check
+      # A dependency nothing uses.
+      - run: cargo machete
+
+  spelling:
+    name: Spelling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: taiki-e/install-action@5488ac5a951645ce95062214902ac4b6bc1a1037 # v2.87.32
+        with:
+          tool: typos
+      # Settings and accepted words: _typos.toml.
+      - run: typos
 
   licences:
     name: Licence list stays generatable

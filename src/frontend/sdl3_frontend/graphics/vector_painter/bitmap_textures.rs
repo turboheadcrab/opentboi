@@ -73,6 +73,7 @@ impl<'creator> BitmapTextures<'creator> {
 }
 
 /// The safe API has no premultiplied blend modes.
+#[allow(unsafe_code, reason = "SDL's safe wrapper has no premultiplied blend mode")]
 pub fn set_texture_blend_mode(texture: &Texture, blend_mode: SDL_BlendMode) {
     // SAFETY: the texture is alive and the mode is a valid SDL blend mode.
     unsafe { sdl3::sys::render::SDL_SetTextureBlendMode(texture.raw(), blend_mode) };

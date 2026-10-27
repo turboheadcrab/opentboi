@@ -1,6 +1,8 @@
-# OpenTBOI
+<p align="center">
+  <img src="packaging/linux/opentboi.svg" alt="OpenTBOI's icon: a tear" width="96">
+</p>
 
-<img src="packaging/linux/opentboi.svg" alt="OpenTBOI's icon: a tear" width="96" align="right">
+<h1 align="center">OpenTBOI</h1>
 
 An open-source engine, written in Rust, that plays the original *The Binding of Isaac* (the 2011
 Flash game, Steam AppID 113200). It contains **no game assets**: art, sounds and room layouts are

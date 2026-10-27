@@ -1,6 +1,6 @@
 # Pull requests are squash-merged and the commit takes the pull request's title, so the title carries
 # the kind of change: `breaking`, `feature`, `fix` or `chore`, then a colon (`fix: boss door stays shut`).
-# The release workflow works the next version out from those (scripts/next-version.sh).
+# The release workflow works the next version out from those (the semantic-version step of release.yml).
 name: Pull request title
 
 on:

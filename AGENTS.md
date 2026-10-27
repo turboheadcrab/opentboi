@@ -91,9 +91,9 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   builds with format, Clippy and tests, the licence list, the shell lint and the title check) pass.
   A pull request's title is the commit's, and starts with its kind and a colon: `breaking:`,
   `feature:`, `fix:` or `chore:` (`fix: boss door stays shut`). Releases are made by hand (Actions >
-  Release); the version follows from those titles since the last release tag (`scripts/next-version.sh`:
-  breaking is the next major, or minor while the major is 0, feature the next minor, fix the next
-  patch, chore alone no release) and is stamped into the build (`scripts/stamp-version.sh`).
+  Release); the version follows from those titles since the last release tag (the
+  `paulhatch/semantic-version` step of `release.yml`: while the major is 0, breaking and feature are
+  the next minor, fix the next patch, chore alone no release; from 1.0 breaking is the next major) and is stamped into the build (`scripts/stamp-version.sh`).
 - Versions are pinned and moved on purpose: `Cargo.lock`, the Rust toolchain (`rust-toolchain.toml`,
   an exact version; bump it with the fixes the newer Clippy asks for, in one commit), the shell
   linter (its version in `.github/workflows/ci.yml`) and the GitHub Actions (by commit).
@@ -101,7 +101,11 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   workflow tells when a newer compiler would break the build.
 - Before finishing: `cargo fmt`, `cargo clippy --all-targets --all-features` with no warnings (also
   once per single frontend), `cargo test`, and `shuck check scripts packaging .github` when a shell
-  script changed.
+  script changed. CI also runs `cargo deny check` (licences in `deny.toml`, advisories, sources),
+  `cargo machete` (unused dependencies), `typos` (accepted words in `_typos.toml`) and
+  `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps`; all four are `cargo install --locked` away.
+  `unsafe` is denied crate-wide: a new use needs `#[allow(unsafe_code, reason = …)]` and a
+  `// SAFETY:` comment.
   Then regenerate the desktop launchers with `scripts/install-desktop-entries.sh` (a release build of
   both frontends copied to `target/desktop/`), so the shortcuts run the latest code.
   `mise run check` does all of that, in the development container where there is one (below).
