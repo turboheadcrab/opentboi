@@ -19,3 +19,5 @@ doub = "doub"
 nam = "nam"
 ths = "ths"
 PN = "PN"
+# `Trinket::ChildsHeart`: the trinket's name without its apostrophe.
+Childs = "Childs"
