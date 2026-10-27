@@ -222,5 +222,7 @@ green where our code cites the line or uses its values, amber where only the fun
 in a comment of a file that uses the line's numbers, grey where nothing does. It holds function
 names and counts, no code. `build.rs` redraws it whenever `src/` or the script changes, if the
 original's scripts are in your cache (they come from your own copy of the game, so a contributor
-without them leaves the file as it is). Redraw it by hand with
+without them leaves the file as it is), so a pull request that changes `src/` without the map fails the CI check
+"Coverage map was regenerated" until someone who has the scripts pushes the redrawn map (or a
+commit message says `Coverage-map: unchanged`). Redraw it by hand with
 `scripts/original-coverage.py --svg docs/original-coverage-map.svg`.

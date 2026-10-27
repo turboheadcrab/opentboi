@@ -53,8 +53,9 @@ fn main() {
 }
 
 /// Redraws the map of how much of the original's script the sources cover, whenever the sources
-/// change. Without the decompiled script (made from the user's copy of the game) there is nothing
-/// to map, which is not worth a warning.
+/// change. Without the original's scripts (made from the user's copy of the game) there is nothing
+/// to map, and the build goes on silently: the pull request check "Coverage map was regenerated"
+/// (`.github/workflows/coverage-map.yml`) is what makes sure someone who has them redraws it.
 fn generate_coverage_map() -> Result<(), String> {
     let home = std::env::var_os(HOME_VARIABLE)
         .map(PathBuf::from)

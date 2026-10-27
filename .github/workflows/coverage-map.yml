@@ -1,0 +1,39 @@
+# The coverage map (docs/original-coverage-map.svg) is drawn from the original's scripts, which only
+# someone with their own copy of the game has, so CI cannot redraw it. What CI can do is refuse a pull
+# request that changes the sources without touching the map: whoever has the scripts redraws it
+# (`cargo build` does, or `scripts/original-coverage.py --svg docs/original-coverage-map.svg`) and
+# pushes it to the branch. A change that cannot move the map says so in a commit message, with a line
+# starting `Coverage-map: unchanged`.
+name: Coverage map
+
+on:
+  pull_request:
+
+jobs:
+  regenerated:
+    name: Coverage map was regenerated
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: The map moves with the sources
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          base="origin/${BASE_REF}"
+          changed="$(git diff --name-only "${base}...HEAD")"
+          if ! grep -q '^src/' <<<"${changed}"; then
+            echo "No source changed."
+            exit 0
+          fi
+          if grep -qx 'docs/original-coverage-map.svg' <<<"${changed}"; then
+            echo "The map was redrawn."
+            exit 0
+          fi
+          if git log --format=%B "${base}..HEAD" | grep -qi '^Coverage-map: unchanged'; then
+            echo "A commit says the map is unchanged."
+            exit 0
+          fi
+          echo "::error::Sources changed but docs/original-coverage-map.svg did not. Redraw it with scripts/original-coverage.py --svg docs/original-coverage-map.svg (needs the original's scripts in your cache; ask a maintainer if you have none), or add a line 'Coverage-map: unchanged' to a commit message if the change cannot move it."
+          exit 1
