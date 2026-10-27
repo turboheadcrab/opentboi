@@ -1,5 +1,12 @@
 # TODO (later, not now)
 
+## Next priority: a `Marker` enum
+- The room-clear and machine rolls name what to spawn by a raw frame of the original's pickup clip
+  (`CARD_MARKER_FRAME`, `TRINKET_MARKER_FRAME` and the other `*_FRAME` constants, plain `u8`s in
+  `pickups/kind.rs`, `rewards.rs`, `machines/payout.rs` and their tests, about 40 places). Replace them
+  with a `Marker` enum (the closed set of kinds a marker can ask for), converted to and from the
+  frame at the edge only; do it as a refactor of its own before more kinds are added.
+
 ## Enemies: after the flies
 - Knockback from blasts (half the speed kept, then pushed away); the blast already has to see them.
 - Other enemy markers are still skipped: rooms holding only those keep the timed clear-reward
@@ -574,9 +581,10 @@ one player only, so none of this is in the script to port; it is our own design)
   starts with (18 of them, each handed out once); the room-clear roll, chests, the fortune machine and
   the devil beggar giving them; taking one (the sound, Isaac holding it up, the name banner read from the
   game, the held one swapping out and lying on, the already-held and Tick refusals); every trinket in
-  the treasure room for checking; and the stat effects of the Goat Hoof, Curved Horn, Game Squid and
-  Cancer.
-- Left: the HUD's trinket slot (`plix`); Mom's Purse (item 139) and its second slot; the trinkets that
+  the treasure room for checking (`--showcase`); the stat effects of the Goat Hoof, Curved Horn, Game
+  Squid and Cancer; and the HUD's trinket slot (picture, name strip and ring, with the taking
+  animation).
+- Left: the second trinket slot's HUD (`extra3`); Mom's Purse (item 139) and its second slot; the trinkets that
   unlock later (ids 29, 35, 42, 47, 49, 50, 54–56 join the pool through `colss`); a gold pickup
   being always the Counterfeit Penny; the Tick's hat; and the effects of the other trinkets (about
   45 places in the original's script check for one: tear effects for the Pinky Eye, Push Pin and

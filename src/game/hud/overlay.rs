@@ -36,6 +36,8 @@ pub struct Overlay {
     card_animation: Option<(u8, Frames)>,
     /// The HUD's card slot animating: used (else taken), for how long.
     slot: Option<(bool, Frames)>,
+    /// The HUD's trinket slot animating after a trinket was taken, for how long.
+    trinket_slot: Option<Frames>,
     /// The black cover fading out after the screen changed (`goblack()`): its opacity and how much
     /// of it goes each frame.
     black_fade: Option<(f32, f32)>,
@@ -73,6 +75,15 @@ impl Overlay {
         self.slot.map(|(used, frames)| (used, frames.frame_number()))
     }
 
+    /// The trinket slot's frame 2 on taking a trinket.
+    pub fn animate_trinket_slot(&mut self) {
+        self.trinket_slot = Some(Frames::ZERO);
+    }
+
+    pub fn trinket_slot_animation(&self) -> Option<u8> {
+        self.trinket_slot.map(Frames::frame_number)
+    }
+
     /// The overlay on `clip_frame`: The Devil, Death, The Sun.
     pub fn play_card_animation(&mut self, clip_frame: u8) {
         self.card_animation = Some((clip_frame, Frames::ZERO));
@@ -94,6 +105,10 @@ impl Overlay {
                 };
                 frames < Frames::from(length)
             });
+        self.trinket_slot = self
+            .trinket_slot
+            .map(|frames| frames + elapsed)
+            .filter(|&frames| frames < Frames::from(SLOT_TAKEN_FRAME_COUNT));
         self.banner = self
             .banner
             .map(|(name, frames)| (name, frames + elapsed))

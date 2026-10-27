@@ -16,7 +16,6 @@ impl Inventory {
     }
 
     /// The trinkets held, the newest last.
-    #[allow(dead_code, reason = "the HUD's trinket slot will show them; tests read them now")]
     pub fn trinkets(&self) -> &[Trinket] {
         &self.trinkets
     }

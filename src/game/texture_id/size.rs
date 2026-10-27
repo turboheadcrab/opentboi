@@ -154,6 +154,16 @@ impl TextureId {
         }
     }
 
+    /// The HUD's card, pill and trinket slots.
+    fn held_size(self) -> Vec2 {
+        match self {
+            Self::HeldCard(_) | Self::HeldPill(_) => HELD_CARD_SIZE,
+            Self::HeldCardName(_) | Self::HeldPillName(_) => HELD_CARD_NAME_SIZE,
+            Self::TrinketSlot(..) => crate::game::hud::held_trinket::SLOT_SIZE,
+            _ => CARD_SLOT_ANIMATION_SIZE,
+        }
+    }
+
     /// A HUD label naming a device's button.
     fn label_size(self) -> Vec2 {
         match self {
@@ -163,6 +173,7 @@ impl TextureId {
         }
     }
 
+    #[allow(clippy::too_many_lines, reason = "one arm for each family of textures")]
     pub fn world_size(self) -> Vec2 {
         match self {
             Self::RoomBackground(_) | Self::StartRoomControls => crate::game::room::ROOM_SIZE,
@@ -179,9 +190,12 @@ impl TextureId {
             Self::HudHeart(_) => HUD_HEART_SIZE,
             Self::HudKeyIcon { .. } => HUD_KEY_ICON_SIZE,
             Self::NameBanner { .. } => CARD_NAME_SIZE,
-            Self::HeldCard(_) | Self::HeldPill(_) => HELD_CARD_SIZE,
-            Self::HeldCardName(_) | Self::HeldPillName(_) => HELD_CARD_NAME_SIZE,
-            Self::CardSlotAnimation { .. } => CARD_SLOT_ANIMATION_SIZE,
+            Self::HeldCard(_)
+            | Self::HeldPill(_)
+            | Self::HeldCardName(_)
+            | Self::HeldPillName(_)
+            | Self::CardSlotAnimation { .. }
+            | Self::TrinketSlot(..) => self.held_size(),
             Self::Pickup { kind, phase, .. } => phase.texture_size(kind),
             Self::StageSurround => STAGE_SURROUND_SIZE,
             Self::Tear | Self::DarkTear => TEAR_SIZE,

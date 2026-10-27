@@ -11,6 +11,7 @@ use super::{
 use crate::game::hud::held_card::{SLOT_TAKEN_FRAME_COUNT, SLOT_USED_FRAME_COUNT};
 use crate::game::input_state::GamepadKind;
 use crate::game::pickups::card::Card;
+use crate::game::pickups::trinket::Trinket;
 use crate::game::room::layout::Decoration;
 
 /// The `col` of what the shop's pill ware can show: the six pills, then nine tarot cards.
@@ -202,6 +203,11 @@ impl TextureId {
                 .filter(|text| text.name_position().is_some())
                 .map(Self::HeldPillName),
         );
+        hud.extend(Trinket::ALL.into_iter().flat_map(|trinket| {
+            crate::game::hud::held_trinket::SlotRing::ALL
+                .into_iter()
+                .map(move |ring| Self::TrinketSlot(trinket, ring))
+        }));
         for (used, length) in [(false, SLOT_TAKEN_FRAME_COUNT), (true, SLOT_USED_FRAME_COUNT)] {
             hud.extend((0..length).map(|frame| Self::CardSlotAnimation { used, frame }));
         }
