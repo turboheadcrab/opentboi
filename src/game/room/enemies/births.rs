@@ -11,6 +11,7 @@ use crate::game::random::Random;
 use crate::game::room::blood::Splatter;
 use crate::game::room::enemies::fly::Legacy;
 use crate::game::room::enemies::{Enemies, Fly, FlyState, Walker, WalkerState};
+use crate::game::room::world_to_stage;
 use crate::game::texture_id::FlyKind;
 
 impl Enemies {
@@ -83,6 +84,14 @@ impl Enemies {
                 Legacy::Split => self.split_moter(position, random),
             }
         }
+    }
+
+    /// A fly let out at `center` (world), as `create()` makes one for a machine: it appears there.
+    pub fn add_fly(&mut self, kind: FlyKind, center: Vec2, random: &mut Random) {
+        let parameters = self.parameters;
+        let phase = u32::try_from(self.flies.len() + self.walkers.len()).unwrap_or(u32::MAX);
+        self.flies
+            .push(Fly::new(kind, world_to_stage(center), phase, &parameters, random));
     }
 
     fn release_mulligan_flies(&mut self, random: &mut Random) {

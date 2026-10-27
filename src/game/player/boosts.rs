@@ -3,8 +3,9 @@
 
 use crate::game::Game;
 use crate::game::bounds::Bounds;
-use crate::game::original_units::{Damage, Hearts, Pixels, PixelsPerFrame};
+use crate::game::original_units::{Damage, Frames, Hearts, Pixels, PixelsPerFrame};
 use crate::game::parameters::{CardParameters, GameParameters};
+use crate::game::pickups::trinket::Trinket;
 use crate::game::player::pill_state::PillState;
 use crate::game::player::unicorn_ride::RideColor;
 use crate::game::room::grid_object::GridObject;
@@ -38,6 +39,8 @@ pub struct PlayerStats {
     pub tear_rise_bonus: PixelsPerFrame,
     /// The sum the fire rate depends on (`firr()`).
     pub delay_bonus: f32,
+    /// Frames added to the fire delay (trinkets).
+    pub delay_offset: Frames,
     /// What a tear's velocity is multiplied by (shot speed).
     pub shot_speed_multiplier: f32,
     /// How lucky Isaac is (`luck`).
@@ -79,6 +82,7 @@ impl RoomBoosts {
             tear_height_bonus: cards.strength_range_bonus * strength + range_height * pills.range,
             tear_rise_bonus: pill_parameters.range_rise_per_point * pills.range,
             delay_bonus: pills.tears * pill_parameters.delay_bonus_per_tear,
+            delay_offset: Frames::ZERO,
             shot_speed_multiplier: shot_speed,
             luck: pills.luck,
             scale: 1.0 + (strength + empress) * cards.strength_size_bonus,
@@ -93,7 +97,7 @@ impl RoomBoosts {
 
 impl Game {
     pub(crate) fn player_stats(&self) -> PlayerStats {
-        let stats = self.cards.boosts.stats(&self.parameters, &self.inventory.pills);
+        let stats = self.stats_with_trinkets(self.cards.boosts.stats(&self.parameters, &self.inventory.pills));
         if !self.inventory.rides_unicorn() {
             return stats;
         }
@@ -103,6 +107,26 @@ impl Game {
             ride_tint: self.inventory.ride.color(),
             ..stats
         }
+    }
+
+    /// What the trinkets held add: speed (the Goat Hoof), flat damage (the Curved Horn, the Game
+    /// Squid) and a shorter fire delay (Cancer).
+    fn stats_with_trinkets(&self, mut stats: PlayerStats) -> PlayerStats {
+        let amounts = self.parameters.trinkets;
+        let held = |trinket| self.inventory.has_trinket(trinket);
+        if held(Trinket::GoatHoof) {
+            stats.speed += amounts.goat_hoof_speed;
+        }
+        if held(Trinket::CurvedHorn) {
+            stats.damage += amounts.curved_horn_damage;
+        }
+        if held(Trinket::GameSquid) {
+            stats.damage += amounts.game_squid_damage;
+        }
+        if held(Trinket::Cancer) {
+            stats.delay_offset += amounts.cancer_delay;
+        }
+        stats
     }
 
     /// What stops Isaac (walls and obstacles; flying, only metal blocks and walls) and the webs

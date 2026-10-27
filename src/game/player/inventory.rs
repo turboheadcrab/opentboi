@@ -6,6 +6,7 @@ use crate::game::parameters::InventoryParameters;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
 use crate::game::pickups::kind::{BombKind, CoinKind, HeartKind, KeyKind, PickupKind};
+use crate::game::pickups::trinket::Trinket;
 use crate::game::player::active_item::ActiveSlot;
 use crate::game::player::pill_state::PillState;
 use crate::game::player::unicorn_ride::UnicornRide;
@@ -41,6 +42,10 @@ pub struct Inventory {
     /// A card or pill just taken, and the one it replaced (`pillc()`), which the pickup becomes.
     pub taken: Option<Consumable>,
     pub dropped: Option<Consumable>,
+    /// `trix`: the trinkets held, the newest last; and the one just taken and the one it replaced.
+    trinkets: Vec<Trinket>,
+    pub taken_trinket: Option<Trinket>,
+    pub dropped_trinket: Option<Trinket>,
     /// What the pills used this run have changed (`ups`), and their effects (`piller`).
     pub pills: PillState,
     /// Time left in which the player cannot be hurt.
@@ -68,6 +73,9 @@ impl Inventory {
             held: None,
             taken: None,
             dropped: None,
+            trinkets: Vec::new(),
+            taken_trinket: None,
+            dropped_trinket: None,
             pills: PillState::default(),
             invulnerable_frames: Frames::ZERO,
             ride: UnicornRide::default(),
@@ -104,6 +112,7 @@ impl Inventory {
             }
             PickupKind::Card(card) => self.take_held(Consumable::Card(card)),
             PickupKind::Pill(pill) => self.take_held(Consumable::Pill(pill)),
+            PickupKind::Trinket(trinket) => self.take_trinket(trinket)?,
             PickupKind::Item(item) => {
                 self.take_item(item);
                 SoundEvent::ItemTaken
@@ -230,6 +239,7 @@ impl Inventory {
 mod blood;
 mod gains;
 mod pills;
+mod trinkets;
 
 #[cfg(test)]
 mod tests;

@@ -20,7 +20,9 @@ fn chests_hold_a_few_known_things() {
         assert!(
             drops
                 .iter()
-                .all(|drop| (HEART_FRAME..=GOLDEN_CHEST_FRAME).contains(&drop.frame) || drop.frame == PILL_FRAME)
+                .all(|drop| (HEART_FRAME..=GOLDEN_CHEST_FRAME).contains(&drop.frame)
+                    || drop.frame == PILL_FRAME
+                    || drop.frame == TRINKET_MARKER_FRAME)
         );
     }
 }
@@ -36,6 +38,7 @@ fn a_brown_chest_sometimes_holds_a_pill_and_a_golden_one_a_card_instead() {
     };
     let brown = frames(RewardSource::BrownChest, &mut random);
     assert!(brown.contains(&PILL_FRAME) && !brown.contains(&CARD_MARKER_FRAME));
+    assert!(brown.contains(&TRINKET_MARKER_FRAME), "and sometimes a trinket");
     let golden = frames(RewardSource::GoldenChest, &mut random);
     assert!(golden.contains(&CARD_MARKER_FRAME) && !golden.contains(&PILL_FRAME));
 }

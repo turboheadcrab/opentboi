@@ -7,7 +7,6 @@ use crate::game::bounds::Bounds;
 use crate::game::draw::{DrawItem, Rgba, actor_depth};
 use crate::game::original_units::{Frames, Pixels, Retention, distance};
 use crate::game::parameters::WallParameters;
-use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::kind::{BROWN_CHEST_FRAME, PickupKind};
 use crate::game::pickups::phase::PickupPhase;
 use crate::game::texture_id::TextureId;
@@ -116,9 +115,9 @@ impl Pickup {
     /// `pillc()` handing the held card or pill back (DoAction 7139–7152): this pickup becomes it,
     /// cannot be taken for a while, lands again and is tossed up by half of how far the player
     /// stands above it.
-    pub fn hand_back(&mut self, held: Consumable, player_position: Vec2, block: Frames) {
+    pub fn hand_back(&mut self, held: PickupKind, player_position: Vec2, block: Frames) {
         const TOSS_PER_PIXEL_ABOVE: f32 = 0.5;
-        self.kind = held.pickup_kind();
+        self.kind = held;
         self.swap_blocked_frames = block;
         self.landing_started_at = self.age_frames;
         self.velocity.y += (player_position.y - self.center.y).max(0.0) * TOSS_PER_PIXEL_ABOVE;

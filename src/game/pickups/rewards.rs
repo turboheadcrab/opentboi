@@ -1,12 +1,12 @@
 //! What chests, the tinted rock, golden poop, broken poop and fireplaces, and cleared rooms give
-//! (`chestopen` handling, `killshit()`, and the room-clear roll when the doors open). Trinkets do
-//! not exist yet: where the original gives one, nothing appears; items get an empty pedestal.
+//! (`chestopen` handling, `killshit()`, and the room-clear roll when the doors open). Items get an
+//! empty pedestal.
 //! Rolls assume no luck, items or trinkets.
 
 use crate::game::odds::Odds;
 use crate::game::pickups::kind::{
     BOMB_FRAME, BROWN_CHEST_FRAME, CARD_MARKER_FRAME, COIN_FRAME, GOLDEN_CHEST_FRAME, HEART_FRAME, ITEM_PEDESTAL_FRAME,
-    KEY_FRAME, PILL_FRAME,
+    KEY_FRAME, PILL_FRAME, TRINKET_MARKER_FRAME,
 };
 use crate::game::random::Random;
 
@@ -113,7 +113,7 @@ pub fn room_clear_reward(
         return None;
     }
     if roll < TRINKET_BELOW {
-        return room_clear_consumable(random);
+        return Some(room_clear_consumable(random));
     }
     let reward = if roll < COIN_BELOW {
         COIN_FRAME
@@ -129,14 +129,14 @@ pub fn room_clear_reward(
     Some(reward)
 }
 
-/// A card, a pill, or (not made yet, so nothing) a trinket.
-fn room_clear_consumable(random: &mut Random) -> Option<u8> {
+/// A card, a trinket or a pill.
+fn room_clear_consumable(random: &mut Random) -> u8 {
     if random.happens(ROOM_CLEAR_CARD_ODDS) {
-        Some(CARD_MARKER_FRAME)
+        CARD_MARKER_FRAME
     } else if random.happens(TRINKET_ODDS) {
-        None
+        TRINKET_MARKER_FRAME
     } else {
-        Some(PILL_FRAME)
+        PILL_FRAME
     }
 }
 
@@ -172,16 +172,20 @@ pub fn contents(source: RewardSource, random: &mut Random) -> Vec<Drop> {
             break;
         }
         // A pill (brown chest), card (golden chest) or, one time in two, a trinket on the first roll
-        // ends it too; trinkets do not exist yet.
+        // ends it too.
         if random.happens(ITEM_ODDS) && first && !tinted {
-            let trinket = random.happens(TRINKET_ODDS);
-            if !trinket {
-                drops.push(Drop {
-                    frame: if golden { CARD_MARKER_FRAME } else { PILL_FRAME },
-                    count: 1,
-                    soul_heart: false,
-                });
-            }
+            let frame = if random.happens(TRINKET_ODDS) {
+                TRINKET_MARKER_FRAME
+            } else if golden {
+                CARD_MARKER_FRAME
+            } else {
+                PILL_FRAME
+            };
+            drops.push(Drop {
+                frame,
+                count: 1,
+                soul_heart: false,
+            });
             break;
         }
         let drop = chest_drop(roll, first, tinted, &mut rolls, random);

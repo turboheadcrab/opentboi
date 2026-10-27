@@ -92,6 +92,7 @@ impl TextureId {
             .into_iter()
             .chain(card_arts)
             .chain(crate::game::pickups::pill::Pill::ALL.map(PickupKind::Pill))
+            .chain(crate::game::pickups::trinket::Trinket::ALL.map(PickupKind::Trinket))
             .chain(item_pedestals)
             .flat_map(|kind| {
                 PickupPhase::ALL.into_iter().flat_map(move |phase| {

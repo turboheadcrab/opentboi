@@ -6,6 +6,7 @@ use crate::game::pickups::Pickups;
 use crate::game::pickups::card::Card;
 use crate::game::pickups::kind::{HeartKind, PickupKind};
 use crate::game::pickups::pill::Pill;
+use crate::game::pickups::trinket::Trinket;
 use crate::game::room::tile_center;
 
 const SHOWCASE_COLUMNS: [u32; 6] = [1, 3, 5, 7, 9, 11];
@@ -38,6 +39,21 @@ impl Pickups {
         // The six pills fill the rest of the middle row.
         for (pill, column) in Pill::ALL.into_iter().zip([4, 5, 6, 7, 8, 11]) {
             self.place(PickupKind::Pill(pill), tile_center(column, 3));
+        }
+    }
+
+    /// For checking trinkets: all 34 in the rows the cards leave free, apart from the cells in front of
+    /// the doorways at the top and bottom.
+    pub fn add_every_trinket(&mut self) {
+        const ROWS: [u32; 4] = [2, 4, 0, 6];
+        const DOORWAY_COLUMN: u32 = 6;
+        const EDGE_ROWS: [u32; 2] = [0, 6];
+        let cells = ROWS
+            .into_iter()
+            .flat_map(|row| (1..=11).map(move |column| (column, row)))
+            .filter(|(column, row)| !(*column == DOORWAY_COLUMN && EDGE_ROWS.contains(row)));
+        for (trinket, (column, row)) in Trinket::ALL.into_iter().zip(cells) {
+            self.place(PickupKind::Trinket(trinket), tile_center(column, row));
         }
     }
 

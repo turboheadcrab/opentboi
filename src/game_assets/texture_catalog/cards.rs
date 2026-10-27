@@ -9,7 +9,7 @@ use super::hud_values::{OVERLAY_CLIP, STAGE_CENTER_IN_OVERLAY};
 use super::{TextureSource, framed};
 use std::sync::OnceLock;
 
-use crate::game::{BannerName, CARD_NAME_TEXTURE_CENTER_X, Item, PickupCard, TextureId};
+use crate::game::{BannerName, CARD_NAME_TEXTURE_CENTER_X, Item, PickupCard, TextureId, Trinket};
 use crate::game_assets::script::GameScript;
 use crate::game_assets::vector_art::CharacterLibrary;
 use crate::game_assets::vector_art::{ChildState, FrameSelection, NO_OVERRIDES, RenderOverrides};
@@ -51,6 +51,7 @@ fn name_source(name: BannerName, frame: u8) -> TextureSource {
     let overrides = match name {
         BannerName::Card(card) => texts.banners.get(card_index(card)),
         BannerName::Item(item) => texts.item_banners.get(item_index(item)),
+        BannerName::Trinket(trinket) => texts.trinket_banners.get(trinket.index()),
         BannerName::Fortune(index) => texts.fortune_banners.get(usize::from(index)),
         BannerName::Pill(text) => texts.pill_banners.get(super::pills::text_index(text)),
     }
@@ -137,6 +138,8 @@ pub(super) struct CardTexts {
     banners: Vec<RenderOverrides>,
     held_names: Vec<RenderOverrides>,
     item_banners: Vec<RenderOverrides>,
+    /// By place in `Trinket::ALL`.
+    trinket_banners: Vec<RenderOverrides>,
     /// The fortune machine's, in the order of the script's list.
     fortune_banners: Vec<RenderOverrides>,
     /// By place in `PillText::ALL`.
@@ -179,6 +182,7 @@ pub(super) fn read_names(library: &CharacterLibrary) {
         let script = GameScript::from_movie(library.movie());
         let names = script.card_names().unwrap_or_default();
         let item_names = script.item_names();
+        let trinket_names = script.trinket_names();
         let fortunes = script.fortune_messages();
         let pill_texts: Vec<&'static str> = script.pill_texts().into_iter().map(leaked).collect();
         if names.len() < PickupCard::ALL.len() {
@@ -195,6 +199,9 @@ pub(super) fn read_names(library: &CharacterLibrary) {
             banners: names.iter().map(|&text| banner_overrides(text)).collect(),
             held_names: names.iter().map(|&text| held_name_overrides(text)).collect(),
             item_banners: Item::ALL.map(|item| banner_overrides(item_name(item))).into(),
+            trinket_banners: (0..Trinket::ALL.len())
+                .map(|index| banner_overrides(leaked(trinket_names.get(index).cloned().unwrap_or_default())))
+                .collect(),
             fortune_banners: fortunes
                 .into_iter()
                 .map(|fortune| banner_overrides(leaked(fortune)))
@@ -210,6 +217,7 @@ pub(super) fn card_texts() -> &'static CardTexts {
         banners: Vec::new(),
         held_names: Vec::new(),
         item_banners: Vec::new(),
+        trinket_banners: Vec::new(),
         fortune_banners: Vec::new(),
         pill_banners: Vec::new(),
         pill_names: Vec::new(),

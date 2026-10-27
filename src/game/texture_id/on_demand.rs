@@ -15,6 +15,7 @@ impl TextureId {
             .map(Held::Card)
             .into_iter()
             .chain(crate::game::pickups::pill::Pill::ALL.map(Held::Pill))
+            .chain(crate::game::pickups::trinket::Trinket::ALL.map(Held::Trinket))
             .chain(Held::WARES)
             .chain(crate::game::pickups::item::Item::ALL.map(Held::Item));
         let animations = held

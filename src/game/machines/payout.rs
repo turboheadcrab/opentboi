@@ -10,19 +10,20 @@ use crate::game::machines::machine::{Machine, SHELL_ITEM_PRIZE};
 use crate::game::odds::Odds;
 use crate::game::pickups::kind::{
     BOMB_FRAME, CARD_MARKER_FRAME, COIN_FRAME, HEART_FRAME, ITEM_PEDESTAL_FRAME, KEY_FRAME, PILL_FRAME,
+    TRINKET_MARKER_FRAME,
 };
 use crate::game::pickups::rewards::Drop;
 use crate::game::random::Random;
 use crate::game::sound_event::SoundEvent;
+use crate::game::texture_id::FlyKind;
 
 /// The original's `f2` codes, by what they become here.
 enum Gift {
     Pickups(Drop),
     Item,
-    /// A trinket (`5.35`) or what else does not exist yet.
-    Unsupported,
-    /// An attack fly (`13`, `18`).
-    Fly,
+    /// A fly the machine lets out: a harmless one from the slot machine (`f2 = 13`), an attack fly (`18`)
+    /// for a lost shell game.
+    Fly(FlyKind),
 }
 
 fn pickups(frame: u8, count: u8) -> Gift {
@@ -53,7 +54,7 @@ impl Machine {
         };
         if frame < clip::DONATING {
             events.push(MachineEvent::Sound(SoundEvent::MachinePaidOut));
-        } else if frame != clip::DONATING && !matches!(gift, Gift::Fly) {
+        } else if frame != clip::DONATING && !matches!(gift, Gift::Fly(_)) {
             events.push(MachineEvent::Sound(SoundEvent::ThumbsUp));
         }
         let gives_pedestal_below = matches!(
@@ -73,7 +74,7 @@ impl Machine {
                 self.gone = true;
             }
             Gift::Pickups(drop) => events.push(MachineEvent::Prize(drop, throw)),
-            Gift::Unsupported | Gift::Fly => {}
+            Gift::Fly(kind) => events.push(MachineEvent::Fly(kind)),
         }
     }
 
@@ -81,14 +82,15 @@ impl Machine {
     fn slot(&mut self, random: &mut Random, events: &mut Vec<MachineEvent>) -> Option<Gift> {
         const PRETTY_FLY_ODDS: Odds = Odds::one_in(3);
         let gift = match self.clip_frame {
-            // "Pretty Fly" one time in three, else an attack fly; neither exists yet.
+            // "Pretty Fly" one time in three (one more orbiting fly), else a fly (`f2 = 13`).
             3 if random.happens(PRETTY_FLY_ODDS) => {
                 events.push(MachineEvent::Sound(SoundEvent::ThumbsUp));
+                events.push(MachineEvent::PrettyFly);
                 return None;
             }
             3 => {
                 events.push(MachineEvent::Sound(SoundEvent::ThumbsDown));
-                Gift::Fly
+                Gift::Fly(FlyKind::Black)
             }
             4 => pickups(BOMB_FRAME, 1),
             5 | 6 => pickups(HEART_FRAME, 1),
@@ -137,7 +139,7 @@ impl Machine {
                 soul_heart: true,
             })
         } else {
-            Gift::Unsupported
+            pickups(TRINKET_MARKER_FRAME, 1)
         };
         Some(gift)
     }
@@ -162,7 +164,7 @@ impl Machine {
                     pickups(CARD_MARKER_FRAME, 1)
                 }
             } else if random.happens(TRINKET_ODDS) {
-                Gift::Unsupported
+                pickups(TRINKET_MARKER_FRAME, 1)
             } else {
                 Gift::Item
             };
@@ -195,7 +197,7 @@ impl Machine {
         let won = random.happens(WIN_ODDS) || (random.happens(WIN_ODDS) && lucky_foot);
         if !won {
             events.push(MachineEvent::Sound(SoundEvent::ShellGameLost));
-            return Gift::Fly;
+            return Gift::Fly(FlyKind::Attack);
         }
         match self.shell_prize {
             SHELL_ITEM_PRIZE => Gift::Item,

@@ -14,6 +14,7 @@ pub mod red_chest;
 pub mod rewards;
 pub mod showcase;
 pub mod sounds;
+pub mod trinket;
 
 use glam::Vec2;
 
@@ -58,6 +59,8 @@ pub struct Collection {
     pub card_taken: Option<crate::game::pickups::consumable::Consumable>,
     /// An item taken: Isaac holds it up and its name shows; the pedestal stays, empty.
     pub item_taken: Option<crate::game::pickups::item::Item>,
+    /// A trinket taken: its name shows (`st11()`), and Isaac holds it up.
+    pub trinket_taken: Option<crate::game::pickups::trinket::Trinket>,
 }
 
 #[derive(Clone, Debug)]
@@ -98,7 +101,7 @@ impl Pickups {
     /// taken for a moment and is tossed up like a handed-back one.
     pub fn drop_swapped(&mut self, held: Consumable, center: Vec2, player_position: Vec2) {
         let mut pickup = Pickup::new(held.pickup_kind(), center, Vec2::ZERO);
-        pickup.hand_back(held, player_position, collect::SWAP_BLOCK);
+        pickup.hand_back(held.pickup_kind(), player_position, collect::SWAP_BLOCK);
         self.lying.push(pickup);
     }
 

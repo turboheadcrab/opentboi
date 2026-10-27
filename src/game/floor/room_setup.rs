@@ -113,7 +113,7 @@ pub(super) fn add_start_room_items(rooms: &mut BTreeMap<FloorCell, RoomContents>
 }
 
 /// Temporary, for checking art and rules: one pickup of every kind (and two eternal hearts) waits
-/// in the boss room, one machine of each kind in the shop, every card in the treasure room.
+/// in the boss room, one machine of each kind in the shop, every card and trinket in the treasure room.
 pub(super) fn add_showcases(plan: &FloorPlan, rooms: &mut BTreeMap<FloorCell, RoomContents>) {
     let cell_of = |wanted: RoomRole| {
         plan.roles_by_cell
@@ -130,5 +130,6 @@ pub(super) fn add_showcases(plan: &FloorPlan, rooms: &mut BTreeMap<FloorCell, Ro
     }
     if let Some(treasure_room) = cell_of(RoomRole::Treasure).and_then(|cell| rooms.get_mut(&cell)) {
         treasure_room.pickups.add_every_card();
+        treasure_room.pickups.add_every_trinket();
     }
 }

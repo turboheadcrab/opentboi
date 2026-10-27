@@ -6,6 +6,7 @@ use crate::game::pickups::card::Card;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
 use crate::game::pickups::pill::Pill;
+use crate::game::pickups::trinket::Trinket;
 use crate::game::random::Random;
 
 mod rolls;
@@ -69,6 +70,8 @@ pub enum PickupKind {
     Card(Card),
     /// A pill (frame 7 with `col` below 7).
     Pill(Pill),
+    /// A trinket (frame 7 with `col` 29–62).
+    Trinket(Trinket),
 }
 
 /// `b5` frames.
@@ -84,6 +87,8 @@ pub(crate) const ITEM_PEDESTAL_FRAME: u8 = 10;
 const CARD_FRAME: u8 = 7;
 pub(crate) const PILL_FRAME: u8 = CARD_FRAME;
 pub(crate) const CARD_MARKER_FRAME: u8 = 30;
+/// A marker for frame 35 becomes a trinket.
+pub(crate) const TRINKET_MARKER_FRAME: u8 = 35;
 /// A marker for frame 36 becomes a brown chest that is always red.
 const RED_CHEST_MARKER_FRAME: u8 = 36;
 impl PickupKind {
@@ -125,6 +130,11 @@ impl PickupKind {
             ITEM_PEDESTAL_FRAME => Self::ItemPedestal,
             CARD_FRAME => Self::Pill(Pill::roll(random)),
             CARD_MARKER_FRAME => Self::Card(Card::roll(random)),
+            // `junx()`: a trinket not given out yet, else the card `tater()` rolls.
+            TRINKET_MARKER_FRAME => match random.trinket(false) {
+                Some(trinket) => Self::Trinket(trinket),
+                None => Self::Card(Card::roll(random)),
+            },
             _ => return None,
         };
         Some(kind)
@@ -140,7 +150,7 @@ impl PickupKind {
             Self::Chest(ChestKind::Brown | ChestKind::Red) => BROWN_CHEST_FRAME,
             Self::Chest(ChestKind::Golden) => GOLDEN_CHEST_FRAME,
             Self::ItemPedestal | Self::Item(_) => ITEM_PEDESTAL_FRAME,
-            Self::Card(_) | Self::Pill(_) => CARD_FRAME,
+            Self::Card(_) | Self::Pill(_) | Self::Trinket(_) => CARD_FRAME,
         }
     }
 
@@ -164,6 +174,7 @@ impl PickupKind {
             Self::Bomb(BombKind::MegaTroll) => 5,
             Self::Card(card) => card.color_variant(),
             Self::Pill(pill) => pill.color_variant(),
+            Self::Trinket(trinket) => trinket.color_variant(),
         }
     }
 
@@ -216,14 +227,20 @@ impl PickupKind {
             Self::Coin(_) => 30,
             // The item on a pedestal bobs.
             Self::Item(_) => 20,
-            Self::Key(_) | Self::Bomb(_) | Self::Chest(_) | Self::ItemPedestal | Self::Card(_) | Self::Pill(_) => 1,
+            Self::Key(_)
+            | Self::Bomb(_)
+            | Self::Chest(_)
+            | Self::ItemPedestal
+            | Self::Card(_)
+            | Self::Pill(_)
+            | Self::Trinket(_) => 1,
         }
     }
 
     /// Frames of the pickup animation (`d` frame 2); a chest's opening stops on its last frame.
     pub fn collected_frame_count(self) -> u8 {
         match self {
-            Self::Heart(_) | Self::Bomb(_) | Self::Card(_) | Self::Pill(_) => 16,
+            Self::Heart(_) | Self::Bomb(_) | Self::Card(_) | Self::Pill(_) | Self::Trinket(_) => 16,
             Self::Coin(_) | Self::Key(_) => 15,
             Self::Chest(_) => 20,
             Self::ItemPedestal | Self::Item(_) => 0,

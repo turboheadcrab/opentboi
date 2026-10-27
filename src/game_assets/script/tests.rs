@@ -43,6 +43,9 @@ fn the_game_script_gives_the_transcribed_sizes() {
     assert_eq!(cards[0], "X Wheel of fortune");
     assert_eq!(cards[26], "The Joker");
     assert_eq!(script.fortune_messages().len(), usize::from(crate::game::FORTUNE_COUNT));
+    let trinkets = script.trinket_names();
+    assert_eq!(trinkets.len(), crate::game::Trinket::ALL.len());
+    assert!(trinkets.iter().all(|name| !name.is_empty()), "every trinket has a name");
     let messages = script.message_texts();
     assert_eq!(messages[..4], ["a Nickel", "a Dime", "Trolololol", "1 + 1 free"]);
     let pill_texts = script.pill_texts();

@@ -11,6 +11,7 @@ use crate::game::original_units::{Frames, distance};
 use crate::game::pickups::item::Item;
 use crate::game::pickups::kind::{ChestKind, PickupKind};
 use crate::game::pickups::pickup::Pickup;
+use crate::game::pickups::trinket::Trinket;
 use crate::game::pickups::{Collection, Pickups};
 use crate::game::player::inventory::Inventory;
 use crate::game::sound_event::SoundEvent;
@@ -42,7 +43,7 @@ impl Pickups {
                 PickupKind::Chest(chest) => Some(open_chest(pickup.center, chest, &mut collection, sounds)),
                 // Case 7: a card handed back is blocked for a moment, and touching it starts the
                 // block again; else `pillc()` takes it.
-                PickupKind::Card(_) | PickupKind::Pill(_) | PickupKind::Item(_)
+                PickupKind::Card(_) | PickupKind::Pill(_) | PickupKind::Trinket(_) | PickupKind::Item(_)
                     if pickup.swap_blocked_frames > Frames::ZERO =>
                 {
                     pickup.swap_blocked_frames = SWAP_BLOCK;
@@ -52,11 +53,15 @@ impl Pickups {
                     collection.card_taken = pickup.kind.consumable();
                     let sound = inventory.take(pickup.kind);
                     if let Some(held) = inventory.dropped.take() {
-                        pickup.hand_back(held, player_position, SWAP_BLOCK);
+                        pickup.hand_back(held.pickup_kind(), player_position, SWAP_BLOCK);
                         sounds.extend(sound);
                         continue;
                     }
                     sound
+                }
+                // A trinket already held (or the Tick in the only slot) is left lying.
+                PickupKind::Trinket(trinket) => {
+                    pickup.swap_for_trinket(trinket, player_position, inventory, &mut collection, sounds)
                 }
                 PickupKind::Item(item) => {
                     collection.item_taken = Some(item);
@@ -77,6 +82,30 @@ impl Pickups {
             }
         }
         collection
+    }
+}
+
+impl Pickup {
+    /// `pillc()`'s trinket branch for this pickup, which the player (standing at `player_position`)
+    /// touches. Returns the sound for the pickup to be taken; `None` when it stays: the trinket is
+    /// not taken (one already held, or the Tick in the only slot), or this pickup became the trinket
+    /// it swapped for (its sound is made here, and it lies on).
+    fn swap_for_trinket(
+        &mut self,
+        trinket: Trinket,
+        player_position: Vec2,
+        inventory: &mut Inventory,
+        collection: &mut Collection,
+        sounds: &mut Vec<SoundEvent>,
+    ) -> Option<SoundEvent> {
+        let sound = inventory.take_trinket(trinket)?;
+        collection.trinket_taken = Some(trinket);
+        let Some(held) = inventory.dropped_trinket.take() else {
+            return Some(sound);
+        };
+        self.hand_back(PickupKind::Trinket(held), player_position, SWAP_BLOCK);
+        sounds.push(sound);
+        None
     }
 }
 

@@ -5,6 +5,7 @@ use glam::Vec2;
 
 use crate::game::odds::Odds;
 use crate::game::original_units::{Frames, Pixels};
+use crate::game::pickups::trinket::{Trinket, TrinketPool};
 
 const DEFAULT_SEED: u32 = 0x9E37_79B9;
 const UNIT_INTERVAL_STEPS: f32 = (1u32 << 24) as f32;
@@ -13,13 +14,26 @@ const MANTISSA_SHIFT: u32 = 8;
 #[derive(Clone, Debug)]
 pub struct Random {
     state: u32,
+    /// The trinkets not handed out yet this run: a deck drawn from without replacement, which is
+    /// why it lives with the run's randomness.
+    trinkets: TrinketPool,
 }
 
 impl Random {
     pub fn with_seed(seed: u32) -> Self {
         Self {
             state: if seed == 0 { DEFAULT_SEED } else { seed },
+            trinkets: TrinketPool::default(),
         }
+    }
+
+    /// `junx()`: a trinket the run has not handed out yet (always the Counterfeit Penny for a gold
+    /// pickup), or `None` once they are all out.
+    pub fn trinket(&mut self, golden: bool) -> Option<Trinket> {
+        let mut pool = std::mem::replace(&mut self.trinkets, TrinketPool::empty());
+        let trinket = pool.take(self, golden);
+        self.trinkets = pool;
+        trinket
     }
 
     /// Like Flash's random number of a limit: a whole number below `limit`, or 0 when `limit` is

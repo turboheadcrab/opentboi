@@ -15,6 +15,7 @@ impl Player {
     pub(super) fn firing(&self) -> FiringParameters {
         FiringParameters {
             delay_bonus: self.parameters.firing.delay_bonus + self.stats.delay_bonus,
+            delay_offset: self.parameters.firing.delay_offset + self.stats.delay_offset,
             ..self.parameters.firing
         }
     }

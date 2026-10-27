@@ -23,6 +23,8 @@ pub mod pill_state;
 mod pill_tests;
 mod red_chest_opening;
 mod shooting_axes;
+#[cfg(test)]
+mod trinket_tests;
 mod tuning;
 pub mod unicorn_ride;
 use glam::Vec2;

@@ -570,10 +570,18 @@ one player only, so none of this is in the script to port; it is our own design)
   floor stay shared.
 
 ## Trinkets (`pillc()`'s trinket branch)
-- Everything of `pillc()` for cards and pills is ported. Left: the trinket branch (ids 29–68: the
-  second slot, its names banner, Mom's Purse's extra slot, the Tick's hat, the already-held check)
-  and the bookkeeping of unlocks (`colss`). It needs trinkets as a pickup kind, a HUD slot and the
-  effects of the 34 named trinkets first.
+- Done: the 34 trinkets (`Trinket`, ids 29–62) as a pickup kind, with their art; the pool every run
+  starts with (18 of them, each handed out once); the room-clear roll, chests, the fortune machine and
+  the devil beggar giving them; taking one (the sound, Isaac holding it up, the name banner read from the
+  game, the held one swapping out and lying on, the already-held and Tick refusals); every trinket in
+  the treasure room for checking; and the stat effects of the Goat Hoof, Curved Horn, Game Squid and
+  Cancer.
+- Left: the HUD's trinket slot (`plix`); Mom's Purse (item 139) and its second slot; the trinkets that
+  unlock later (ids 29, 35, 42, 47, 49, 50, 54–56 join the pool through `colss`); a gold pickup
+  being always the Counterfeit Penny; the Tick's hat; and the effects of the other trinkets (about
+  45 places in the original's script check for one: tear effects for the Pinky Eye, Push Pin and
+  Game Squid, pickup effects for the pennies, hurt-time effects, room-change effects). Look each
+  one up with the script's check for it (`trixx(ID)`) before porting.
 
 ## Original Steam Controller outside Steam Input
 - With Steam running, the 2015 Steam Controller (wireless dongle 28de:1142) reaches a program started

@@ -4,11 +4,13 @@
 use crate::game::hud::pill_text::PillText;
 use crate::game::pickups::card::Card;
 use crate::game::pickups::item::Item;
+use crate::game::pickups::trinket::Trinket;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum BannerName {
     Card(Card),
     Item(Item),
+    Trinket(Trinket),
     /// One of the pill banners (`st11()`): see [`PillText::banner_position`].
     Pill(PillText),
     /// By place in the machine's list of fortunes, below [`FORTUNE_COUNT`].
@@ -26,6 +28,7 @@ impl BannerName {
             .map(Self::Card)
             .into_iter()
             .chain(Item::ALL.map(Self::Item))
+            .chain(Trinket::ALL.map(Self::Trinket))
             .chain((0..FORTUNE_COUNT).map(Self::Fortune))
             .chain(
                 PillText::ALL

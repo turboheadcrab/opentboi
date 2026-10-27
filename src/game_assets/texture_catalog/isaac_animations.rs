@@ -10,8 +10,9 @@ use super::shared_clips::FUSE_SPARK_CLIP;
 use swf::CharacterId;
 
 use super::{TextureSource, framed};
-use crate::game::{Held, Item, PickupCard, PlayerAnimation};
+use crate::game::{Held, Item, PickupCard, PlayerAnimation, Trinket};
 use crate::game_assets::vector_art::{ChildState, FrameSelection, RenderOverrides};
+use std::sync::OnceLock;
 
 const PLAYER_CLIP: CharacterId = 5825;
 const TELEPORT_FRAME: u16 = 7;
@@ -129,6 +130,28 @@ macro_rules! holding_up_pills {
 /// By the pill's look, its `col`.
 static HOLDING_UP_PILLS: [RenderOverrides; 6] = holding_up_pills!(1 2 3 4 5 6);
 
+/// What Isaac holds up for a trinket: the picture the cards use (43), on the trinket's own frame.
+/// Built once, by the trinket's place in `Trinket::ALL`.
+fn holding_up_trinket(trinket: Trinket) -> &'static RenderOverrides {
+    static HOLDING_UP_TRINKETS: OnceLock<Vec<RenderOverrides>> = OnceLock::new();
+    &HOLDING_UP_TRINKETS.get_or_init(|| {
+        Trinket::ALL
+            .into_iter()
+            .map(|each| RenderOverrides {
+                children: Box::leak(Box::new([
+                    ("d", ChildState::Frame(1)),
+                    ("d.d.it.d", ChildState::Frame(43)),
+                    ("d.d.it.d.p", ChildState::Frame(u16::from(each.color_variant()))),
+                ])),
+                texts: &[],
+                hidden_characters: &[],
+                character_frames: &[],
+                tint: None,
+            })
+            .collect()
+    })[trinket.index()]
+}
+
 pub(super) fn source(animation: PlayerAnimation, frame: u8) -> TextureSource {
     let clip_frame = match animation {
         PlayerAnimation::Teleport => TELEPORT_FRAME,
@@ -168,6 +191,7 @@ fn held_overrides(held: Held) -> &'static RenderOverrides {
     match held {
         Held::Card(card) => &HOLDING_UP[PickupCard::ALL.iter().position(|&each| each == card).unwrap_or(0)],
         Held::Pill(pill) => &HOLDING_UP_PILLS[pill.index()],
+        Held::Trinket(trinket) => holding_up_trinket(trinket),
         Held::Item(item) => &HOLDING_UP_ITEMS[Item::ALL.iter().position(|&each| each == item).unwrap_or(0)],
         ware => &HOLDING_UP_WARES[Held::WARES.iter().position(|&each| each == ware).unwrap_or(0)],
     }

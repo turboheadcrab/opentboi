@@ -103,6 +103,11 @@ impl Game {
             self.player
                 .play_animation(PlayerAnimation::PickingUp(Held::from(taken)));
         }
+        if let Some(trinket) = collection.trinket_taken {
+            self.player
+                .play_animation(PlayerAnimation::PickingUp(Held::Trinket(trinket)));
+            self.overlay.show_name(BannerName::Trinket(trinket));
+        }
         if let Some(item) = collection.item_taken {
             self.player.play_animation(PlayerAnimation::PickingUp(Held::Item(item)));
             self.overlay.show_name(BannerName::Item(item));
