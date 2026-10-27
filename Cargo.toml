@@ -91,7 +91,7 @@ rodio = { version = "0.22", default-features = false, features = ["mp3"] }
 # Writes rendered art to PNG in opt-in tests for visual comparison (already used by Bevy).
 png = "0.18"
 # Reads our own Rust sources in the opt-in test that looks for the original's arithmetic in them.
-syn = { version = "2", default-features = false, features = ["full", "parsing", "visit", "proc-macro"] }
+syn = { version = "3", default-features = false, features = ["full", "parsing", "visit", "proc-macro"] }
 
 # `swf` from the same Ruffle commit as `ruffle_render`, so both use the same shape types.
 [patch.crates-io]
