@@ -46,12 +46,16 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
           "$HOME/.cargo/bin/rustup" toolchain install
-      - run: cargo fmt --check
+      # These three steps are what a merge needs to pass (the job is a required check of main).
+      - name: Format
+        run: cargo fmt --check
       # The feature flags are meant to split into separate arguments (or to be empty).
-      - run: |
+      - name: Clippy (any warning fails)
+        run: |
           # shellcheck disable=SC2086
           cargo clippy --locked --all-targets ${{ matrix.features }} -- -D warnings
-      - run: |
+      - name: Build and test
+        run: |
           # shellcheck disable=SC2086
           cargo test --locked ${{ matrix.features }}
 
