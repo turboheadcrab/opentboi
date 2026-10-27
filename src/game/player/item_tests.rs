@@ -108,6 +108,27 @@ fn the_deck_of_cards_gives_a_card_and_puts_down_the_one_held() {
 }
 
 #[test]
+/// `pillc(4)` from Mom's Bottle of Pills: a random pill, with the card held put down.
+fn mom_s_bottle_of_pills_gives_a_pill_and_puts_down_the_card_held() {
+    use crate::game::pickups::card::Card;
+    use crate::game::pickups::consumable::Consumable;
+    use crate::game::pickups::item::ItemNumber;
+    let mut game = game();
+    game.inventory.take_item(Item::MomsBottleOfPills);
+    game.inventory.take(PickupKind::Card(Card::TheFool));
+    let use_item = InputState {
+        use_item: true,
+        ..InputState::default()
+    };
+    game.advance(&use_item, ONE_FRAME);
+    assert!(matches!(game.inventory.held, Some(Consumable::Pill(_))));
+    assert_eq!(game.inventory.active.charge(), Some((0, 6)));
+    let lying = game.floor.current_room().pickups.lying_kinds();
+    assert!(lying.contains(&PickupKind::Card(Card::TheFool)), "{lying:?}");
+    assert!(game.progress.has_collected(ItemNumber(43)));
+}
+
+#[test]
 fn the_chariot_holds_up_the_unicorn() {
     use crate::game::pickups::card::Card;
     use crate::game::player::animation::Held;

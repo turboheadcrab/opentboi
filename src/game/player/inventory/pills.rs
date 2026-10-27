@@ -9,7 +9,8 @@ use crate::game::sound_event::SoundEvent;
 use crate::game::texture_id::TextureId;
 
 impl Inventory {
-    /// `pillc()`: the card or pill goes into the slot; one held already is dropped.
+    /// `pillc()`: the card or pill goes into the slot; one held already is dropped. A pill (DoAction 7105)
+    /// makes the shell game's shuffle.
     pub(super) fn take_held(&mut self, held: Consumable) -> SoundEvent {
         self.dropped = self.held.replace(held);
         self.taken = Some(held);

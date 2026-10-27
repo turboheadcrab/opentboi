@@ -16,7 +16,7 @@ use crate::game::pickups::{Collection, Pickups};
 use crate::game::player::inventory::Inventory;
 use crate::game::sound_event::SoundEvent;
 
-/// How long a handed-back card or item stays untouchable.
+/// How long a handed-back card or item stays untouchable (DoAction 7102, DoAction 7147).
 pub(super) const SWAP_BLOCK: Frames = Frames(10.0);
 
 impl Pickups {
@@ -77,6 +77,7 @@ impl Pickups {
                 collection.message = PickupMessage::for_pickup(pickup.kind).or(collection.message);
             }
             if let Some(sound) = sound {
+                // The pickup plays its collected animation (DoAction 7172).
                 pickup.collected_frames = Some(Frames::ZERO);
                 sounds.push(sound);
             }

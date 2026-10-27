@@ -83,10 +83,11 @@ macro_rules! box_pictures {
 }
 
 /// None, then by `Item::ACTIVE`.
-static BOX_PICTURES: [RenderOverrides; 3] = box_pictures!(
+static BOX_PICTURES: [RenderOverrides; 4] = box_pictures!(
     NO_ITEM_PICTURE,
     Item::MyLittleUnicorn.active_picture(),
-    Item::DeckOfCards.active_picture()
+    Item::DeckOfCards.active_picture(),
+    Item::MomsBottleOfPills.active_picture()
 );
 
 pub(super) fn item_box_source(item: Option<Item>, frame: u8) -> TextureSource {

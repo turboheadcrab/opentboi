@@ -46,8 +46,8 @@ impl Inventory {
         }
         self.trinkets.insert(0, trinket);
         self.taken_trinket = Some(trinket);
-        // The Tick taken into the second slot (DoAction 7174) is put in the first (DoAction 7177), where
-        // the next trinket taken can't push it out.
+        // The Tick taken into the second slot (DoAction 7174) is put in the first (DoAction 7177), with
+        // its name (DoAction 7179), where the next trinket taken can't push it out.
         if self.trinkets.get(1) == Some(&Trinket::Tick) {
             self.trinkets.swap(0, 1);
         }

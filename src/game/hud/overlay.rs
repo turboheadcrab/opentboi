@@ -66,7 +66,7 @@ impl Overlay {
         self.banner = Some((name, Frames::ZERO));
     }
 
-    /// The card slot's frame 2 on taking a card, 3 on using it.
+    /// The card slot's frame 2 on taking a card (DoAction 7183), 3 on using it.
     pub fn animate_card_slot(&mut self, used: bool) {
         self.slot = Some((used, Frames::ZERO));
     }
@@ -75,7 +75,7 @@ impl Overlay {
         self.slot.map(|(used, frames)| (used, frames.frame_number()))
     }
 
-    /// The trinket slot's frame 2 on taking a trinket.
+    /// The trinket slot's frame 2 on taking a trinket (DoAction 7187).
     pub fn animate_trinket_slot(&mut self) {
         self.trinket_slot = Some(Frames::ZERO);
     }

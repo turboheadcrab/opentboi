@@ -11,7 +11,8 @@ pub enum Consumable {
 }
 
 impl Consumable {
-    /// The one with this `col`: 1–6 a pill, 7 on a tarot card, 70 on a playing card.
+    /// The one with this `col`: 1–6 a pill, 7 on a tarot card, 70 on a playing card. `pillc()` takes
+    /// a `col` above 7 as it is (DoAction 7056), as the shop's wares give one.
     pub fn from_color(color: u8) -> Option<Self> {
         Pill::ALL
             .into_iter()

@@ -22,17 +22,21 @@ pub enum Item {
     MomsPurse,
     /// Deck of Cards, an active item: using it takes a random card, as if picked up (`pillc(3)`).
     DeckOfCards,
+    /// Mom's Bottle of Pills, an active item: using it takes a random pill, as if picked up
+    /// (`pillc(4)`).
+    MomsBottleOfPills,
 }
 
 impl Item {
-    pub const ALL: [Self; 4] = [
+    pub const ALL: [Self; 5] = [
         Self::LuckyFoot,
         Self::MyLittleUnicorn,
         Self::MomsPurse,
         Self::DeckOfCards,
+        Self::MomsBottleOfPills,
     ];
     /// The active ones, used with their own button.
-    pub const ACTIVE: [Self; 2] = [Self::MyLittleUnicorn, Self::DeckOfCards];
+    pub const ACTIVE: [Self; 3] = [Self::MyLittleUnicorn, Self::DeckOfCards, Self::MomsBottleOfPills];
 
     /// The original's number for it.
     pub const fn number(self) -> u16 {
@@ -41,6 +45,7 @@ impl Item {
             Self::MyLittleUnicorn => 77,
             Self::MomsPurse => 139,
             Self::DeckOfCards => 85,
+            Self::MomsBottleOfPills => 102,
         }
     }
 
@@ -48,7 +53,7 @@ impl Item {
     pub const fn charges(self) -> Option<u8> {
         match self {
             Self::LuckyFoot | Self::MomsPurse => None,
-            Self::MyLittleUnicorn | Self::DeckOfCards => Some(6),
+            Self::MyLittleUnicorn | Self::DeckOfCards | Self::MomsBottleOfPills => Some(6),
         }
     }
 

@@ -9,7 +9,7 @@ use crate::game::original_units::Frames;
 use crate::game::pickups::card::Card;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
-use crate::game::pickups::kind::PickupKind;
+use crate::game::pickups::pill::Pill;
 use crate::game::player::animation::{Held, PlayerAnimation};
 use crate::game::sound_event::SoundEvent;
 
@@ -25,23 +25,32 @@ impl Game {
         let Some(item) = self.inventory.active.use_held() else {
             return;
         };
-        // The deck shows the card it gives instead (`showit = false`, DoAction 27214).
-        if item != Item::DeckOfCards {
+        // The deck and the bottle show what they give instead (`showit = false`, DoAction 27174,
+        // DoAction 27216).
+        if !matches!(item, Item::DeckOfCards | Item::MomsBottleOfPills) {
             self.player.play_animation(PlayerAnimation::HoldingUp(Held::Item(item)));
         }
         match item {
             Item::MyLittleUnicorn => self.ride_unicorn(),
-            Item::DeckOfCards => self.use_deck_of_cards(),
+            // `pillc(3)` (DoAction 7064, DoAction 7066): a random card, `tater()`.
+            Item::DeckOfCards => {
+                let card = Card::roll(&mut self.random);
+                self.take_given(Consumable::Card(card));
+            }
+            // `pillc(4)` (DoAction 7060, DoAction 7062): a random pill.
+            Item::MomsBottleOfPills => {
+                let pill = Pill::roll(&mut self.random);
+                self.take_given(Consumable::Pill(pill));
+            }
             Item::LuckyFoot | Item::MomsPurse => {}
         }
     }
 
-    /// Deck of Cards (DoAction 27213–27216, `pillc(3)`): takes a random card as if it were picked up.
-    /// A card or pill held is put down where Isaac stands, out of reach until he steps off it.
-    fn use_deck_of_cards(&mut self) {
-        let card = Card::roll(&mut self.random);
-        let taken = Consumable::Card(card);
-        let sound = self.inventory.take(PickupKind::Card(card));
+    /// What Deck of Cards and Mom's Bottle of Pills give (DoAction 27173, DoAction 27215): `taken` as if
+    /// it were picked up. A card or pill held is put down where Isaac stands (DoAction 7139), out of
+    /// reach until he steps off it, and the slot shows the name (DoAction 7156).
+    fn take_given(&mut self, taken: Consumable) {
+        let sound = self.inventory.take(taken.pickup_kind());
         self.pending_sound_events.extend(sound);
         if let Some(held) = self.inventory.dropped.take() {
             let center = self.player.position();

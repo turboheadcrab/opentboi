@@ -112,9 +112,9 @@ impl Pickup {
         self.center = *anchor;
     }
 
-    /// `pillc()` handing the held card or pill back (DoAction 7139–7152): this pickup becomes it,
-    /// cannot be taken for a while, lands again and is tossed up by half of how far the player
-    /// stands above it.
+    /// `pillc()` handing the held card or pill back (DoAction 7139–7152): this pickup becomes it
+    /// (DoAction 7143), cannot be taken for a while, lands again (DoAction 7148) and is tossed up by
+    /// half of how far the player stands above it (DoAction 7151).
     pub fn hand_back(&mut self, held: PickupKind, player_position: Vec2, block: Frames) {
         const TOSS_PER_PIXEL_ABOVE: f32 = 0.5;
         self.kind = held;
