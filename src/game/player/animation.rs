@@ -11,7 +11,7 @@ use crate::game::original_units::Frames;
 use crate::game::pickups::card::Card;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
-use crate::game::pickups::pill::Pill;
+use crate::game::pickups::pill::{PillLook, PillLooks};
 use crate::game::pickups::trinket::Trinket;
 use crate::game::texture_id::TextureId;
 
@@ -51,7 +51,7 @@ pub enum Held {
     /// A card: item picture 43, showing the card's face.
     Card(Card),
     /// A pill: the same picture on its look's frame.
-    Pill(Pill),
+    Pill(PillLook),
     /// A trinket: the same picture on its own frame.
     Trinket(Trinket),
     /// Bought from the shop: item pictures 200 a heart, 201 a bomb, 202 a key, 203 a soul heart.
@@ -73,11 +73,12 @@ impl Card {
     }
 }
 
-impl From<Consumable> for Held {
-    fn from(consumable: Consumable) -> Self {
+impl Held {
+    /// What Isaac holds up for `consumable`, a pill in the look this run gives it.
+    pub fn holding(consumable: Consumable, looks: PillLooks) -> Self {
         match consumable {
             Consumable::Card(card) => Self::Card(card),
-            Consumable::Pill(pill) => Self::Pill(pill),
+            Consumable::Pill(pill) => Self::Pill(looks.look_of(pill)),
         }
     }
 }

@@ -65,7 +65,8 @@ impl Game {
                     self.use_card(card);
                 }
                 Consumable::Pill(pill) => {
-                    self.player.play_animation(PlayerAnimation::HoldingUp(Held::Pill(pill)));
+                    let look = self.inventory.pills.looks.look_of(pill);
+                    self.player.play_animation(PlayerAnimation::HoldingUp(Held::Pill(look)));
                     self.use_pill(pill);
                 }
             }

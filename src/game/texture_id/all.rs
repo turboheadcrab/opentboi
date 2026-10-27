@@ -11,6 +11,7 @@ use super::{
 use crate::game::hud::held_card::{SLOT_TAKEN_FRAME_COUNT, SLOT_USED_FRAME_COUNT};
 use crate::game::input_state::GamepadKind;
 use crate::game::pickups::card::Card;
+use crate::game::pickups::pill::PillLook;
 use crate::game::pickups::trinket::Trinket;
 use crate::game::room::layout::Decoration;
 
@@ -93,7 +94,6 @@ impl TextureId {
         PickupKind::ALL
             .into_iter()
             .chain(card_arts)
-            .chain(crate::game::pickups::pill::Pill::ALL.map(PickupKind::Pill))
             .chain(crate::game::pickups::trinket::Trinket::ALL.map(PickupKind::Trinket))
             .chain(item_pedestals)
             .flat_map(|kind| {
@@ -101,6 +101,17 @@ impl TextureId {
                     (0..phase.frame_count(kind)).map(move |frame| Self::Pickup { kind, phase, frame })
                 })
             })
+            .chain(Self::pill_pickups())
+    }
+
+    /// Every frame of a pill lying about, in each of the looks a run may give it.
+    fn pill_pickups() -> impl Iterator<Item = Self> {
+        let kind = PickupKind::Pill(crate::game::pickups::pill::Pill::ALL[0]);
+        PillLook::ALL.into_iter().flat_map(move |look| {
+            PickupPhase::ALL.into_iter().flat_map(move |phase| {
+                (0..phase.frame_count(kind)).map(move |frame| Self::PillPickup(look, phase, frame))
+            })
+        })
     }
 
     /// Doors unlocking, shutting, shut and opening.
@@ -178,6 +189,12 @@ impl TextureId {
     /// The pill ware's picture for each `col` it can have, with and without the sale price.
     fn shop_consumable_wares() -> impl Iterator<Item = Self> {
         SHOP_CONSUMABLE_COLORS
+            .chain(
+                PillLook::ALL
+                    .iter()
+                    .map(|look| look.frame())
+                    .filter(|&frame| frame > 100),
+            )
             .flat_map(|color| [false, true].map(|on_sale| Self::ShopConsumableWare { color, on_sale }))
     }
 
@@ -197,7 +214,7 @@ impl TextureId {
         hud.extend((1..=MAP_PICKUP_MARK_COUNT).map(Self::MapPickupMark));
         hud.extend(Card::ALL.map(Self::HeldCard));
         hud.extend(Card::ALL.map(Self::HeldCardName));
-        hud.extend(crate::game::pickups::pill::Pill::ALL.map(Self::HeldPill));
+        hud.extend(PillLook::ALL.map(Self::HeldPill));
         hud.extend(
             crate::game::hud::pill_text::PillText::ALL
                 .into_iter()

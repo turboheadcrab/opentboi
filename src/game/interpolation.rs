@@ -43,6 +43,7 @@ impl Game {
 
     /// Everything inside the room this tick: the room, Isaac, what lies about and flies.
     pub(crate) fn fill_room_draw_items(&self, draw_items: &mut Vec<DrawItem>) {
+        let first_item = draw_items.len();
         room::append_draw_items(self.room_appearance, self.floor.current_art(), draw_items);
         // The blink of the fatal hit would make the death flicker, so a dying Isaac stays shown.
         let blinking = self.inventory.blinks_hidden() && !self.is_dying();
@@ -61,6 +62,11 @@ impl Game {
             tear.append_draw_items(draw_items);
         }
         draw_items.extend(self.splashes.iter().map(Splash::draw_item));
+        // Pills are drawn from their `col` through this run's looks (`pic()`).
+        let looks = self.inventory.pills.looks;
+        for item in &mut draw_items[first_item..] {
+            item.texture = item.texture.map(|texture| looks.show(texture));
+        }
     }
 }
 

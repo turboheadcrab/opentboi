@@ -4,7 +4,7 @@ use crate::game::floor::MapPiece;
 use crate::game::hud::{HudHeart, held_trinket::SlotView};
 use crate::game::input_state::InputDevice;
 pub use crate::game::pickups::phase::PickupPhase;
-use crate::game::pickups::{kind::PickupKind, trinket::Trinket};
+use crate::game::pickups::{kind::PickupKind, pill::PillLook, trinket::Trinket};
 pub use crate::game::room::doors::DoorStyle;
 use crate::game::room::grid_kind::{BreakableKind, TileKind};
 
@@ -42,6 +42,8 @@ pub enum TextureId {
         phase: PickupPhase,
         frame: u8,
     },
+    /// A frame of a pill lying about, in the look this run gives it (see `PillLooks`).
+    PillPickup(PillLook, PickupPhase, u8),
     /// A minimap room or icon (clip `mpiece`).
     MapPiece(MapPiece),
     /// The start room's floor drawing of the controls, the size of [`Self::RoomBackground`].
@@ -188,8 +190,8 @@ pub enum TextureId {
     /// The HUD's picture of the card held, and its name.
     HeldCard(crate::game::pickups::card::Card),
     HeldCardName(crate::game::pickups::card::Card),
-    /// The same for a pill held, and the name of its effect (or the unknown one).
-    HeldPill(crate::game::pickups::pill::Pill),
+    /// The same for a pill held (by its look), and the name of its effect (or the unknown one).
+    HeldPill(PillLook),
     HeldPillName(crate::game::hud::pill_text::PillText),
     /// The HUD's corner with a trinket held: picture, name and, unless it animates, the ring.
     TrinketSlot(Trinket, SlotView),
