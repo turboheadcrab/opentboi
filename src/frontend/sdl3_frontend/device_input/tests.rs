@@ -19,6 +19,7 @@ const MICROSOFT_XBOX_ONE: (u16, u16) = (0x045e, 0x02ea);
 const VALVE_STEAM_DECK: (u16, u16) = (0x28de, 0x1205);
 const UNKNOWN_MAKER: (u16, u16) = (0x1234, 0x5678);
 
+#[allow(unsafe_code, reason = "SDL's safe wrapper cannot attach a virtual gamepad")]
 fn kind_of_virtual_pad(vendor_and_product: (u16, u16)) -> GamepadKind {
     let context = sdl3::init().expect("SDL should start");
     let gamepads = context.gamepad().expect("the gamepad subsystem should start");

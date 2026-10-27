@@ -101,7 +101,11 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   workflow tells when a newer compiler would break the build.
 - Before finishing: `cargo fmt`, `cargo clippy --all-targets --all-features` with no warnings (also
   once per single frontend), `cargo test`, and `shuck check scripts packaging .github` when a shell
-  script changed.
+  script changed. CI also runs `cargo deny check` (licences in `deny.toml`, advisories, sources),
+  `cargo machete` (unused dependencies), `typos` (accepted words in `_typos.toml`) and
+  `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps`; all four are `cargo install --locked` away.
+  `unsafe` is denied crate-wide: a new use needs `#[allow(unsafe_code, reason = …)]` and a
+  `// SAFETY:` comment.
   Then regenerate the desktop launchers with `scripts/install-desktop-entries.sh` (a release build of
   both frontends copied to `target/desktop/`), so the shortcuts run the latest code.
   `mise run check` does all of that, in the development container where there is one (below).

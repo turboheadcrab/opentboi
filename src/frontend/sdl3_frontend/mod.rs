@@ -119,6 +119,7 @@ fn open_window(video: &VideoSubsystem, display: DisplaySettings, hidden: bool) -
 }
 
 /// `SDL_SetRenderVSync`: 1 waits for every refresh, 0 presents immediately.
+#[allow(unsafe_code, reason = "SDL's safe wrapper has no vsync call")]
 fn set_vsync(canvas: &WindowCanvas, vsync: bool) {
     let interval = i32::from(vsync);
     // SAFETY: the renderer pointer comes from a live canvas.

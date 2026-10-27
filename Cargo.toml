@@ -67,7 +67,14 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
+[lints.rust]
+# The only `unsafe` is a few calls into SDL that its safe wrapper lacks; each is allowed where it
+# stands, with the reason.
+unsafe_code = "deny"
+
 [lints.clippy]
+# Every `unsafe` block says why it is sound.
+undocumented_unsafe_blocks = "warn"
 # Clippy's stricter group; exceptions are listed below with their reason.
 pedantic = { level = "warn", priority = -1 }
 # Counts, sizes and indices become `f32`, the game's own precision; every one is far below 2^24,
@@ -89,3 +96,7 @@ syn = { version = "2", default-features = false, features = ["full", "parsing", 
 # `swf` from the same Ruffle commit as `ruffle_render`, so both use the same shape types.
 [patch.crates-io]
 swf = { git = "https://github.com/ruffle-rs/ruffle", rev = "2372a4e1" }
+
+[package.metadata.cargo-machete]
+# Named only to switch on its `wayland-dlopen` feature for the Bevy frontend (feature unification).
+ignored = ["winit"]

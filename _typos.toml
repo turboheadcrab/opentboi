@@ -1,0 +1,21 @@
+# Settings for `typos` (spell checking of the sources and notes).
+[files]
+# Generated or not ours: the coverage map holds the original's function names, the licence texts are
+# the licences', the art is art.
+extend-exclude = [
+    "docs/original-coverage-map.svg",
+    "Cargo.lock",
+    "THIRD-PARTY-LICENSES",
+    "assets/**",
+]
+
+# Names the original's script uses (functions, clip instances), cited as they are, and fragments of
+# words that only look like typos ("PNGs", "256ths").
+[default.extend-words]
+spaw = "spaw"
+bord = "bord"
+gam = "gam"
+doub = "doub"
+nam = "nam"
+ths = "ths"
+PN = "PN"
