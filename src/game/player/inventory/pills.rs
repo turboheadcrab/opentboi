@@ -21,9 +21,9 @@ impl Inventory {
         }
     }
 
-    /// Whether pills only help (the Lucky Foot, `ups[46]`).
+    /// Whether pills only help (the Lucky Foot, `ups[46]`, or PHD, `ups[75]`; DoAction 26757).
     pub fn pills_only_help(&self) -> bool {
-        self.has(Item::LuckyFoot)
+        self.has(Item::LuckyFoot) || self.has(Item::Phd)
     }
 
     /// What the HUD calls `pill`: its effect once it has one, else the unknown pill.

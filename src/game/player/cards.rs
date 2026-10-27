@@ -69,6 +69,7 @@ impl Game {
                 }
             }
         }
+        self.identify_held_pill(elapsed);
         self.advance_tower(elapsed);
         self.advance_teleport(elapsed);
     }

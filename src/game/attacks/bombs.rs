@@ -107,7 +107,7 @@ impl Bombs {
             bomb.velocity *= VELOCITY_RETENTION.over(elapsed);
             let target = bomb.center + bomb.velocity * elapsed;
             bomb.center = room_interior.shrunk_by(RADIUS).clamp(target);
-            bomb.velocity = rebound(bomb.velocity, target - bomb.center, RADIUS, walls);
+            bomb.velocity = rebound(bomb.velocity, target - bomb.center, walls);
             let burnt_out = FIRST_CLIP_FRAME + bomb.age_frames >= exploding_fuse_frame;
             if burnt_out {
                 exploded.push(bomb.center);

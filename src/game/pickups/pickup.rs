@@ -92,7 +92,7 @@ impl Pickup {
         let target = self.center + self.velocity * elapsed;
         self.move_to(target, room_interior, solid_tiles);
         let blocked = target - self.center;
-        self.velocity = rebound(self.velocity, blocked, RADIUS, walls);
+        self.velocity = rebound(self.velocity, blocked, walls);
         self.cling_to_anchor(elapsed, solid_tiles);
         let Some(collected_frames) = &mut self.collected_frames else {
             return true;

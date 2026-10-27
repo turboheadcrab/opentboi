@@ -5,7 +5,7 @@ use glam::Vec2;
 
 use crate::game::Game;
 use crate::game::InputState;
-use crate::game::original_units::Frames;
+use crate::game::original_units::{Frames, Pixels};
 use crate::game::pickups::card::Card;
 use crate::game::pickups::consumable::Consumable;
 use crate::game::pickups::item::Item;
@@ -42,7 +42,7 @@ impl Game {
                 let pill = Pill::roll(&mut self.random);
                 self.take_given(Consumable::Pill(pill));
             }
-            Item::LuckyFoot | Item::MomsPurse => {}
+            Item::LuckyFoot | Item::MomsPurse | Item::Phd => {}
         }
     }
 
@@ -53,11 +53,12 @@ impl Game {
         let sound = self.inventory.take(taken.pickup_kind());
         self.pending_sound_events.extend(sound);
         if let Some(held) = self.inventory.dropped.take() {
-            let center = self.player.position();
-            self.floor
-                .current_room_mut()
-                .pickups
-                .drop_held(held.pickup_kind(), center);
+            // It lies on the nearest free tile (`spaw(player.xp, player.yp, 0, 5.3)`, DoAction 7141),
+            // not under Isaac's feet.
+            let near = self.player.position();
+            let room = self.floor.current_room_mut();
+            let spot = room.spawn_spot(near, Pixels::ZERO, &mut self.random);
+            room.pickups.drop_held(held.pickup_kind(), spot);
         }
         self.remember_consumable_taken(taken);
         self.player

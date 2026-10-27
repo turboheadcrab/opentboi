@@ -101,5 +101,8 @@ impl Game {
 }
 
 #[cfg(test)]
+#[path = "trinket_tests.rs"]
+mod taking_tests;
+#[cfg(test)]
 #[path = "trinket_effect_tests.rs"]
 mod tests;

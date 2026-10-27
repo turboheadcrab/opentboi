@@ -19,6 +19,7 @@ pub mod items;
 pub mod look;
 mod movement;
 mod pill_effects;
+pub mod pill_roll;
 pub mod pill_state;
 #[cfg(test)]
 mod pill_tests;
@@ -26,8 +27,6 @@ mod red_chest_opening;
 pub mod shield;
 mod shooting_axes;
 mod trinket_effects;
-#[cfg(test)]
-mod trinket_tests;
 mod tuning;
 pub mod unicorn_ride;
 use glam::Vec2;

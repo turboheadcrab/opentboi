@@ -25,15 +25,19 @@ pub enum Item {
     /// Mom's Bottle of Pills, an active item: using it takes a random pill, as if picked up
     /// (`pillc(4)`).
     MomsBottleOfPills,
+    /// PHD: pills only help, and some are left out (see `PillRollContext::phd`); it also names the
+    /// held pill now and then (`identify_held_pill`).
+    Phd,
 }
 
 impl Item {
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 6] = [
         Self::LuckyFoot,
         Self::MyLittleUnicorn,
         Self::MomsPurse,
         Self::DeckOfCards,
         Self::MomsBottleOfPills,
+        Self::Phd,
     ];
     /// The active ones, used with their own button.
     pub const ACTIVE: [Self; 3] = [Self::MyLittleUnicorn, Self::DeckOfCards, Self::MomsBottleOfPills];
@@ -46,13 +50,14 @@ impl Item {
             Self::MomsPurse => 139,
             Self::DeckOfCards => 85,
             Self::MomsBottleOfPills => 102,
+            Self::Phd => 75,
         }
     }
 
     /// For an active item, the rooms to clear between uses; `None` for a passive one.
     pub const fn charges(self) -> Option<u8> {
         match self {
-            Self::LuckyFoot | Self::MomsPurse => None,
+            Self::LuckyFoot | Self::MomsPurse | Self::Phd => None,
             Self::MyLittleUnicorn | Self::DeckOfCards | Self::MomsBottleOfPills => Some(6),
         }
     }
