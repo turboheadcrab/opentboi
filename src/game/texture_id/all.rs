@@ -78,6 +78,7 @@ impl TextureId {
         all.extend(Self::walkers());
         all.extend((0..super::BLUE_FLY_FRAME_COUNT).map(Self::BlueFly));
         all.extend((0..super::BLOOD_CREEP_LOOK_COUNT).map(Self::BloodCreep));
+        all.extend((0..super::BLOOD_SPLAT_LOOK_COUNT).map(Self::BloodSplat));
         all.extend((0..ENEMY_SHOT_BRIGHTNESS_STEPS).map(Self::EnemyShot));
         all.extend(Self::death());
         all

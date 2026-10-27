@@ -30,12 +30,14 @@ use crate::game::original_units::{Frames, Hearts, HitPoints, Mass, Pixels};
 use crate::game::parameters::{
     ClottyParameters, EnemyShotParameters, FireParameters, FleshMoundParameters, FlyParameters, GameParameters,
     GaperParameters, HeadlessParameters, HopperParameters, HorfParameters, MulliganParameters, PooterParameters,
-    SpikeParameters,
+    SpikeParameters, SplatParameters,
 };
 use crate::game::player::death::Killer;
 use crate::game::random::Random;
+use crate::game::room::blood::Splatter;
 use crate::game::room::grid_object::GridObject;
 use crate::game::room::layout::RoomLayout;
+use crate::game::room::sight::TileMarks;
 use crate::game::room::{stage_to_world, world_to_stage};
 use crate::game::sound_event::SoundEvent;
 pub use fly::{Fly, FlyState};
@@ -65,6 +67,7 @@ pub struct EnemyParameters {
     pub shots: EnemyShotParameters,
     pub fire: FireParameters,
     pub spikes: SpikeParameters,
+    pub splats: SplatParameters,
 }
 
 impl EnemyParameters {
@@ -82,6 +85,7 @@ impl EnemyParameters {
             shots: parameters.enemy_shots,
             fire: parameters.fire,
             spikes: parameters.spikes,
+            splats: parameters.splats,
         }
     }
 }
@@ -103,6 +107,10 @@ pub struct Enemies {
     /// Where the player was when last seen, and how fast he moved (stage coordinates).
     player: Vec2,
     player_velocity: Vec2,
+    /// The cells walkers marked (`pathfind()`), fading.
+    tile_marks: TileMarks,
+    /// Blood the enemies and their shots left since the room last took it.
+    splatters: Vec<Splatter>,
 }
 
 /// What touching the enemies did to the player.
@@ -140,6 +148,8 @@ impl Enemies {
             health_seen: Vec::new(),
             player: Vec2::ZERO,
             player_velocity: Vec2::ZERO,
+            tile_marks: TileMarks::default(),
+            splatters: Vec::new(),
         }
     }
 
@@ -184,11 +194,15 @@ impl Enemies {
         let first_frame = self.frames.whole() + 1;
         self.frames += elapsed;
         self.player = world_to_stage(player);
-        let grid = Grid::new(grid_objects, self.player).with_player_velocity(self.player_velocity);
+        let mut grid = Grid::new(grid_objects, self.player)
+            .with_player_velocity(self.player_velocity)
+            .with_marks(std::mem::take(&mut self.tile_marks));
         let enemy_count = self.flies.len() + self.walkers.len();
         let mut pecks = Vec::new();
         for number in first_frame..=self.frames.whole() {
             let frame = Frames::from_number(number);
+            grid.sight.fade_marks(frame);
+            self.bleed_dying(Frames::from_number(number - first_frame), random);
             for index in 0..self.flies.len() {
                 let turn = self.flies[index].think(frame, &grid, &self.parameters, random);
                 if let Some(cell) = turn.peck {
@@ -199,7 +213,7 @@ impl Enemies {
                 }
             }
             for index in 0..self.walkers.len() {
-                let turn = self.walkers[index].think(frame, &grid, &self.parameters, enemy_count, random);
+                let turn = self.walkers[index].think(frame, &mut grid, &self.parameters, enemy_count, random);
                 self.walker_turned(index, turn, sounds);
             }
             self.feel_the_floor(frame, grid_objects, random, sounds);
@@ -217,26 +231,15 @@ impl Enemies {
             let world = room_interior.clamp(stage_to_world(fly.position));
             fly.position = world_to_stage(world);
         }
-        self.advance_shots(elapsed, &grid, random, sounds);
+        let frames_crossed = (self.frames.whole() + 1).saturating_sub(first_frame);
+        self.advance_shots((elapsed, frames_crossed), &grid, random, sounds);
+        self.tile_marks = grid.sight.marks().clone();
         pecks
-    }
-
-    /// Removes the flies whose death has played (after the room resolved this frame's pecks).
-    pub fn remove_finished(&mut self) {
-        let parameters = self.parameters;
-        self.flies.retain(|fly| !fly.death_finished(&parameters));
-        self.walkers.retain(|walker| !walker.death_finished(&parameters));
-    }
-
-    /// The fly at `index` landed a peck on its breakable and turns into a Pooter.
-    pub fn peck_landed(&mut self, index: usize, random: &mut Random) {
-        let parameters = self.parameters;
-        if let Some(fly) = self.flies.get_mut(index) {
-            fly.become_pooter(&parameters, random);
-        }
     }
 }
 
+#[cfg(test)]
+mod blood_tests;
 #[cfg(test)]
 mod chaser_tests;
 #[cfg(test)]

@@ -116,9 +116,14 @@ place the sins, types 46–52 (Sloth `b46` 5070, Lust `b47` 5302, Wrath `b48` 52
   picks the clip (walking above 2 px per frame, standing below it; a Gaper rarely gets that fast, so
   it mostly glides on the standing clip). Hit points 10, size 13, mass 5, drawn at 0.9, touch hurts
   half a heart (death note portrait 10); the unicorn's 40 damage and blasts kill it.
-- `pathfind()`: every sixth frame (offset by its number) a line from its tile's center to the
-  player's tile's center is tested (`linecheck()`: every 6 px, the corners of a 10 px square,
-  rocks and pits block). With a clear line, or on the player's tile, it pulls straight at the
+- `pathfind()`: each frame it marks the cell it stands on with 0.9 (unless the cell holds 0.99 or
+  more), and every sixth frame (offset by its number) a line from its tile's center to the player's
+  tile's center is tested (`linecheck()`: every 6 px, at the corners of a 10 px square, with 2.5 to
+  spend: a cell of 1 or more, rocks, pits, walls and doorways, ends the sight; one above 0.3 and
+  below 1, a walker's mark or what a broken object leaves, costs 0.1; spikes and webs, 0.99, cost
+  nothing). Its own cell is not skipped: the start cell's number (`grox`) is compared with the
+  cells' values, which never equal it. `actions2()` fades every value between 0 and 0.99 by 0.1
+  each third frame. With a clear line, or on the player's tile, it pulls straight at the
   player; otherwise at the next tile on the shortest way, from a flood fill over the 13×7 tiles
   (east, west, north, south as the tie-break) redone as a timer runs out (at most 20, plus 7, plus 2
   per enemy; each frame costs 3 times its pull factor, 10 while it sees the player). The pull is a
@@ -170,9 +175,9 @@ place the sins, types 46–52 (Sloth `b46` 5070, Lust `b47` 5302, Wrath `b48` 52
   per frame (`quadf()`, 9180), `animal_squish0`–`2`. It goes back to wandering when the clip is over,
   or one frame in 30 once 30 frames have passed since it last wandered.
 - Clip `b15` 4902: 1 idle (4877, 24 frames), 2 walking (4894, 20), 3 dying (566, 36), 4 appearing
-  (4895, 27), 5 shooting (4900, 24), 6 the eternal one's (4901). The blood it drips (`splater()`) and
-  its odd chance of becoming a type 17 (which never happens in the original: the test compares a
-  boolean to 2) are not ported.
+  (4895, 27), 5 shooting (4900, 24), 6 the eternal one's (4901). Every fifth frame (offset by its
+  number) it leaves a blood splat (`splater()`, scale 0.5–1.2). Its odd chance of becoming a type 17
+  (which never happens in the original: the test compares a boolean to 2) is not ported.
 
 ## Mulligan (type 16)
 - Hit points 13, size 13, mass 6; it keeps 80 % of its speed each frame. Touching it does not hurt
@@ -214,9 +219,22 @@ place the sins, types 46–52 (Sloth `b46` 5070, Lust `b47` 5302, Wrath `b48` 52
 - Its brightness pulses ×0.45, ×1, ×1.85 over three frames.
 - Shadow 341 (the tear's), ball `d` (1458) authored 23.75 above the origin and moved to `dy`.
 
+## Blood on the floor (`splater()`, ported)
+- Drawn into the floor's `splat` bitmap (shown at 70 %, craters too) with the blood tint `bloc`
+  (each channel 85–100 %, drawn again every seventh frame), a random look of the clip `blood` (6243;
+  the red looks are frames 1–10, consecutive pairs alike), upside down one time in two, `crand(5)` off
+  and 5 px up. A look of 0 keeps the clip on the frame it was last sent to. The bitmap is made anew
+  for each room, so blood is gone when the room is entered again.
+- Who leaves it: every dying enemy on its death clip's first three frames (scale 0.4–1.1, a Pooter
+  0.7 of that; both Pooters are type 14), a Gaper losing its head (0.6–1.6), the Clotty every fifth
+  frame, the headless body one frame in ten (0.4–0.9, look 0–9), an enemy shot one frame in sixteen
+  in flight (0.1–0.4), and a tear or enemy shot ending, one time in thirty (0.1–0.9).
+- Not ported: the other colors (`spl` 10, 20, 30: bosses, items and poison), dark rooms (`blackout`
+  darkens the tint; a blast there splats instead of leaving a crater), bomb tears' splats, the other
+  characters' and items' blood, and bosses'.
+
 ## Not ported yet
-- Champions (one in 20 on a first visit), eternal enemies, blood splats on the floor
-  (`splater()`, one frame in 16 for shots; the headless body's too), knockback from blasts, every enemy
+- Champions (one in 20 on a first visit), eternal enemies, knockback from blasts, every enemy
   marked "—" above.
 
 ## What the floor does to enemies (ported)

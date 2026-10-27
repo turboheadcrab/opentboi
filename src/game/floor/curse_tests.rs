@@ -31,7 +31,7 @@ fn a_secret_room_next_to_the_curse_room_has_a_curse_door_or_a_wall_to_bomb() {
     );
     floor.set_door_rules(Style::Original, Style::Rebirth);
     assert!(!floor.visible_doors().contains(&side), "Rebirth: a wall");
-    floor.blast_walls(side.position() * 0.8, Pixels(60.0));
+    floor.blast_walls(side.position() * 0.8, Pixels(60.0), &floor.blast_sight());
     assert!(floor.visible_doors().contains(&side));
     assert_eq!(
         floor.curse_doorways().len(),
@@ -62,6 +62,9 @@ fn bombing_out_of_a_secret_room_entered_through_a_curse_door_stays_quiet() {
     let entry = floor.go_through(side);
     assert_eq!(entry.jingle, Some(SoundEvent::SecretRoomFound), "found on entering");
     for wall in DoorSide::ALL {
-        assert_eq!(floor.blast_walls(wall.position() * 0.8, Pixels(60.0)), None);
+        assert_eq!(
+            floor.blast_walls(wall.position() * 0.8, Pixels(60.0), &floor.blast_sight()),
+            None
+        );
     }
 }

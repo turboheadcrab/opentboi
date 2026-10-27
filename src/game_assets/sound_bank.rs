@@ -43,7 +43,7 @@ impl SoundBank {
         &self.music_by_track
     }
 
-    pub fn events(&self) -> impl Iterator<Item = SoundEvent> + '_ {
+    pub fn events(&self) -> impl Iterator<Item = SoundEvent> {
         self.variants_by_event.keys().copied()
     }
 }

@@ -1,5 +1,6 @@
 //! Room geometry in world units, which equal the original's Flash pixels.
 
+pub mod blood;
 pub mod change;
 pub mod contents;
 pub mod creep;
@@ -10,6 +11,7 @@ pub mod grid_kind;
 pub mod grid_object;
 pub mod layout;
 pub mod orbiting_fly;
+pub mod sight;
 pub mod stage_area;
 pub mod transition;
 

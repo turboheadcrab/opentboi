@@ -88,6 +88,8 @@ pub struct Walker {
     flash_left: Frames,
     /// The frame the floor last hurt it (`lastfir`).
     pub(super) last_burned: Option<Frames>,
+    /// Blood it spilled losing its head, for the room to take.
+    spilled: Option<crate::game::room::blood::Splatter>,
 }
 
 impl Walker {
@@ -117,6 +119,7 @@ impl Walker {
             hop: hopper::Hop::default(),
             flash_left: Frames::ZERO,
             last_burned: None,
+            spilled: None,
         }
     }
 
@@ -192,7 +195,7 @@ impl Walker {
     pub(super) fn think(
         &mut self,
         frame: Frames,
-        grid: &crate::game::room::enemies::surroundings::Grid,
+        grid: &mut crate::game::room::enemies::surroundings::Grid,
         parameters: &EnemyParameters,
         enemy_count: usize,
         random: &mut Random,

@@ -1,7 +1,7 @@
 //! The room's tiles as walkers see them: which are blocked (`levz` values of 1 and above, pits
-//! included), whether a straight line between two points is clear (`linecheck()`, DoAction 6155) and
-//! how many steps each tile is from a goal (the flood fill in `pathfind()`, 5777–5990). Points are in
-//! stage coordinates, y down.
+//! included) and how many steps each tile is from a goal (the flood fill in `pathfind()`,
+//! 5777–5990). Points are in stage coordinates, y down; whether a line is clear is the room's
+//! `sight` grid's to say.
 
 use std::collections::VecDeque;
 
@@ -14,9 +14,6 @@ use crate::whole_numbers::clamped_u32;
 
 const COLUMNS: usize = COLUMN_COUNT as usize;
 const ROWS: usize = ROW_COUNT as usize;
-/// `linecheck()` samples the line every 6 pixels, at the corners of a 10-pixel square.
-const SIGHT_STEP: f32 = 6.0;
-const SIGHT_CORNER: f32 = 5.0;
 /// What the grid holds where something stands in the way, and where nothing does.
 const BLOCKED_VALUE: f32 = 1.0;
 const FLOOR_VALUE: f32 = 0.0;
@@ -120,11 +117,6 @@ impl WalkMap {
         Self { blocked }
     }
 
-    fn is_blocked(&self, stage_point: Vec2) -> bool {
-        let world = crate::game::room::stage_to_world(stage_point);
-        !crate::game::room::interior_bounds().contains(world) || self.blocked[Tile::containing(stage_point).index()]
-    }
-
     /// The center of the free cell nearest `stage_point` (`ingrid()` and `outgrid()`), none if it is a
     /// wall, a doorway (`levzz()` shows doorways to enemies as solid) or blocked.
     pub fn free_spot(&self, stage_point: Vec2) -> Option<Vec2> {
@@ -144,32 +136,6 @@ impl WalkMap {
             None => BLOCKED_VALUE,
         };
         (levzz(Mover::Enemy, cell, &doorway_cells(), value) < BLOCKED_VALUE).then(|| outgrid(cell))
-    }
-
-    /// `linecheck()`: nothing blocked along the line, the tile it starts in aside.
-    pub fn clear_line(&self, from: Vec2, target: Vec2) -> bool {
-        let start = Tile::containing(from);
-        let distance = from.distance(target);
-        let step = (target - from).normalize_or_zero() * SIGHT_STEP;
-        let corners = [
-            Vec2::new(SIGHT_CORNER, SIGHT_CORNER),
-            Vec2::new(-SIGHT_CORNER, SIGHT_CORNER),
-            Vec2::new(-SIGHT_CORNER, -SIGHT_CORNER),
-            Vec2::new(SIGHT_CORNER, -SIGHT_CORNER),
-        ];
-        let mut point = from;
-        let mut travelled = 0.0;
-        while travelled < distance {
-            point += step;
-            let blocked = corners
-                .iter()
-                .any(|&corner| Tile::containing(point + corner) != start && self.is_blocked(point + corner));
-            if blocked {
-                return false;
-            }
-            travelled += SIGHT_STEP;
-        }
-        true
     }
 
     /// How many steps every tile is from `goal`; `open` (the walker's own tile) counts as walkable
@@ -209,16 +175,6 @@ mod tests {
 
     fn tile(column: usize, row: usize) -> Tile {
         Tile { column, row }
-    }
-
-    #[test]
-    fn a_rock_blocks_the_line_but_an_open_room_does_not() {
-        let open = WalkMap::new(&[]);
-        let walled = WalkMap::new(&[rock_on(5, 3)]);
-        let from = tile(2, 3).center();
-        let target = tile(9, 3).center();
-        assert!(open.clear_line(from, target));
-        assert!(!walled.clear_line(from, target));
     }
 
     #[test]

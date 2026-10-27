@@ -2,7 +2,7 @@
 
 use glam::Vec2;
 
-use crate::game::draw::{DrawItem, FLOOR_DECAL_DEPTH, Rgba};
+use crate::game::draw::{DrawItem, DrawLayer, FLOOR_DECAL_DEPTH, Rgba};
 use crate::game::original_units::{Frames, Pixels, PixelsPerFrame, length};
 use crate::game::parameters::ExplosionParameters;
 use crate::game::player::Player;
@@ -58,15 +58,19 @@ impl Explosion {
     }
 }
 
-/// Permanent mark on the floor where something exploded, drawn into the floor bitmap.
-pub fn scorch_draw_item(center: Vec2) -> DrawItem {
-    DrawItem::textured(
-        TextureId::ExplosionScorch,
-        center,
-        1.0,
-        SCORCH_FALLBACK_COLOR,
-        FLOOR_DECAL_DEPTH + SCORCH_DEPTH_ABOVE_DECALS,
-    )
+/// Permanent mark on the floor where something exploded (`crater`), drawn into the floor's splat
+/// bitmap (`layer`).
+pub fn scorch_draw_item(center: Vec2, layer: DrawLayer) -> DrawItem {
+    DrawItem {
+        layer: Some(layer),
+        ..DrawItem::textured(
+            TextureId::ExplosionScorch,
+            center,
+            1.0,
+            SCORCH_FALLBACK_COLOR,
+            FLOOR_DECAL_DEPTH + SCORCH_DEPTH_ABOVE_DECALS,
+        )
+    }
 }
 
 /// Pushes the player away from a blast at `center` (the original's case for the player);

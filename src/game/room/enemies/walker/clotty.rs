@@ -2,13 +2,14 @@
 //! one of two modes. Wandering (`randrun()`, as the headless body does) turns into shooting once it
 //! arrives; shooting plays the shot clip, fires four shots along the axes when the clip is past its
 //! tenth frame (`quadf()`), and goes back to wandering once the clip is over, or sooner at random.
-//! The blood it drips on the floor is not drawn yet.
+//! Every fifth frame (offset by its number) it leaves a splat of blood (`splater()`).
 
 use super::{ClottyMode, Walker, WalkerClip, WalkerShot, WalkerTurn};
 use crate::game::odds::Odds;
 use crate::game::original_units::Frames;
 use crate::game::parameters::ClottyParameters;
 use crate::game::random::Random;
+use crate::game::room::blood::Splatter;
 use crate::game::room::enemies::EnemyParameters;
 use crate::game::room::enemies::surroundings::Grid;
 
@@ -22,7 +23,11 @@ impl Walker {
         random: &mut Random,
     ) -> WalkerTurn {
         let clotty = parameters.clottys;
+        let splats = &parameters.splats;
         let mut turn = WalkerTurn::default();
+        if (frame + Frames::from_number(self.phase)).is_on_cycle(splats.clotty_every, Frames::ZERO) {
+            turn.spilled = Some(Splatter::any_look(self.position, splats.clotty, splats, random));
+        }
         self.end_finished_shot(&clotty);
         self.velocity *= clotty.velocity_retention;
         match self.blob.mode {

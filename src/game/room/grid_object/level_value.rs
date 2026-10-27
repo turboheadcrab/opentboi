@@ -1,8 +1,10 @@
 //! The number the original keeps for each cell of the grid (`levz`): 0 for floor, 1 for a rock, up to
-//! 1.9 for the other blocks, 3 for a pit; what a breakable is worth falls as it is hurt.
+//! 1.9 for the other blocks, 3 for a pit; what a breakable is worth falls as it is hurt, and what a
+//! broken one leaves fades away (`actions2()`).
 
 use super::GridObject;
 use crate::game::room::grid_kind::{GridObjectKind, TileKind};
+use crate::game::room::sight::faded;
 
 /// A rock (and the level's marked rock, which is the same).
 const ROCK_VALUE: f32 = 1.0;
@@ -27,6 +29,14 @@ impl GridObject {
             (GridObjectKind::Tile(TileKind::Spikes | TileKind::SpiderWeb), _) => FLOOR_HAZARD_VALUE,
             _ if self.is_closed_key_block() => KEY_BLOCK_VALUE,
             _ => FLOOR_VALUE,
+        }
+    }
+
+    /// One step of `actions2()`'s fading: a breakable's value between 0 and 0.99 (what a broken one
+    /// leaves) drops by 0.1.
+    pub fn fade_level_value(&mut self) {
+        if let Some(state) = &mut self.breakable {
+            state.durability = faded(state.durability);
         }
     }
 }

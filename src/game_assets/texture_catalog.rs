@@ -74,6 +74,7 @@ fn source_for(texture_id: TextureId) -> TextureSource {
         TextureId::Horf { .. } => horf::source_for(texture_id),
         TextureId::BlueFly(frame) => friends::blue_fly_source(frame),
         TextureId::BloodCreep(look) => friends::blood_creep_source(look),
+        TextureId::BloodSplat(look) => friends::blood_splat_source(look),
         TextureId::Clotty { .. } => clotty::source_for(texture_id),
         TextureId::Mulligan { .. } => mulligan::source_for(texture_id),
         TextureId::Enemy(texture) => ground_enemies::source_for(texture),

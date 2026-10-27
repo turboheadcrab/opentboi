@@ -11,6 +11,7 @@ use crate::game::parameters::ExplosionParameters;
 use crate::game::room::TILE_SIZE;
 use crate::game::room::contents::{PendingHit, RoomContents};
 use crate::game::room::grid_object::HitStrength;
+use crate::game::room::sight::SightGrid;
 use crate::game::sound_event::SoundEvent;
 
 impl RoomContents {
@@ -47,12 +48,23 @@ impl RoomContents {
         (std::mem::take(&mut self.blasts), self.parameters.explosion)
     }
 
-    /// Objects whose tile reaches into the blast radius.
-    fn objects_within(&self, center: Vec2) -> impl Iterator<Item = usize> + '_ {
+    /// The room's grid for the line checks, with a door in every doorway.
+    pub fn sight_grid(&self) -> SightGrid {
+        SightGrid::new(&self.grid_objects)
+    }
+
+    /// Objects whose tile reaches into the blast radius and whose center the blast sees
+    /// (`linecheckxx()` in `gosplash()`'s look at the grid).
+    fn objects_within(&self, center: Vec2) -> impl Iterator<Item = usize> {
         let radius = self.parameters.explosion.radius;
+        let sight = self.sight_grid();
         (0..self.grid_objects.len()).filter(move |&object_index| {
-            let tile = self.grid_objects[object_index].tile_bounds();
-            distance(tile.clamp(center), center) <= radius
+            let object = &self.grid_objects[object_index];
+            distance(object.tile_bounds().clamp(center), center) <= radius
+                && sight.blast_reaches(center, object.center())
         })
     }
 }
+
+#[cfg(test)]
+mod tests;

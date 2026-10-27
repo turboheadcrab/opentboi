@@ -43,6 +43,8 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
 - `scripts/benchmark-build.sh [results.md]` — clean and incremental build timings in a separate
   target directory (`target/build-benchmark-$FRONTEND[-$TARGET_CPU]`, `FRONTEND=sdl3|bevy`,
   optional `TARGET_CPU=x86-64-v3`); don't edit sources while it runs.
+- `mise.toml`, `distrobox.ini`, `scripts/dev-run.sh` — the development tasks (`mise tasks` lists
+  them) and the Fedora container they run in on immutable systems.
 - `scripts/install-desktop-entries.sh` — builds both frontends, copies the binary to
   `target/desktop/` and installs a launcher per frontend.
 - `scripts/original-coverage.py [--top N] [--function NAME] [--suggest]` — how much of the
@@ -95,6 +97,12 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   script changed.
   Then regenerate the desktop launchers with `scripts/install-desktop-entries.sh` (a release build of
   both frontends copied to `target/desktop/`), so the shortcuts run the latest code.
+  `mise run check` does all of that, in the development container where there is one (below).
+- Build and test through the `mise run` tasks (`mise.toml`): on machines without the build packages
+  (Bazzite and other immutable systems) they run in the distrobox from `distrobox.ini`
+  (`mise run dev-box` creates it; `scripts/dev-run.sh` picks the container or the host). Never
+  layer packages onto an immutable host (`rpm-ostree install`). The Rust version is the one
+  `rust-toolchain.toml` pins; `scripts/dev-run.sh` has rustup install it when it is missing.
   Tests that need the real extracted SWF are `#[ignore]`d; run them with `cargo test -- --ignored`.
   After adding or resizing a texture, run `cargo test texture_extents -- --ignored --nocapture` to
   check its canvas holds all of its art.

@@ -127,7 +127,7 @@ mod tests {
             "a stall is not replayed"
         );
         assert_eq!(clock.tick_length(), Frames(0.5));
-        assert_eq!(clock.progress(), 0.0);
+        assert!(clock.progress().abs() < 1e-4);
         clock.ticks_due(1.0 / 120.0);
         assert!((clock.progress() - 0.5).abs() < 1e-4);
     }

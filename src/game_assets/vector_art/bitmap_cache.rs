@@ -92,7 +92,7 @@ fn recolor(original: &Pixmap, color_effect: ColorEffect) -> Pixmap {
     recolored
 }
 
-fn bitmap_ids(styles: &ShapeStyles) -> impl Iterator<Item = CharacterId> + '_ {
+fn bitmap_ids(styles: &ShapeStyles) -> impl Iterator<Item = CharacterId> {
     let fill_styles = styles.fill_styles.iter();
     let line_fill_styles = styles.line_styles.iter().map(swf::LineStyle::fill_style);
     fill_styles

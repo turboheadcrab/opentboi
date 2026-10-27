@@ -8,6 +8,7 @@ mod provider;
 
 pub use provider::{ParameterProvider, TranscribedOriginal};
 
+mod blood;
 mod cards;
 mod clottys;
 mod creep;
@@ -32,6 +33,7 @@ use crate::game::original_units::{
 };
 mod sections;
 
+pub use blood::{SplatParameters, SplatSize};
 pub use cards::CardParameters;
 pub use clottys::ClottyParameters;
 pub use creep::CreepParameters;
@@ -88,6 +90,7 @@ pub struct GameParameters {
     pub screen_fade: ScreenFadeParameters,
     pub pooters: PooterParameters,
     pub enemy_shots: EnemyShotParameters,
+    pub splats: SplatParameters,
 }
 
 impl GameParameters {
@@ -234,6 +237,7 @@ impl GameParameters {
         screen_fade: screen_fade::ORIGINAL_SCREEN_FADE,
         pooters: pooters::ORIGINAL_POOTERS,
         enemy_shots: pooters::ORIGINAL_ENEMY_SHOTS,
+        splats: blood::ORIGINAL_SPLATS,
     };
 }
 

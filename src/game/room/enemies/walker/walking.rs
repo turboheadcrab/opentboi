@@ -23,7 +23,7 @@ impl Walker {
     pub(super) fn walk(
         &mut self,
         frame: Frames,
-        grid: &Grid,
+        grid: &mut Grid,
         parameters: &EnemyParameters,
         enemy_count: usize,
         random: &mut Random,
@@ -47,14 +47,15 @@ impl Walker {
         };
     }
 
-    /// `pathfind()` towards the player: nothing in the room's first frames (DoAction 5789), a look for
-    /// a clear line every sixth frame (DoAction 5832) with a growl (DoAction 5842), the shouting head
-    /// speeding it up (DoAction 5859, DoAction 5864) and a sighting costing the flood fill's timer
-    /// (DoAction 5874).
+    /// `pathfind()` towards the player: nothing in the room's first frames (DoAction 5789), its cell
+    /// marked for the others' line checks, a look for a clear line from its cell's center to the
+    /// player's every sixth frame (DoAction 5832, `linecheck()`) with a growl (DoAction 5842), the
+    /// shouting head speeding it up (DoAction 5859, DoAction 5864) and a sighting costing the flood
+    /// fill's timer (DoAction 5874).
     fn pull_towards_player(
         &mut self,
         frame: Frames,
-        grid: &Grid,
+        grid: &mut Grid,
         parameters: &EnemyParameters,
         enemy_count: usize,
         random: &mut Random,
@@ -65,10 +66,11 @@ impl Walker {
             return false;
         }
         let mut growled = false;
+        grid.sight.mark_walker(self.position);
         let here = Tile::containing(self.position);
         let player_tile = Tile::containing(grid.player);
         if (frame + Frames::from_number(self.phase)).is_on_cycle(gapers.sight_check_every, gapers.sight_check_phase) {
-            self.route.line_clear = grid.walk_map.clear_line(here.center(), player_tile.center());
+            self.route.line_clear = grid.sight.walk_line_clear(here.center(), player_tile.center());
             growled = self.route.line_clear
                 && self
                     .route

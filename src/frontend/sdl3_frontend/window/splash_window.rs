@@ -14,7 +14,7 @@ use crate::launch_options::SplashTime;
 
 /// The projector's container stores 3000 ms next to the splash size (800×455): Zinc's display
 /// time, kept with `--splash original` so the image is seen even when loading is faster.
-const MINIMUM_DISPLAY_TIME: Duration = Duration::from_millis(3000);
+const MINIMUM_DISPLAY_TIME: Duration = Duration::from_secs(3);
 
 pub struct SplashWindow {
     /// Kept so the window stays open; dropping it closes the splash.

@@ -18,12 +18,13 @@ pub struct Batch {
 }
 
 /// Where a picture lands in off-screen pixels: its center, scale (negative x mirrors it) and
-/// clockwise rotation as cosine and sine.
+/// clockwise rotation as cosine and sine; `tint` multiplies its premultiplied colors.
 #[derive(Clone, Copy)]
 pub struct Placement {
     pub center: (f32, f32),
     pub scale: (f32, f32),
     pub rotation: (f32, f32),
+    pub tint: [f32; 4],
 }
 
 impl Placement {
@@ -105,23 +106,20 @@ impl Triangles {
         (bitmap, matrix): (Option<BitmapKey>, [[f32; 3]; 3]),
     ) {
         let first_vertex = u32::try_from(self.vertices.len()).expect("a frame has fewer than 2^32 vertices");
-        self.vertices.extend(
-            draw.vertices
-                .iter()
-                .zip(colors)
-                .map(|(vertex, [red, green, blue, alpha])| {
-                    let (x, y) = placement.apply(part.place(vertex.position));
-                    let [mesh_x, mesh_y] = vertex.position;
-                    Vertex {
-                        position: FPoint::new(x, y),
-                        color: FColor::RGBA(red, green, blue, alpha),
-                        tex_coord: FPoint::new(
-                            matrix[0][0] * mesh_x + matrix[1][0] * mesh_y + matrix[2][0],
-                            matrix[0][1] * mesh_x + matrix[1][1] * mesh_y + matrix[2][1],
-                        ),
-                    }
-                }),
-        );
+        self.vertices
+            .extend(draw.vertices.iter().zip(colors).map(|(vertex, color)| {
+                let (x, y) = placement.apply(part.place(vertex.position));
+                let [mesh_x, mesh_y] = vertex.position;
+                let [red, green, blue, alpha] = std::array::from_fn(|channel| color[channel] * placement.tint[channel]);
+                Vertex {
+                    position: FPoint::new(x, y),
+                    color: FColor::RGBA(red, green, blue, alpha),
+                    tex_coord: FPoint::new(
+                        matrix[0][0] * mesh_x + matrix[1][0] * mesh_y + matrix[2][0],
+                        matrix[0][1] * mesh_x + matrix[1][1] * mesh_y + matrix[2][1],
+                    ),
+                }
+            }));
         let start = self.indices.len();
         self.indices
             .extend(draw.indices.iter().map(|index| first_vertex + index));

@@ -31,7 +31,7 @@ const UNLOCK_MINIMUM_SPEED: PixelsPerFrame = PixelsPerFrame(1.0);
 impl Floor {
     /// Doors the room shows: to every neighbor, except that walls into or out of a secret room
     /// stay closed until bombed.
-    pub(super) fn doors(&self) -> impl Iterator<Item = DoorSide> + '_ {
+    pub(super) fn doors(&self) -> impl Iterator<Item = DoorSide> {
         DoorSide::ALL.into_iter().filter(|&side| {
             let Some(neighbor) = self.neighbor(side) else {
                 return false;
@@ -42,7 +42,7 @@ impl Floor {
 
     /// Doors that can be walked through (a locked shop door is shown but shut, and enemies shut
     /// every door but a bombed-open hole).
-    pub(super) fn open_doors(&self) -> impl Iterator<Item = DoorSide> + '_ {
+    pub(super) fn open_doors(&self) -> impl Iterator<Item = DoorSide> {
         self.doors().filter(|&side| {
             let blown = self.neighbor(side).is_some_and(|cell| self.is_secret_passage(cell)) || self.is_blown(side);
             !self.is_locked(side) && (!self.doors_shut() || blown)
@@ -67,7 +67,7 @@ impl Floor {
         self.current_cell.through(side).filter(|&cell| self.plan.has_room(cell))
     }
 
-    fn is_secret_passage(&self, neighbor: FloorCell) -> bool {
+    pub(super) fn is_secret_passage(&self, neighbor: FloorCell) -> bool {
         let is_secret = |cell| matches!(self.role_of(cell), RoomRole::Secret | RoomRole::SuperSecret);
         let curse_door = self.curse_secret_door == Style::Original
             && (self.role_of(self.current_cell) == RoomRole::Curse || self.role_of(neighbor) == RoomRole::Curse);
@@ -117,34 +117,6 @@ impl Floor {
         } else {
             DoorStyle::Plain
         }
-    }
-
-    /// A blast at `center` reaching `radius` opens any hidden wall into a secret room whose cell it
-    /// touches; the first find on a floor plays the room's jingle (`hider()`, `hider2()`).
-    pub fn blast_walls(&mut self, center: Vec2, radius: Pixels) -> Option<SoundEvent> {
-        let mut jingle = None;
-        for side in DoorSide::ALL {
-            let Some(neighbor) = self.neighbor(side) else { continue };
-            let (column, row) = side.doorway_cell();
-            let wall = cell_bounds(column, row);
-            let in_reach = distance(wall.clamp(center), center) <= radius;
-            // Walls between a boss room and a secret room cannot be blown.
-            let touches_boss =
-                self.role_of(self.current_cell) == RoomRole::Boss || self.role_of(neighbor) == RoomRole::Boss;
-            if !self.is_secret_passage(neighbor) || !in_reach || touches_boss {
-                continue;
-            }
-            if self.opened_passages.insert(passage(self.current_cell, neighbor)) {
-                let is_secret = |cell| matches!(self.role_of(cell), RoomRole::Secret | RoomRole::SuperSecret);
-                let secret_room = if is_secret(neighbor) {
-                    neighbor
-                } else {
-                    self.current_cell
-                };
-                jingle = jingle.or(self.first_find(secret_room));
-            }
-        }
-        jingle
     }
 
     pub(super) fn first_find(&mut self, secret_room: FloorCell) -> Option<SoundEvent> {

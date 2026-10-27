@@ -3,6 +3,7 @@ use super::test_support::{
 };
 use crate::game::original_units::{Damage, Pixels};
 use crate::game::random::Random;
+use crate::game::room::blood::Splatter;
 use crate::game::room::enemies::{Enemies, WalkerKind};
 use crate::game::sound_event::SoundEvent;
 use glam::Vec2;
@@ -52,6 +53,10 @@ fn a_gaper_killed_by_a_close_hit_sometimes_goes_on_as_a_headless_body() {
         (enemies.walkers[0].hit_points().get() - parameters().gapers.hit_points.get()).abs() < f32::EPSILON,
         "at full health"
     );
+    let splats = enemies.take_splatters();
+    assert_eq!(splats.len(), 1, "it bleeds where it lost its head");
+    assert_eq!(splats[0].stage_point, enemies.walkers[0].position);
+    assert_eq!(enemies.take_splatters(), Vec::<Splatter>::new(), "only once");
 }
 
 #[test]
@@ -62,6 +67,7 @@ fn a_blast_leaves_no_gaper_to_lose_its_head() {
     enemies.blast(
         spot,
         Pixels(100.0),
+        |_| true,
         &mut Random::with_seed(seed_for_coin(true)),
         &mut sounds,
     );

@@ -28,10 +28,6 @@ const DOORWAY_VALUE_FOR_ENEMIES: f32 = 2.0;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Mover {
     Enemy,
-    #[cfg_attr(
-        not(test),
-        allow(dead_code, reason = "the player, tears and pickups look at the grid too")
-    )]
     Other,
 }
 

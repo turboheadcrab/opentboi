@@ -2,6 +2,7 @@
 
 use crate::game::attacks::explosion::{Explosion, scorch_draw_item};
 use crate::game::draw::{DrawItem, FLOOR_DECAL_DEPTH, Rgba, actor_depth};
+use crate::game::room::blood::splat_layer;
 use crate::game::room::contents::RoomContents;
 use crate::game::room::grid_object::GridObject;
 use crate::game::texture_id::{DECORATION_FRAME_COUNT, TextureId};
@@ -23,7 +24,13 @@ const FIGURE_FALLBACK: Rgba = Rgba::opaque(0.2, 0.2, 0.2);
 
 impl RoomContents {
     pub fn append_draw_items(&self, draw_items: &mut Vec<DrawItem>) {
-        draw_items.extend(self.scorch_marks.iter().map(|center| scorch_draw_item(*center)));
+        let splats = &self.parameters.splats;
+        draw_items.extend(
+            self.scorch_marks
+                .iter()
+                .map(|center| scorch_draw_item(*center, splat_layer(splats))),
+        );
+        self.blood.append_draw_items(splats, draw_items);
         draw_items.extend(self.broken_floors.iter().map(|center| broken_floor_draw_item(*center)));
         // The rock that blocks the statue's cell is not drawn: the statue stands there.
         let under_figure = |object: &&GridObject| {

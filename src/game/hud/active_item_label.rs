@@ -64,7 +64,10 @@ mod tests {
         for device in std::iter::once(InputDevice::KeyboardAndMouse).chain(GamepadKind::ALL.map(InputDevice::Gamepad)) {
             let item = draw_item(device);
             assert_eq!(item.center, stage_to_world(LABEL_CENTER));
-            assert_eq!(item.size.x, LABEL_SIZE.x, "as wide as the original's word");
+            assert!(
+                (item.size.x - LABEL_SIZE.x).abs() < f32::EPSILON,
+                "as wide as the original's word"
+            );
             assert!(item.size.y >= LABEL_SIZE.y);
             assert_eq!(item.texture, Some(TextureId::ActiveItemLabel(device)));
         }

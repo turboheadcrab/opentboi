@@ -172,7 +172,7 @@ impl MusicDirector {
         }
     }
 
-    pub fn drain(&mut self) -> impl Iterator<Item = MusicEvent> + '_ {
+    pub fn drain(&mut self) -> impl Iterator<Item = MusicEvent> {
         self.events.drain(..)
     }
 }
@@ -216,7 +216,7 @@ impl Game {
     }
 
     /// What the music should do since the last call, oldest first.
-    pub fn drain_music_events(&mut self) -> impl Iterator<Item = MusicEvent> + '_ {
+    pub fn drain_music_events(&mut self) -> impl Iterator<Item = MusicEvent> {
         self.music.drain()
     }
 }

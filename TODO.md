@@ -1,16 +1,16 @@
 # TODO (later, not now)
 
 ## Enemies: after the flies
-- Blood splats on the floor as an enemy dies (`splater()`), knockback from blasts (half the speed
-  kept, then pushed away).
+- Knockback from blasts (half the speed kept, then pushed away); the blast already has to see them.
 - Other enemy markers are still skipped: rooms holding only those keep the timed clear-reward
   stand-in and open at once.
 - The unicorn's contact damage ignores its 30-frame cooldown per enemy (`aidsdone`): 40 damage
   kills any fly anyway.
 
 ## Gapers: follow-ups
-- Other walkers' tile marks
-  slowing and steering the flood fill, champions; all listed in `docs/enemies.md`.
+- Walkers' tile marks (0.9, fading) are made and cost `linecheck()` its sight; not yet: a mark ahead
+  slowing a walker to 0.7 (`pathfind()` every third frame) and marks steering the flood fill,
+  champions; all listed in `docs/enemies.md`.
 - The fly types are still named for flies (`FlyKind`, `Enemies::flies`) though the Pooter shoots;
   the walkers are `Walker`s now (Gaper, headless body, Horf).
 
@@ -20,14 +20,21 @@
 ## Enemies: next
 - See `docs/enemies.md` for every Basement enemy, its marker, clip and how often rooms place it;
   only the chain worm (19, three linked segments in one room) is still missing; the Hopper, the red
-  fly, Moter and the flesh mound are in. Clotty and Mulligan are in; not ported for them: `splater()` blood, the Mulligan's
+  fly, Moter and the flesh mound are in. Clotty and Mulligan are in; not ported for them: the Mulligan's
   refuge cell memory (`checked`), the Mulligan bumping bodies as well as walls (`gh`; only walls and
   rocks now), champions. `deathscripts()` is ported only for the Mulligan's flies; the rest is boss
   bars, drops of special rooms and bosses' deaths.
 - The Devil card also gives Isaac's head and body a devil look for the room (look mode 8); only
   the dark tears are done.
-- Champions (`special`), blood splats under enemies and shots (`splater`), the red hit flash,
-  knockback from blasts.
+- Champions (`special`), the red hit flash, knockback from blasts.
+- Line checks still approximated: the Mulligan looks with `linechecky()` (`in_sight`) where
+  `angstfind()` uses `linecheckx()` (one point every 10 px, `pff3()`), and `in_sight` itself only
+  asks whether a corner is in something solid, not `pff3x1()`'s 2.5 credit (pits ignored, values
+  between 0.3 and 1 costing 0.1). Both can use `room::sight::SightGrid`.
+- Blood (`splater()`, see `docs/enemies.md`): the other colors (`spl` 10, 20, 30), dark rooms'
+  tint and their blast splats, bomb tears' 20 splats, other characters' and items' blood, bosses'.
+  Splats and craters share one bitmap in the original, so a crater can lie under later blood; ours
+  always draws craters above. The blood clip's last frame is kept per room, not for the whole game.
 - The two-shot Pooter's spread shots pass either side of a player standing still at range; that
   is the original's aim, not a bug.
 
@@ -138,6 +145,10 @@ other builds. Sound names and health in the original's units (`Hearts`) are done
 - `scripts/original-coverage.py`'s lower bound counted lines our comments quoted; with the quotes gone
   (2026-10-18) it fell from 6.1 % to 3.7 %. Base it on line citations (`DoAction 26277`) and the
   matcher's findings instead.
+- The line checks and blood (2026-10-26: `room/sight.rs`, `room/blood.rs`, `floor/blast_sight.rs`,
+  `linecheckxx()`, `linecheck()`, `pff3()`, `splater()`, `actions2()`'s fading, `pathfind()`'s marks)
+  were read from the bytecode on a machine without FFDec's dump, so they name functions but cite no
+  `DoAction` lines yet; add the citations and regenerate `docs/original-coverage-map.svg`.
 
 ## Items
 The item model exists (`pickups::item::Item`, a pedestal holding one, taking it with the choir, the
@@ -314,8 +325,9 @@ and report which ones it could not find.
 ## Grid object follow-ups
 - Explosions should also hurt the player and enemies (within `85 + size` px) and shake the
   screen; today they damage breakables and clear rocks and webs.
-- Blast details not modeled: the 150 random sample points and the line-of-sight check
-  (`linecheckxx`), the radius growing to 90 near blocks, `breakfloor` within 40 px, rock gibs.
+- Blast details not modeled: the 150 random sample points (our blast takes every tile in reach,
+  each one it sees with `linecheckxx()`), the radius growing to 90 near blocks, `breakfloor` within
+  40 px, rock gibs.
   The pit bridge uses the rock's direction from the blast, not the hitting sample point's.
 - The tinted rock (`rarer`) should give a chest when blown up; there are no pickups yet.
 - Bombs are physics objects in the original (Isaac and tears push them); ours stay put.
@@ -344,7 +356,11 @@ renderer. Worth adopting, roughly in order:
 - **Persistent floor layer.** The original draws stains, splats, scorch marks, rubble and bridges
   into one floor bitmap (`splat`, `gut`, `dblock`) instead of keeping objects. Do the
   same with one render-target texture per room: the per-frame cost stays flat however many
-  decals pile up. Today every scorch mark and rubble tile is its own sprite.
+  decals pile up. Today every scorch mark, blood splat and rubble tile is its own sprite (blood is
+  dropped when the room is left, as the original's bitmap is). The SDL3 frontend already draws the
+  splats and craters into one off-screen picture each frame (`DrawLayer`, shown at 70 %); keeping
+  that picture between frames would be this. The Bevy frontend has no layers yet: it applies a
+  layer's opacity to each item, so overlapping splats darken there.
 - **Static tiles baked once.** `dblock` holds every rock, block, pit and web; only changed tiles
   are redrawn (`fillRect` + `draw` in `bloww`). We could bake static tiles into the floor layer
   too and redraw one tile when a blast changes it, leaving only animated objects as sprites.
@@ -410,8 +426,10 @@ frame-locked logic (replaced by time-based updates).
 - Door animations: on entering a room the original plays the closing animation (frame 4,
   24 frames), then 10 frames later opens the doors of a cleared room, with
   `Door_Heavy_Open.mp` after the room's first 20 frames; ours are static open doors. Part of the "feel".
-- Blast push and damage: the original only pushes and hurts Isaac when the blast has line of
-  sight to him (`linecheckxx`); there is no line-of-sight check yet. Monsters and pickups are not pushed (there are none).
+- Blast push and damage follow the original's line of sight (`linecheckxx()`: blocks, closed key
+  blocks, walls and doors stop a blast, rocks and pits do not) for Isaac, enemies, pickups,
+  breakables and hidden walls; machines break whether seen or not, as in the original. Enemies are
+  not pushed yet.
 - The intro timing test (`intro_frames_render_and_music_decodes`, `--ignored`) fails at ~55 ms
   per frame against its budget, on `main` too; check whether the CPU was throttled or the budget
   needs revisiting.
@@ -529,6 +547,7 @@ frame-locked logic (replaced by time-based updates).
 ## Raw numbers that should be typed (audit 2026-10-24)
 Done (same day): every duration, counter and timer of frames is `Frames` (`*_every`/`*_phase` cycles via `Frames::is_on_cycle`, the room's frame number as `Frames`, timers, cooldowns, delays, flashes); retentions are `Retention`; heights, distances, reaches and radii are `Pixels` (also `TILE_SIZE`, `Bounds::shrunk_by`, `push_circle_out`, `spawn_spot`); speeds are `PixelsPerFrame`, gravity and gains `PixelsPerFrameSquared`; the pill code's hearts are `Hearts`; bounds that were `(f32, f32)` are `Vec2`.
 Also done: `HitPoints`, `Damage` and `Mass` (`original_units/combat.rs`) and `Odds` (`odds.rs`, rolled with `Random::happens`). Left: enemy numbers (`phase`) are ordinals and stay `u32`; clip frame counts (`*_FRAME_COUNT: u8`) index the original's clips, not durations; HUD layout offsets and texture sizes are `Vec2` in the stage's own pixels.
+- Still raw: the grid's value (`levz`) is a bare `f32` in about 20 files (layout cells, `levzz()`, `GridObject::level_value`, `room/sight.rs`, spawn spots), with its levels repeated as constants (the pit's 3 in three files; walls 1.9, doors 2, hidden walls 1.85, spikes and webs 0.99, rocks 1). Make it a `GridValue` with named levels; the exact comparisons the tests now allow (`float_cmp`) would then compare the type.
 
 ## Rebirth-style local multiplayer
 Up to four players on one screen, as *The Binding of Isaac: Rebirth* does it (the Flash original has

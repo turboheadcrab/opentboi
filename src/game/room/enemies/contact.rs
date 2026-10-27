@@ -178,17 +178,25 @@ impl Enemies {
         self.release_flies(random);
     }
 
-    /// A blast at `center` (world) reaching `radius` hurts every live enemy in reach.
-    pub fn blast(&mut self, center: Vec2, radius: Pixels, random: &mut Random, sounds: &mut Vec<SoundEvent>) {
+    /// A blast at `center` (world) reaching `radius` hurts every live enemy in reach that `sees`
+    /// says it sees (`linecheckxx()`, world points).
+    pub fn blast(
+        &mut self,
+        center: Vec2,
+        radius: Pixels,
+        sees: impl Fn(Vec2) -> bool,
+        random: &mut Random,
+        sounds: &mut Vec<SoundEvent>,
+    ) {
         let parameters = self.parameters;
+        let reached = |position: Vec2| distance(position, center) <= radius && sees(position);
         for fly in &mut self.flies {
-            if distance(world_position(fly), center) <= radius && fly.hurt(parameters.flies.contact_damage, &parameters)
-            {
+            if reached(world_position(fly)) && fly.hurt(parameters.flies.contact_damage, &parameters) {
                 sounds.push(SoundEvent::EnemyDied);
             }
         }
         for walker in &mut self.walkers {
-            if distance(walker_world_position(walker), center) <= radius
+            if reached(walker_world_position(walker))
                 && walker.hurt(walker.kind.body(&parameters).trample_damage, &parameters, random) == Hurt::Died
             {
                 sounds.push(SoundEvent::EnemyDied);

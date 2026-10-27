@@ -150,6 +150,8 @@ pub enum TextureId {
     BlueFly(u8),
     /// A blood creep puddle (`bloo`, 1494) in one of its looks.
     BloodCreep(u8),
+    /// A blood splat on the floor (`blood`, 6243) in one of its red looks.
+    BloodSplat(u8),
     /// A Clotty: `frame` of `animation`.
     Clotty {
         animation: ClottyAnimation,

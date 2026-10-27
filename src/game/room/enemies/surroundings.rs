@@ -7,6 +7,7 @@ use crate::game::bounds::Bounds;
 use crate::game::room::enemies::fly::FlySurroundings;
 use crate::game::room::enemies::walk_map::WalkMap;
 use crate::game::room::grid_object::GridObject;
+use crate::game::room::sight::{SightGrid, TileMarks};
 use crate::game::room::{stage_to_world, world_to_stage};
 
 /// `linechecky()`: the line is sampled every 10 pixels, at the corners of a 4-pixel square.
@@ -20,6 +21,8 @@ pub(super) struct Grid<'objects> {
     /// How fast the player moves, per frame.
     pub player_velocity: Vec2,
     pub walk_map: WalkMap,
+    /// The grid's values for the line checks, with the walkers' marks.
+    pub sight: SightGrid,
     /// What walkers cannot enter, in world coordinates.
     pub solid_tiles: Vec<Bounds>,
 }
@@ -31,6 +34,7 @@ impl<'objects> Grid<'objects> {
             player,
             player_velocity: Vec2::ZERO,
             walk_map: WalkMap::new(objects),
+            sight: SightGrid::new(objects),
             solid_tiles: objects
                 .iter()
                 .filter(|object| object.blocks_walking())
@@ -44,6 +48,13 @@ impl Grid<'_> {
     pub fn with_player_velocity(self, player_velocity: Vec2) -> Self {
         Self {
             player_velocity,
+            ..self
+        }
+    }
+
+    pub fn with_marks(self, marks: TileMarks) -> Self {
+        Self {
+            sight: self.sight.with_marks(marks),
             ..self
         }
     }

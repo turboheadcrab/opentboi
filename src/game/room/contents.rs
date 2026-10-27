@@ -12,6 +12,7 @@ use crate::game::pickups::Pickups;
 use crate::game::pickups::rewards::RewardSource;
 use crate::game::random::Random;
 use crate::game::room::PlayerSighting;
+use crate::game::room::blood::BloodSplats;
 use crate::game::room::creep::Creep;
 use crate::game::room::enemies::{Enemies, EnemyParameters};
 use crate::game::room::grid_kind::{BreakableKind, GridObjectKind, TileKind};
@@ -43,6 +44,7 @@ pub struct RoomContents {
     pub wares: Wares,
     pub enemies: Enemies,
     pub creep: Creep,
+    pub blood: BloodSplats,
     /// Figures standing in the room, each with the look it picked, at a world point.
     pub(super) decorations: Vec<(Decoration, u8, Vec2)>,
     /// Time spent in the room, for what loops on its figures.
@@ -82,6 +84,7 @@ impl RoomContents {
             wares: Wares::from_layout(layout, parameters.pickups, random),
             enemies: Enemies::from_layout(layout, &EnemyParameters::from_game(parameters), random),
             creep: Creep::default(),
+            blood: BloodSplats::default(),
             decorations: layout
                 .decorations
                 .iter()
@@ -199,7 +202,7 @@ impl RoomContents {
         random: &mut Random,
         sounds: &mut Vec<SoundEvent>,
     ) {
-        self.age_frames += elapsed;
+        self.pass_floor_frames(elapsed, random);
         self.advance_enemies(elapsed, player.into(), random, sounds);
         self.creep.advance(elapsed, &self.parameters.creep);
         for object in &mut self.grid_objects {
@@ -224,6 +227,7 @@ mod broken_floor;
 mod drawing;
 mod drops;
 mod enemy_turns;
+mod floor_frames;
 mod key_blocks;
 mod map_mark;
 mod spawn_spot;

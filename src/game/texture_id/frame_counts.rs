@@ -11,6 +11,8 @@ pub const ORBITING_FLY_FRAME_COUNT: u8 = 2;
 pub const BLUE_FLY_FRAME_COUNT: u8 = 4;
 /// The splat `d` (1493) of blood creep, which wobbles through four looks.
 pub const BLOOD_CREEP_LOOK_COUNT: u8 = 4;
+/// The blood splat clip `blood` (6243): its first ten frames are the red blood's looks.
+pub const BLOOD_SPLAT_LOOK_COUNT: u8 = 10;
 /// Bomb clip `b4` frame 3 (2040): fireball turning into smoke. Nothing is placed after frame 26;
 /// the remaining frames are empty.
 pub const EXPLOSION_FRAME_COUNT: u8 = 46;

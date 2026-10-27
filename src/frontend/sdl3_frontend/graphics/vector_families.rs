@@ -24,6 +24,7 @@ pub fn draws_as_vectors(texture_id: TextureId) -> bool {
             | TextureId::Headless { .. }
             | TextureId::Horf { .. }
             | TextureId::BlueFly(_)
+            | TextureId::BloodSplat(_)
             | TextureId::Clotty { .. }
             | TextureId::Mulligan { .. }
             | TextureId::Pickup { .. }

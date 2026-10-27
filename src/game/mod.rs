@@ -238,7 +238,7 @@ impl Game {
     }
 
     /// Sounds triggered since the last call, oldest first.
-    pub fn drain_sound_events(&mut self) -> impl Iterator<Item = SoundEvent> + '_ {
+    pub fn drain_sound_events(&mut self) -> impl Iterator<Item = SoundEvent> {
         self.music.hear(&self.pending_sound_events);
         self.pending_sound_events.drain(..)
     }

@@ -5,6 +5,7 @@ use glam::Vec2;
 use sdl3::pixels::Color;
 use sdl3::render::{BlendMode, FRect, WindowCanvas};
 
+use crate::frontend::sdl3_frontend::graphics::layer_target::LayerTarget;
 use crate::frontend::sdl3_frontend::graphics::texture_library::TextureLibrary;
 use crate::frontend::sdl3_frontend::graphics::vector_painter::VectorPainter;
 use crate::game::{self, DrawItem, Rgba};
@@ -60,17 +61,44 @@ impl ViewMapping {
 }
 
 /// Sorts `draw_items` by depth and draws them; items without a loaded texture become rectangles
-/// of their fallback color.
+/// of their fallback color. A run of items of one layer is drawn into the layer's picture first.
 pub fn draw(
     canvas: &mut WindowCanvas,
-    textures: &mut TextureLibrary,
-    vectors: &mut VectorPainter,
+    (textures, vectors, layers): (&mut TextureLibrary, &mut VectorPainter, &mut LayerTarget),
     draw_items: &mut [DrawItem],
     view: &ViewMapping,
 ) -> Result<(), String> {
+    // A stable sort, so that items of equal depth keep the order they were listed in.
     draw_items.sort_by(|first, second| first.depth.total_cmp(&second.depth));
     clear(canvas);
-    for draw_item in draw_items.iter() {
+    let mut rest: &[DrawItem] = draw_items;
+    while let Some(first) = rest.first() {
+        let run = rest.iter().take_while(|item| item.layer == first.layer).count();
+        let (items, after) = rest.split_at(run);
+        match first.layer {
+            Some(layer) => {
+                vectors.flush(canvas)?;
+                layers.draw(canvas, layer.opacity, |layer_canvas| {
+                    draw_run(layer_canvas, textures, vectors, items, view)?;
+                    vectors.flush(layer_canvas)
+                })?;
+            }
+            None => draw_run(canvas, textures, vectors, items, view)?,
+        }
+        rest = after;
+    }
+    vectors.flush(canvas)
+}
+
+/// Draws `draw_items` in order, the ones drawn as vectors queued until something else comes.
+fn draw_run(
+    canvas: &mut WindowCanvas,
+    textures: &mut TextureLibrary,
+    vectors: &mut VectorPainter,
+    draw_items: &[DrawItem],
+    view: &ViewMapping,
+) -> Result<(), String> {
+    for draw_item in draw_items {
         let rectangle = view.rectangle(draw_item.center, draw_item.size);
         if vectors.queue(draw_item, rectangle) {
             continue;
@@ -78,6 +106,9 @@ pub fn draw(
         vectors.flush(canvas)?;
         // SDL rotates clockwise on a y-down screen; the game's angle is counterclockwise, y up.
         if let Some(texture) = draw_item.texture.and_then(|texture_id| textures.texture(texture_id)) {
+            let tint = to_sdl_color(draw_item.tint);
+            texture.set_color_mod(tint.r, tint.g, tint.b);
+            texture.set_alpha_mod(tint.a);
             canvas.copy_ex(
                 texture,
                 None,
@@ -93,7 +124,7 @@ pub fn draw(
         }
         .map_err(|error| error.to_string())?;
     }
-    vectors.flush(canvas)
+    Ok(())
 }
 
 /// Fills the whole output with the background color, ready for alpha-blended drawing.

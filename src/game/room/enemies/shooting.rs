@@ -9,6 +9,7 @@ use crate::game::odds::Odds;
 use crate::game::original_units::{Frames, Hearts, PixelsPerFrame, distance};
 use crate::game::player::death::Killer;
 use crate::game::random::Random;
+use crate::game::room::blood::Splatter;
 use crate::game::room::enemies::fly::FlySurroundings;
 use crate::game::room::enemies::shot::{EnemyShot, ShotEnd};
 use crate::game::room::enemies::surroundings::Grid;
@@ -59,6 +60,7 @@ impl Enemies {
         if turn.landed {
             sounds.push(SoundEvent::HopperLanded);
         }
+        self.splatters.extend(turn.spilled);
         let Some(shot) = turn.shot else { return };
         let parameters = self.parameters;
         let position = self.walkers[index].position;
@@ -93,9 +95,11 @@ impl Enemies {
         }));
     }
 
+    /// Moves the shots over `frames_crossed` of the original's frames; one in flight drips blood one
+    /// frame in sixteen (`aistuff()`).
     pub(super) fn advance_shots(
         &mut self,
-        elapsed: Frames,
+        (elapsed, frames_crossed): (Frames, u32),
         grid: &Grid,
         random: &mut Random,
         sounds: &mut Vec<SoundEvent>,
@@ -105,20 +109,38 @@ impl Enemies {
         }
         self.splashes.retain(|splash| !splash.is_finished());
         let parameters = self.parameters.shots;
+        let splats = self.parameters.splats;
         let mut ended = Vec::new();
+        let splatters = &mut self.splatters;
         self.shots.retain_mut(|shot| {
             shot.advance(elapsed, parameters);
             let Some(end) = shot.end(grid.is_solid(shot.position), parameters) else {
+                for _ in 0..frames_crossed {
+                    if random.happens(splats.flying_shot_odds) {
+                        splatters.push(Splatter::any_look(shot.position, splats.flying_shot, &splats, random));
+                    }
+                }
                 return true;
             };
             if end == ShotEnd::Floor && random.happens(SPLATTER_ODDS) {
                 sounds.push(SoundEvent::ShotSplattered);
             }
-            ended.push(shot.drawn_point());
+            ended.push(shot.clone());
             false
         });
-        for point in ended {
-            self.splash_at(point, random);
+        for shot in ended {
+            self.shot_ended(&shot, random);
+        }
+    }
+
+    /// A shot's end: its splash where it is drawn, and one time in thirty blood on the floor below
+    /// (`physix()`).
+    fn shot_ended(&mut self, shot: &EnemyShot, random: &mut Random) {
+        self.splash_at(shot.drawn_point(), random);
+        let splats = self.parameters.splats;
+        if random.happens(splats.landing_odds) {
+            self.splatters
+                .push(Splatter::any_look(shot.position, splats.landing, &splats, random));
         }
     }
 
@@ -131,7 +153,7 @@ impl Enemies {
             .iter()
             .position(|shot| !shot.is_new_in(frame) && distance(stage_to_world(shot.position), player) < reach)?;
         let shot = self.shots.swap_remove(index);
-        self.splash_at(shot.drawn_point(), random);
+        self.shot_ended(&shot, random);
         Some((self.parameters.shots.damage, shot.shooter))
     }
 

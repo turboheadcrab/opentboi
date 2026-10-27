@@ -49,11 +49,13 @@ fn a_blast_by_a_hidden_wall_opens_the_secret_room_both_ways() {
         floor.current_cell = secret.through(side.opposite()).expect("found above");
         assert!(!floor.visible_doors().contains(&side), "hidden before the blast");
         assert!(
-            floor.blast_walls(Vec2::ZERO, Pixels(60.0)).is_none(),
+            floor
+                .blast_walls(Vec2::ZERO, Pixels(60.0), &floor.blast_sight())
+                .is_none(),
             "a blast in the middle reaches no wall"
         );
         assert_eq!(
-            floor.blast_walls(side.position() * 0.8, Pixels(60.0)),
+            floor.blast_walls(side.position() * 0.8, Pixels(60.0), &floor.blast_sight()),
             Some(SoundEvent::SecretRoomFound)
         );
         assert!(floor.visible_doors().contains(&side));
@@ -66,7 +68,7 @@ fn a_blast_by_a_hidden_wall_opens_the_secret_room_both_ways() {
             "the original closes the wall behind you"
         );
         floor.set_door_rules(Style::Rebirth, Style::Original);
-        floor.blast_walls(side.position() * 0.8, Pixels(60.0));
+        floor.blast_walls(side.position() * 0.8, Pixels(60.0), &floor.blast_sight());
         floor.go_through(side);
         floor.go_through(side.opposite());
         assert!(floor.visible_doors().contains(&side), "Rebirth keeps it open");
@@ -185,6 +187,6 @@ fn a_hole_bombed_into_the_shop_is_open_without_a_key() {
     });
     let (mut floor, secret, side) = found.expect("some floor has its secret room next to the shop");
     floor.current_cell = secret;
-    floor.blast_walls(side.position() * 0.8, Pixels(60.0));
+    floor.blast_walls(side.position() * 0.8, Pixels(60.0), &floor.blast_sight());
     assert!(floor.open_doors().any(|door| door == side));
 }
