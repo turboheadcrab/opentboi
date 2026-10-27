@@ -36,7 +36,8 @@ gh api -X PATCH "repos/${repository}" \
   -f 'security_and_analysis[secret_scanning_push_protection][status]=enabled' >/dev/null 2>&1 \
   || echo "secret scanning was not enabled (it needs a public repository)" >&2
 
-# main: no force pushes or deletions, a linear history, and the checks of CI passing before a merge.
+# main: changes arrive only through pull requests (no direct pushes, administrators included), once the
+# checks of CI pass, with a linear history, and no force pushes or deletions.
 if ! gh api -X PUT "repos/${repository}/branches/main/protection" --input - >/dev/null <<'JSON'
 {
   "required_status_checks": {
@@ -44,11 +45,14 @@ if ! gh api -X PUT "repos/${repository}/branches/main/protection" --input - >/de
     "contexts": [
       "Source build, Fedora 44, system SDL3",
       "Source build, Ubuntu 24.04, SDL3 built from source",
-      "Licence list stays generatable"
+      "Licence list stays generatable",
+      "Shell scripts are lint-clean"
     ]
   },
-  "enforce_admins": false,
-  "required_pull_request_reviews": null,
+  "enforce_admins": true,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 0
+  },
   "restrictions": null,
   "required_linear_history": true,
   "allow_force_pushes": false,

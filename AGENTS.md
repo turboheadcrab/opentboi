@@ -89,7 +89,7 @@ assets from the user's own Steam install at runtime. Never commit or ship game a
   draws go through `Random` (`below`, `index`, `centered`), not raw floats.
 - Versions are pinned and moved on purpose: `Cargo.lock`, the Rust toolchain (`rust-toolchain.toml`,
   an exact version; bump it with the fixes the newer Clippy asks for, in one commit), the shell
-  linter (`scripts/install-shuck.sh`, version and checksum) and the GitHub Actions (by commit).
+  linter (its version in `.github/workflows/ci.yml`) and the GitHub Actions (by commit).
   Dependabot proposes the crates' and Actions' updates a week after release; the weekly "Latest Rust"
   workflow tells when a newer compiler would break the build.
 - Before finishing: `cargo fmt`, `cargo clippy --all-targets --all-features` with no warnings (also
