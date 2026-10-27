@@ -9,16 +9,16 @@ readonly PROJECT_ROOT
 readonly LAUNCHER_BINARY="${PROJECT_ROOT}/target/desktop/opentboi"
 readonly APPLICATIONS_DIRECTORY="${XDG_DATA_HOME:-${HOME}/.local/share}/applications"
 # The project's own icon, copied into the user's icon directory; the launchers name it by its full
-# path, since some desktops do not find it by theme name there (the user's "hicolor" has no
-# index.theme). The release package installs it into the theme and names it there.
+# path and as a PNG: GNOME Shell shows neither an SVG nor a name it has to look up in the user's
+# "hicolor" (which has no index.theme). The release package installs the SVG into the theme.
 readonly ICON_NAME="opentboi"
-readonly ICON_SOURCE="${PROJECT_ROOT}/packaging/linux/opentboi.svg"
-readonly ICON_DIRECTORY="${XDG_DATA_HOME:-${HOME}/.local/share}/icons/hicolor/scalable/apps"
+readonly ICON_SOURCE="${PROJECT_ROOT}/packaging/linux/opentboi.png"
+readonly ICON_DIRECTORY="${XDG_DATA_HOME:-${HOME}/.local/share}/icons/hicolor/256x256/apps"
 
 cd "${PROJECT_ROOT}"
 cargo build --release --all-features
 mkdir -p "$(dirname "${LAUNCHER_BINARY}")" "${APPLICATIONS_DIRECTORY}" "${ICON_DIRECTORY}"
-cp "${ICON_SOURCE}" "${ICON_DIRECTORY}/${ICON_NAME}.svg"
+cp "${ICON_SOURCE}" "${ICON_DIRECTORY}/${ICON_NAME}.png"
 # Linux refuses to write into a running executable ("Text file busy"), so copy beside it and
 # rename over it: a running game keeps its old file, the next launch gets the new one.
 cp target/release/opentboi "${LAUNCHER_BINARY}.new"
@@ -36,7 +36,7 @@ Name=$2
 Comment=Open-source engine for The Binding of Isaac (Flash), using your own copy (dev build, $3 frontend)
 Exec=${LAUNCHER_BINARY} --frontend $3
 Path=${PROJECT_ROOT}
-Icon=${ICON_DIRECTORY}/${ICON_NAME}.svg
+Icon=${ICON_DIRECTORY}/${ICON_NAME}.png
 Terminal=false
 Categories=Game;
 StartupWMClass=$4
