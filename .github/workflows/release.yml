@@ -38,7 +38,7 @@ jobs:
       # give `major_pattern` the `breaking` expression and `minor_pattern` the `feature` one alone.
       # Commits that match neither (`fix`) give the next patch version, and `chore` commits count for nothing.
       - id: semver
-        uses: paulhatch/semantic-version@8da30f99b5b2e7a26ced60b1dad2e41756d6edf4 # v6.0.2
+        uses: paulhatch/semantic-version@9f72830310d5ed81233b641ee59253644cd8a8fc # v6.0.2
         with:
           tag_prefix: v
           major_pattern: "/(?!)/"
